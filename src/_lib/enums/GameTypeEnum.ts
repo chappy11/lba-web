@@ -1,0 +1,4 @@
+export enum GameType {
+  BASKETBALL = "BASKETBALL",
+  VOLLEYBALL = "VOLLEYBALL",
+}
