@@ -1,10 +1,13 @@
 import { TeamInsertPayload } from "../dto/Team.model";
 import { FirebaseCollection } from "../enums/FirebaseCollection.enum";
+import { GameType } from "../enums/GameTypeEnum"
 import {
   GetFirebaseDataPayload,
   WhereDataType,
 } from "../type/firebaseType.type";
 import { addCollection, getData } from "../utils/firebase.utils";
+
+import { getActiveSeason } from "./SeasonService.service"
 
 export async function insertTeam(payload: TeamInsertPayload) {
   try {
@@ -46,5 +49,29 @@ export async function getAllTeams() {
     return resp;
   } catch (error) {
     console.log(error);
+  }
+}
+
+export async function getTeamFromThisSeason(gameType: GameType) {
+  try {
+    const season = await getActiveSeason()
+    if (!season) {
+      throw new Error("No active season found")
+    }
+    const filter: WhereDataType[] = [
+      ["gameType", "==", gameType],
+      ["seasonId", "==", season.id],
+    ]
+
+    const payload: GetFirebaseDataPayload = {
+      firebaseCollection: FirebaseCollection.TEAMS,
+      filter: filter,
+    }
+
+    const resp = await getData(payload)
+
+    return resp
+  } catch (error) {
+    console.log(error)
   }
 }

@@ -1,11 +1,10 @@
 import { AppSidebar } from "@/components/app-sidebar";
-import { SearchForm } from "@/components/search-form";
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import { SidebarHeader, SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarRail, SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
-import { VersionSwitcher } from "@/components/version-switcher";
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@radix-ui/react-collapsible";
-import { Separator } from "@radix-ui/react-separator";
-import { Sidebar, ChevronRight } from "lucide-react";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar"
+import { Separator } from "@radix-ui/react-separator"
 
 
 export default function RootLayout({
