@@ -59,7 +59,7 @@ export async function getTeamFromThisSeason(gameType: GameType) {
       throw new Error("No active season found")
     }
     const filter: WhereDataType[] = [
-      ["gameType", "==", gameType],
+      ["teamType", "==", gameType],
       ["seasonId", "==", season.id],
     ]
 

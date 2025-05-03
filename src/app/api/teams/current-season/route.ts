@@ -11,6 +11,8 @@ export async function GET(request: Request) {
     if (!gameType) {
       return NextResponse.json("Something went wrong", { status: 500 })
     }
+
+    console.log(gameType)
     const seasonTeam = await getTeamFromThisSeason(gameType as GameType)
 
     return NextResponse.json(seasonTeam, { status: 200 })

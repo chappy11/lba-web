@@ -1,16 +1,26 @@
 import { Team } from "@/_lib/dto/Team.model";
 import { GameType } from "@/_lib/enums/GameTypeEnum";
 import { getCurrentSeason } from "@/_lib/server/season";
-import { getCurrentFromThisSeason } from "@/_lib/server/team";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getCurrentTeamFromThisSeason } from "@/_lib/server/team"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { PlayerModal } from "@/feature/PlayerModal"
 import CreateTeam from "@/feature/TeamManagement/CreateTeam/page";
 
 import Image from "next/image";
 
 export default async function Page() {
     const season = await getCurrentSeason();
-    const teams: Array<Team> = await getCurrentFromThisSeason(GameType.BASKETBALL);
-    console.log("TEAMS", teams);
+    const teams: Array<Team> = await getCurrentTeamFromThisSeason(
+      GameType.BASKETBALL
+    )
+    console.log("TEAMS", teams)
     return (
       <div className=" flex flex-col flex-1 text-neutral-100 w-full">
         <div className=" flex flex-row justify-between w-full h-fit">
@@ -28,9 +38,8 @@ export default async function Page() {
               </TableHead>
               <TableHead className="text-neutral-100">Coach</TableHead>
               <TableHead className="text-neutral-100">Season End</TableHead>
-              <TableHead className=" text-neutral-100">Status</TableHead>
-              <TableHead className="text-right text-neutral-100">
-                Game Type
+              <TableHead className=" text-neutral-100 text-right">
+                Status
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -40,15 +49,15 @@ export default async function Page() {
 
               const background = isEven ? "bg-neutral-950" : "bg-neutral-800"
               return (
-                <TableRow className={` ${background}`} key={data.id}>
+                <TableRow className={` ${background} px-3`} key={data.id}>
                   <TableCell className=" py-3 px-3">
                     <div className=" flex flex-row items-center gap-2">
                       <Image
                         src={data.teamLogo}
-                        className=" rounded-full h-[100px]  w-[100px]"
+                        className=" rounded-full h-[20px]  w-[20px]"
                         alt="season logo"
-                        width={100}
-                        height={100}
+                        width={20}
+                        height={20}
                       />
                       <p className=" font-medium">{data.teamName}</p>
                     </div>
@@ -58,9 +67,9 @@ export default async function Page() {
                     {data.coachInfo.lastname}
                   </TableCell>
                   <TableCell className=" py-3">{data.teamName}</TableCell>
-                  <TableCell className=" py-3">{data.seasonId}</TableCell>
-                  <TableCell className="text-right py-3 px-3">
-                    {data.seasonId}
+
+                  <TableCell className="text-right py-3 px-3 items-end">
+                    <a href={`/admin/basketball-team/${data.id}`}>
                   </TableCell>
                 </TableRow>
               )
