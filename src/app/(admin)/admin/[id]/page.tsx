@@ -1,12 +1,9 @@
-import { useRouter } from "next/router";
-
 export default function Page() {
-    const router = useRouter();
-    const { id } = router.query;
+	const id = 3;
 
-    return (
-        <div className=" flex flex-1">
-            <p>{idma }</p>
-        </div>
-    )
+	return (
+		<div className=" flex flex-1">
+			<p>{id}</p>
+		</div>
+	);
 }
