@@ -1,16 +1,11 @@
 import { PlayerInsertPayload } from "@/_lib/dto/Player.model";
-import { TeamInsertPayload } from "@/_lib/dto/Team.model";
 import {
   getAllPlayer,
   getPlayerById,
   getPlayerTeamId,
   insertPlayer,
 } from "@/_lib/services/PlayerService.service";
-import {
-  getAllTeams,
-  getTeamBySeasonId,
-  insertTeam,
-} from "@/_lib/services/TeamService.service";
+
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {

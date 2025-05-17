@@ -85,13 +85,13 @@ export default function CreateTeam(props: Props) {
             }
 
             const payload: TeamInsertPayload = {
-                seasonId: seasonId,
-                teamName: name,
-                coachInfo: coachInfo,
-                teamLogo: imgResp?.url,
-                isActive: "1",
-                dateCreate: new Date().toString(),
-                teamType: gameType,
+              //  seasonId: seasonId,
+              teamName: name,
+              coachInfo: coachInfo,
+              teamLogo: imgResp?.url,
+              isActive: "1",
+              dateCreate: new Date().toString(),
+              teamType: gameType,
             }
 
             await createTeam(payload)
