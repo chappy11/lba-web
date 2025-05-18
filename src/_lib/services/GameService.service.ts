@@ -1,79 +1,125 @@
-import { GameInserPayload, GameStatus } from "../dto/Game.model";
+import {
+	GameInserPayload,
+	GameStatus,
+} from "../dto/Game.model";
 import { Season } from "../dto/Season.model";
 import {
-  FirebaseCollection,
-  FirebaseOrderDirection,
+	FirebaseCollection,
+	FirebaseOrderDirection,
 } from "../enums/FirebaseCollection.enum";
 import {
-  GetFirebaseDataPayload,
-  WhereDataType,
+	GetFirebaseDataPayload,
+	WhereDataType,
 } from "../type/firebaseType.type";
-import { addCollection, getData } from "../utils/firebase.utils";
+import {
+	addCollection,
+	getData,
+} from "../utils/firebase.utils";
 import { getActiveSeason } from "./SeasonService.service";
 
-export async function insertGame(payload: GameInserPayload) {
-  try {
-    const resp = await addCollection(FirebaseCollection.GAMES, payload);
+export async function insertGame(
+	payload: GameInserPayload
+) {
+	try {
+		const currentSeason =
+			await getActiveSeason();
 
-    return resp;
-  } catch (error) {
-    throw error;
-  }
+		if (!currentSeason) {
+			throw new Error(
+				"No Season found"
+			);
+		}
+		const insertedData: GameInserPayload =
+			{
+				...payload,
+				seasonId: currentSeason.id,
+			};
+		const resp = await addCollection(
+			FirebaseCollection.GAMES,
+			insertedData
+		);
+
+		return resp;
+	} catch (error) {
+		throw error;
+	}
 }
 
-export async function getGameBySeasonId(seasonId: string) {
-  try {
-    const whereData: WhereDataType[] = [["seasonId", "==", seasonId]];
+export async function getGameBySeasonId(
+	seasonId: string
+) {
+	try {
+		const whereData: WhereDataType[] = [
+			["seasonId", "==", seasonId],
+		];
 
-    const queryPayload: GetFirebaseDataPayload = {
-      firebaseCollection: FirebaseCollection.SEASONS,
-      filter: whereData,
-    };
-    const resp = await getData(queryPayload);
+		const queryPayload: GetFirebaseDataPayload =
+			{
+				firebaseCollection:
+					FirebaseCollection.SEASONS,
+				filter: whereData,
+			};
+		const resp = await getData(
+			queryPayload
+		);
 
-    return resp;
-  } catch (error) {
-    throw error;
-  }
+		return resp;
+	} catch (error) {
+		throw error;
+	}
 }
 
-export async function getLatestGame(seasonId: string, gameStatus: GameStatus) {
-  try {
-    const whereData: WhereDataType[] = [
-      ["seasonId", "==", seasonId],
-      ["gameStatus", "==", gameStatus],
-    ];
+export async function getLatestGame(
+	seasonId: string,
+	gameStatus: GameStatus
+) {
+	try {
+		const whereData: WhereDataType[] = [
+			["seasonId", "==", seasonId],
+			["gameStatus", "==", gameStatus],
+		];
 
-    const queryPayload: GetFirebaseDataPayload = {
-      firebaseCollection: FirebaseCollection.GAMES,
-      filter: whereData,
-      sort: FirebaseOrderDirection.ASC,
-      sortKey: "updatedAt",
-    };
+		const queryPayload: GetFirebaseDataPayload =
+			{
+				firebaseCollection:
+					FirebaseCollection.GAMES,
+				filter: whereData,
+				sort: FirebaseOrderDirection.ASC,
+				sortKey: "updatedAt",
+			};
 
-    const resp = await getData(queryPayload);
+		const resp = await getData(
+			queryPayload
+		);
 
-    return resp;
-  } catch (error) {
-    throw error;
-  }
+		return resp;
+	} catch (error) {
+		throw error;
+	}
 }
 
 export async function getAllGamesViaLatestSeason() {
-  try {
-    const rsep = (await getActiveSeason()) as Season;
+	try {
+		const rsep =
+			(await getActiveSeason()) as Season;
 
-    const whereData: WhereDataType[] = [["seasonId", "==", rsep.id]];
+		const whereData: WhereDataType[] = [
+			["seasonId", "==", rsep.id],
+		];
 
-    const qryPayload: GetFirebaseDataPayload = {
-      firebaseCollection: FirebaseCollection.GAMES,
-      filter: whereData,
-    };
+		const qryPayload: GetFirebaseDataPayload =
+			{
+				firebaseCollection:
+					FirebaseCollection.GAMES,
+				filter: whereData,
+			};
 
-    const data = await getData(qryPayload);
+		const data = await getData(
+			qryPayload
+		);
 
-    return data;
-  } catch (error) {
-    throw error;
-  }
+		return data;
+	} catch (error) {
+		throw error;
+	}
 }
