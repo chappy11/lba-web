@@ -19,3 +19,10 @@ export const getGames = async () => {
 
 	return resp.data;
 };
+
+
+export const getGamesById = async (id: string) => {
+  const resp = await axiosConfig.get(`/games/current-games?gameId=${id}`)
+
+  return resp.data
+}

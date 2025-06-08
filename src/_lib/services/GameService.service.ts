@@ -1,125 +1,106 @@
+import { doc, getDoc } from "firebase/firestore"
+import db from "../config/firebaseConfig"
+import { GameInserPayload, GameStatus } from "../dto/Game.model"
+import { Season } from "../dto/Season.model"
 import {
-	GameInserPayload,
-	GameStatus,
-} from "../dto/Game.model";
-import { Season } from "../dto/Season.model";
+  FirebaseCollection,
+  FirebaseOrderDirection,
+} from "../enums/FirebaseCollection.enum"
 import {
-	FirebaseCollection,
-	FirebaseOrderDirection,
-} from "../enums/FirebaseCollection.enum";
-import {
-	GetFirebaseDataPayload,
-	WhereDataType,
-} from "../type/firebaseType.type";
-import {
-	addCollection,
-	getData,
-} from "../utils/firebase.utils";
-import { getActiveSeason } from "./SeasonService.service";
+  GetFirebaseDataPayload,
+  WhereDataType,
+} from "../type/firebaseType.type"
+import { addCollection, getData } from "../utils/firebase.utils"
 
-export async function insertGame(
-	payload: GameInserPayload
-) {
-	try {
-		const currentSeason =
-			await getActiveSeason();
+import { getActiveSeason } from "./SeasonService.service"
 
-		if (!currentSeason) {
-			throw new Error(
-				"No Season found"
-			);
-		}
-		const insertedData: GameInserPayload =
-			{
-				...payload,
-				seasonId: currentSeason.id,
-			};
-		const resp = await addCollection(
-			FirebaseCollection.GAMES,
-			insertedData
-		);
+export async function insertGame(payload: GameInserPayload) {
+  try {
+    const currentSeason = await getActiveSeason()
 
-		return resp;
-	} catch (error) {
-		throw error;
-	}
+    if (!currentSeason) {
+      throw new Error("No Season found")
+    }
+    const insertedData: GameInserPayload = {
+      ...payload,
+      seasonId: currentSeason.id,
+    }
+    const resp = await addCollection(FirebaseCollection.GAMES, insertedData)
+
+    return resp
+  } catch (error) {
+    throw error
+  }
 }
 
-export async function getGameBySeasonId(
-	seasonId: string
-) {
-	try {
-		const whereData: WhereDataType[] = [
-			["seasonId", "==", seasonId],
-		];
+export async function getGameBySeasonId(seasonId: string) {
+  try {
+    const whereData: WhereDataType[] = [["seasonId", "==", seasonId]]
 
-		const queryPayload: GetFirebaseDataPayload =
-			{
-				firebaseCollection:
-					FirebaseCollection.SEASONS,
-				filter: whereData,
-			};
-		const resp = await getData(
-			queryPayload
-		);
+    const queryPayload: GetFirebaseDataPayload = {
+      firebaseCollection: FirebaseCollection.SEASONS,
+      filter: whereData,
+    }
+    const resp = await getData(queryPayload)
 
-		return resp;
-	} catch (error) {
-		throw error;
-	}
+    return resp
+  } catch (error) {
+    throw error
+  }
 }
 
-export async function getLatestGame(
-	seasonId: string,
-	gameStatus: GameStatus
-) {
-	try {
-		const whereData: WhereDataType[] = [
-			["seasonId", "==", seasonId],
-			["gameStatus", "==", gameStatus],
-		];
+export async function getLatestGame(seasonId: string, gameStatus: GameStatus) {
+  try {
+    const whereData: WhereDataType[] = [
+      ["seasonId", "==", seasonId],
+      ["gameStatus", "==", gameStatus],
+    ]
 
-		const queryPayload: GetFirebaseDataPayload =
-			{
-				firebaseCollection:
-					FirebaseCollection.GAMES,
-				filter: whereData,
-				sort: FirebaseOrderDirection.ASC,
-				sortKey: "updatedAt",
-			};
+    const queryPayload: GetFirebaseDataPayload = {
+      firebaseCollection: FirebaseCollection.GAMES,
+      filter: whereData,
+      sort: FirebaseOrderDirection.ASC,
+      sortKey: "updatedAt",
+    }
 
-		const resp = await getData(
-			queryPayload
-		);
+    const resp = await getData(queryPayload)
 
-		return resp;
-	} catch (error) {
-		throw error;
-	}
+    return resp
+  } catch (error) {
+    throw error
+  }
 }
 
 export async function getAllGamesViaLatestSeason() {
+  try {
+    const rsep = (await getActiveSeason()) as Season
+
+    const whereData: WhereDataType[] = [["seasonId", "==", rsep.id]]
+
+    const qryPayload: GetFirebaseDataPayload = {
+      firebaseCollection: FirebaseCollection.GAMES,
+      filter: whereData,
+    }
+
+    const data = await getData(qryPayload)
+
+    return data
+  } catch (error) {
+    throw error
+  }
+}
+
+export const getGetGamesById = async (gameId: string) => {
 	try {
-		const rsep =
-			(await getActiveSeason()) as Season;
+    const docRef = doc(db, FirebaseCollection.GAMES, gameId)
+    const docSnap = await getDoc(docRef)
 
-		const whereData: WhereDataType[] = [
-			["seasonId", "==", rsep.id],
-		];
-
-		const qryPayload: GetFirebaseDataPayload =
-			{
-				firebaseCollection:
-					FirebaseCollection.GAMES,
-				filter: whereData,
-			};
-
-		const data = await getData(
-			qryPayload
-		);
-
-		return data;
-	} catch (error) {
-		throw error;
-	}
+    if (docSnap.exists()) {
+      return { id: docSnap.id, ...docSnap.data() }
+    } else {
+      throw new Error("Game not found")
+    }
+  } catch (error) {
+     console.log(error)
+  }
 }
