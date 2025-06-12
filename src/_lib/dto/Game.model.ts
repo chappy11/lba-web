@@ -1,10 +1,13 @@
 import { GameType } from "../enums/GameTypeEnum";
+import { GamePlayer } from "./GamePlayer.model";
 import { Team } from "./Team.model";
 
 export type GameTeamInfo = Pick<
 	Team,
 	"id" | "teamName" | "teamLogo"
->;
+> & {
+	playerRecord: GamePlayer[];
+};
 
 export enum GameStatus {
 	PENDING = "PENDING",
@@ -30,4 +33,9 @@ export interface Game {
 export type GameInserPayload = Omit<
 	Game,
 	"id"
+>;
+
+export type UpdateGamePayload = Omit<
+	Game,
+	"id" | "updatedAt"
 >;

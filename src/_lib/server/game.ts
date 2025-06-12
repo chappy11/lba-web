@@ -1,5 +1,8 @@
 import { axiosConfig } from "../config/config";
-import { GameInserPayload } from "../dto/Game.model";
+import {
+	GameInserPayload,
+	UpdateGamePayload,
+} from "../dto/Game.model";
 
 export const insertGame = async (
 	payload: GameInserPayload
@@ -20,9 +23,24 @@ export const getGames = async () => {
 	return resp.data;
 };
 
+export const getGamesById = async (
+	id: string
+) => {
+	const resp = await axiosConfig.get(
+		`/games/current-games?gameId=${id}`
+	);
 
-export const getGamesById = async (id: string) => {
-  const resp = await axiosConfig.get(`/games/current-games?gameId=${id}`)
+	return resp.data;
+};
 
-  return resp.data
-}
+export const updateGameId = async (
+	gameId: string,
+	payload: UpdateGamePayload
+) => {
+	const resp = await axiosConfig.put(
+		`/games?gameId=${gameId}`,
+		payload
+	);
+
+	return resp.data;
+};
