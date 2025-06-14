@@ -26,7 +26,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={poppins.variable}>
       <body className=" h-screen">
-        {children}
         <Toaster
           toastOptions={{
             style: {
@@ -37,9 +36,7 @@ export default function RootLayout({
           position="bottom-left"
           duration={2000}
         />
-        <div className="min-h-screen bg-black text-white">
-    
-        </div>
+        <div className="min-h-screen bg-black ">{children}</div>
       </body>
     </html>
   )

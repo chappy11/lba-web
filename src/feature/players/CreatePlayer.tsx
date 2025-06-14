@@ -144,111 +144,66 @@ export function CreatePlayer(
 	}
 
 	return (
-		<Sheet>
-			<SheetTrigger asChild>
-				<Button>Create Team</Button>
-			</SheetTrigger>
-			<SheetContent>
-				<SheetHeader>
-					<SheetTitle>
-						Create Player
-					</SheetTitle>
-					<SheetDescription>
-						Make changes to your profile
-						here. Click save when you're
-						done.
-					</SheetDescription>
-				</SheetHeader>
-				<div className=" p-3 w-full flex flex-col gap-1">
-					<TextInput
-						value={firstname}
-						onChange={(e) =>
-							setFirstname(
-								e.target.value
-							)
-						}
-						label=" Player Firstname"
-					/>
-					<TextInput
-						value={middlename}
-						onChange={(e) =>
-							setMiddlename(
-								e.target.value
-							)
-						}
-						label=" Player Middlename"
-					/>
-					<TextInput
-						value={lastname}
-						onChange={(e) =>
-							setLastname(
-								e.target.value
-							)
-						}
-						label=" Player Lastname"
-					/>
-					<TextInput
-						label=" Age"
-						value={age}
-						onChange={(e) =>
-							setAge(e.target.value)
-						}
-					/>
-					<TextInput
-						label=" Jersey Number"
-						value={jerseyNumber}
-						onChange={(e) =>
-							setJerseyNumber(
-								e.target.value
-							)
-						}
-					/>
-					<div className=" w-full">
-						<p className=" text-[14px]">
-							Position
-						</p>
-						<Select
-							onValueChange={(e) =>
-								setPosition(e)
-							}
-							value={position}
-						>
-							<SelectTrigger className="w-full">
-								<SelectValue placeholder="Select position" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="PG">
-									Point Guard (PG)
-								</SelectItem>
-								<SelectItem value="SG">
-									Shooting Guard (SG)
-								</SelectItem>
-								<SelectItem value="SF">
-									Small Forward (SF)
-								</SelectItem>
-								<SelectItem value="PF">
-									Power Forward (PF)
-								</SelectItem>
-								<SelectItem value="C">
-									Center (C)
-								</SelectItem>
-							</SelectContent>
-						</Select>
-					</div>
-				</div>
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button>Create Player</Button>
+      </SheetTrigger>
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>Create Player</SheetTitle>
+          <SheetDescription>
+            Make changes to your profile here. Click save when you're done.
+          </SheetDescription>
+        </SheetHeader>
+        <div className=" p-3 w-full flex flex-col gap-1">
+          <TextInput
+            value={firstname}
+            onChange={(e) => setFirstname(e.target.value)}
+            label=" Player Firstname"
+          />
+          <TextInput
+            value={middlename}
+            onChange={(e) => setMiddlename(e.target.value)}
+            label=" Player Middlename"
+          />
+          <TextInput
+            value={lastname}
+            onChange={(e) => setLastname(e.target.value)}
+            label=" Player Lastname"
+          />
+          <TextInput
+            label=" Age"
+            value={age}
+            onChange={(e) => setAge(e.target.value)}
+          />
+          <TextInput
+            label=" Jersey Number"
+            value={jerseyNumber}
+            onChange={(e) => setJerseyNumber(e.target.value)}
+          />
+          <div className=" w-full">
+            <p className=" text-[14px]">Position</p>
+            <Select onValueChange={(e) => setPosition(e)} value={position}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select position" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="PG">Point Guard (PG)</SelectItem>
+                <SelectItem value="SG">Shooting Guard (SG)</SelectItem>
+                <SelectItem value="SF">Small Forward (SF)</SelectItem>
+                <SelectItem value="PF">Power Forward (PF)</SelectItem>
+                <SelectItem value="C">Center (C)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
-				<SheetFooter>
-					<SheetClose asChild>
-						<Button
-							onClick={() =>
-								handleSubmit()
-							}
-						>
-							Save changes
-						</Button>
-					</SheetClose>
-				</SheetFooter>
-			</SheetContent>
-		</Sheet>
-	);
+        <SheetFooter>
+          <SheetClose asChild>
+            <Button onClick={() => handleSubmit()}>Save changes</Button>
+          </SheetClose>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
+  )
 }

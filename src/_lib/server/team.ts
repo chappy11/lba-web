@@ -9,7 +9,7 @@ export const createTeam = async (payload:TeamInsertPayload) => {
 
 export const getCurrentTeamFromThisSeason = async () => {
   const resp = await axiosConfig.get(`/teams/current-season`)
-  console.log("WEW", resp)
+
   return resp.data
 }
 
