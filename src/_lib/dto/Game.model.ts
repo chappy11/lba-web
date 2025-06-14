@@ -1,17 +1,16 @@
 import { GameType } from "../enums/GameTypeEnum";
-import { GamePlayer } from "./GamePlayer.model";
-import { Team } from "./Team.model";
 
-export type GameTeamInfo = Pick<
-	Team,
-	"id" | "teamName" | "teamLogo"
-> & {
-	playerRecord: GamePlayer[];
-};
+import { GamePlayer } from "./GamePlayer.model"
+import { Team } from "./Team.model"
+
+export type GameTeamInfo = Pick<Team, "id" | "teamName" | "teamLogo"> & {
+  playerRecord: GamePlayer[]
+}
 
 export enum GameStatus {
-	PENDING = "PENDING",
-	DONE = "DONE",
+  PENDING = "PENDING",
+  ONGOING = "ONGOING",
+  DONE = "DONE",
 }
 
 export interface Game {

@@ -13,3 +13,9 @@ export const getPlayerByTeams = async (teamId:string) => {
 
     return resp.data;
 }
+
+export const getAllPlayers = async () => {
+  const resp = await axiosConfig.get("/players")
+
+  return resp.data
+}
