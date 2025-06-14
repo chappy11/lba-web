@@ -36,7 +36,7 @@ export default function RootLayout({
           position="bottom-left"
           duration={2000}
         />
-        <div className="min-h-screen bg-black ">{children}</div>
+        <div className=" h-full w-full bg-black ">{children}</div>
       </body>
     </html>
   )
