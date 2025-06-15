@@ -4,7 +4,13 @@ import GameList from "@/feature/game/Gamelist";
 
 export default async function Page() {
 	const resp = await getGames();
-
+	console.log(
+		"===================================="
+	);
+	console.log(resp);
+	console.log(
+		"===================================="
+	);
 	if (!resp) {
 		return (
 			<p className=" text-center">

@@ -300,53 +300,6 @@ export default function PlayerList(
 					</thead>
 					<tbody className="bg-white divide-y divide-gray-200">
 						{displayData}
-						{/* {currentItems.length > 0 ? (
-							currentItems.map(
-								
-									item
-								 => (
-									<tr
-										key={
-											item.jerseyNumber
-										}
-										className="hover:bg-gray-50 transition-colors duration-150"
-									>
-										<td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-											{item.firstname}{" "}
-											{item.middlename}{" "}
-											{item.lastname}
-										</td>
-										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-											{
-												item.team
-													.teamName
-											}
-										</td>
-                                        <td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-										    {item.position}
-                                            </td>
-										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-											<Link
-												href={`/administrator/teams/team-profile?id=${item.id}`}
-												className="text-blue-600 hover:text-blue-900"
-											>
-												View
-											</Link>
-										</td>
-									</tr>
-								)
-							)
-						) : (
-							<tr>
-								<td
-									colSpan={5}
-									className="px-6 py-4 text-center text-sm text-gray-500"
-								>
-									No results found
-								</td>
-							</tr>
-						)}} */}
 					</tbody>
 				</table>
 			</div>
