@@ -6,6 +6,7 @@ import db from "../config/firebaseConfig";
 import {
 	Player,
 	PlayerInsertPayload,
+	PlayerResponse,
 } from "../dto/Player.model";
 import { FirebaseCollection } from "../enums/FirebaseCollection.enum";
 import {
@@ -16,6 +17,7 @@ import {
 	GetFirebaseDataPayload,
 	WhereDataType,
 } from "../type/firebaseType.type";
+import { getAllTeams } from "./TeamService.service";
 
 export async function insertPlayer(
 	payload: PlayerInsertPayload
@@ -93,9 +95,24 @@ export async function getAllPlayer() {
 				filter: [],
 			};
 
-		const resp = await getData(payload);
+		const resp = (await getData(
+			payload
+		)) as unknown as Array<Player>;
+		const teams = await getAllTeams();
+		const playerWithTeam = resp.map(
+			(val) => {
+				const teamData = teams?.find(
+					(team) =>
+						team.id === val.teamId
+				);
 
-		return resp;
+				return {
+					...val,
+					team: teamData,
+				};
+			}
+		) as unknown as PlayerResponse;
+		return playerWithTeam;
 	} catch (error) {
 		throw error;
 	}

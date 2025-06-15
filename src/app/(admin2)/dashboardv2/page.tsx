@@ -24,7 +24,7 @@ const categories = [
 	},
 	{
 		title: "Players",
-		url: "/administrator/season",
+		url: "/administrator/players",
 		icon: (
 			<Users
 				size={48}
