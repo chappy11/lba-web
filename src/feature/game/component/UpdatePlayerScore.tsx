@@ -94,7 +94,7 @@ export default function UpdatePlayerScore(
 							currentRebound
 						),
 						threepoints: parseInt(
-							currentPoints
+							currentThreePoints
 						),
 						assist: parseInt(
 							currentAssist
