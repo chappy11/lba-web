@@ -5,6 +5,7 @@ import {
 } from "firebase/firestore";
 import db from "../config/firebaseConfig";
 import {
+	Game,
 	GameInserPayload,
 	GameStatus,
 	UpdateGamePayload,
@@ -179,8 +180,49 @@ export async function getAllGamesViaLatestSeason() {
 		const data = await getData(
 			qryPayload
 		);
+		const sortedData = data.sort(
+			(a, b) =>
+				new Date(a.gameDate) -
+				new Date(b.gameDate)
+		);
 
-		return data;
+		return sortedData;
+	} catch (error) {
+		throw error;
+	}
+}
+
+export async function getAllUpcomingGames() {
+	try {
+		const rsep =
+			(await getActiveSeason()) as Season;
+
+		const whereData: WhereDataType[] = [
+			[
+				"gameStatus",
+				"==",
+				GameStatus.PENDING,
+			],
+		];
+
+		const qryPayload: GetFirebaseDataPayload =
+			{
+				firebaseCollection:
+					FirebaseCollection.GAMES,
+				filter: whereData,
+			};
+
+		const data = (await getData(
+			qryPayload
+		)) as Game[];
+
+		const sortedData = data.sort(
+			(a, b) =>
+				new Date(a.gameDate) -
+				new Date(b.gameDate)
+		);
+
+		return sortedData;
 	} catch (error) {
 		throw error;
 	}
@@ -241,3 +283,32 @@ export const updateGameById = async (
 		);
 	}
 };
+
+export async function migrateAllDataToISO() {
+	const resp =
+		(await getAllGamesViaLatestSeason()) as Game[];
+
+	const updatePromises = resp.map(
+		(val) => {
+			const docRef = doc(
+				db,
+				FirebaseCollection.GAMES,
+				val.id as string
+			);
+
+			const payload = {
+				...val,
+				gameDate: new Date(
+					val.gameDate
+				).toISOString(),
+			};
+
+			return updateDoc(docRef, payload);
+		}
+	);
+
+	await Promise.all(updatePromises);
+	console.log(
+		"Migration to ISO completed."
+	);
+}
