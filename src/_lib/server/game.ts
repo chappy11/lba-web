@@ -44,3 +44,12 @@ export const updateGameId = async (
 
 	return resp.data;
 };
+
+export const getUpcomingGames =
+	async () => {
+		const resp = await axiosConfig.get(
+			"/games/upcoming-date"
+		);
+
+		return resp.data;
+	};
