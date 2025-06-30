@@ -17,7 +17,7 @@ export type PlayerInsertPayload = Omit<
 	"id"
 >;
 
-type PlayerWithTeam = Player & {
+export type PlayerWithTeam = Player & {
 	team: Team;
 };
 
