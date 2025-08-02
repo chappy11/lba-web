@@ -12,5 +12,13 @@ export default async function UpcomingGames(
 		(await getUpcomingGames()) as Game[];
 
 	const item = resp[resp.length - 1];
+
+	if (!item) {
+    return (
+      <div className=" text-white text-center">
+        No upcoming games available.
+      </div>
+    )
+  }
 	return <GameCard data={item} />;
 }
