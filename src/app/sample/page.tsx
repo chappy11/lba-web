@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button"
 import { useCallback, useEffect, useState } from "react"
 const matches = [
   {
+    id: "12344",
+    done: false,
     matches: [
       {
         team2Score: 0,

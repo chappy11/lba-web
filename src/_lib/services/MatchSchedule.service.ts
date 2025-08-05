@@ -1,53 +1,53 @@
-import { CreateMatchSchedule } from "../dto/MatchSchedule"
+import { doc, updateDoc } from "firebase/firestore"
+import { CreateMatchSchedule, MatchTeam } from "../dto/MatchSchedule"
 import { Team } from "../dto/Team.model"
 import { FirebaseCollection } from "../enums/FirebaseCollection.enum"
 import { GetFirebaseDataPayload } from "../type/firebaseType.type"
 import { addCollection, getData } from "../utils/firebase.utils"
 import { generateRoundRobinSchedule } from "../utils/teamUtils"
 
-
+import db from "../config/firebaseConfig"
 import { getTeamFromThisSeason } from "./TeamService.service"
 
 export async function createSchedule() {
-    try {
-        const matches = await roundRobin()
-    
-        const createMatchesPayload: CreateMatchSchedule = {
-            done: false,
-            matchSchedule: matches,
-        }
+  try {
+    const matches = await roundRobin()
 
-        console.log(JSON.stringify(createMatchesPayload, null, 2))
-
-        const resp = await addCollection(FirebaseCollection.MATCH_SCHEDULE, createMatchesPayload);
-        
-        return resp.id;
-    } catch (error) {
-        console.error("Error creating schedule:", error)
-        throw new Error("Failed to create schedule")
+    const createMatchesPayload: CreateMatchSchedule = {
+      done: false,
+      matchSchedule: matches,
     }
+
+    console.log(JSON.stringify(createMatchesPayload, null, 2))
+
+    const resp = await addCollection(
+      FirebaseCollection.MATCH_SCHEDULE,
+      createMatchesPayload
+    )
+
+    return resp.id
+  } catch (error) {
+    console.error("Error creating schedule:", error)
+    throw new Error("Failed to create schedule")
+  }
 }
 
 export async function getMatchSchedule() {
-    try {
-           const payload: GetFirebaseDataPayload =
-                {
-                    firebaseCollection:
-                        FirebaseCollection.MATCH_SCHEDULE,
-                  filter:[]
-           };
-        
-        
-        const resp = await getData(payload);
-        
-        return resp;
-
-    } catch (error) {
-        throw new Error("Something went wrong while fetching match schedule ")
+  try {
+    const payload: GetFirebaseDataPayload = {
+      firebaseCollection: FirebaseCollection.MATCH_SCHEDULE,
+      filter: [],
     }
+
+    const resp = await getData(payload)
+
+    return resp
+  } catch (error) {
+    throw new Error("Something went wrong while fetching match schedule ")
+  }
 }
 
- export async function roundRobin() {
+export async function roundRobin() {
   const teams = (await getTeamFromThisSeason()) as unknown as Team[]
 
   if (teams.length < 1) {
@@ -64,3 +64,6 @@ export async function getMatchSchedule() {
   return matches
 }
 
+export async function updateMatches(id: string, matches: MatchTeam) {
+  await updateDoc(doc(db, FirebaseCollection.MATCH_SCHEDULE, id), matches)
+}

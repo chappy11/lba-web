@@ -1,13 +1,15 @@
 export type MatchTeam = {
-    id: string;
-    team1: string;
-    team2: string;
-    team1Id: string;
-    team2Id: string;
-    team1Score: number;
-    team2Score: number;
-    winner: string;
-    address: string;
+  id: string
+  team1: string
+  team2: string
+  team1Id: string
+  team2Id: string
+  team1Score: number
+  team2Score: number
+  winner: string
+  address: string
+  gameDate: string
+  gameTime: string
 }
 
 export type MatchRound = {
