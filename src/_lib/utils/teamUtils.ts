@@ -1,6 +1,6 @@
-import { v4 as uuidv4 } from "uuid"
+import { v4 as uuidv4 } from "uuid";
 
-type Props = Array<Team>
+type Props = Array<Team>;
 
 // export function generateCustomRoundRobinMatches(teams: Props) {
 //   const isOdd = teams.length % 2 !== 0
@@ -56,26 +56,28 @@ type Props = Array<Team>
 // }
 
 type Team = {
-  teamId: string
-  teamName: string
-}
+	teamId: string;
+	teamName: string;
+};
 
 type Match = {
-  id: string
-  team1: string
-  team2: string
-  team1Id: string
-  team2Id: string
-  team1Score: number
-  team2Score: number
-  winner: string
-  address: string
-}
+	id: string;
+	team1: string;
+	team2: string;
+	team1Id: string;
+	team2Id: string;
+	team1Score: number;
+	team2Score: number;
+	winner: string;
+	address: string;
+	gameDate: string;
+	gameTime: string;
+};
 
 type Round = {
-  round: number
-  matches: Match[]
-}
+	round: number;
+	matches: Match[];
+};
 
 // export function generateUniqueMatchups(teams: Team[]): Match[] {
 //   const rounds: Round[] = []
@@ -109,56 +111,88 @@ type Round = {
 //   return rounds
 // }
 
-export function generateRoundRobinSchedule(teams: Team[]): Round[] {
-  // Clone the teams array to avoid mutating the original
-  const teamList = [...teams]
+export function generateRoundRobinSchedule(
+	teams: Team[]
+): Round[] {
+	// Clone the teams array to avoid mutating the original
+	const teamList = [...teams];
 
-  // Add a "BYE" team if odd number of teams
-  if (teamList.length % 2 !== 0) {
-    teamList.push({ teamId: "bye", teamName: "BYE" })
-  }
+	// Add a "BYE" team if odd number of teams
+	if (teamList.length % 2 !== 0) {
+		teamList.push({
+			teamId: "bye",
+			teamName: "BYE",
+		});
+	}
 
-  const totalRounds = teamList.length - 1
-  const matchesPerRound = teamList.length / 2
+	const totalRounds =
+		teamList.length - 1;
+	const matchesPerRound =
+		teamList.length / 2;
 
-  const fixedTeam = teamList[0]
-  const rotatingTeams = teamList.slice(1)
+	const fixedTeam = teamList[0];
+	const rotatingTeams =
+		teamList.slice(1);
 
-  const rounds: Round[] = []
+	const rounds: Round[] = [];
 
-  for (let round = 0; round < totalRounds; round++) {
-    const matches: Match[] = []
+	for (
+		let round = 0;
+		round < totalRounds;
+		round++
+	) {
+		const matches: Match[] = [];
 
-    // Current round teams array
-    const roundTeams = [fixedTeam, ...rotatingTeams]
+		// Current round teams array
+		const roundTeams = [
+			fixedTeam,
+			...rotatingTeams,
+		];
 
-    for (let i = 0; i < matchesPerRound; i++) {
-      const home = roundTeams[i]
-      const away = roundTeams[roundTeams.length - 1 - i]
+		for (
+			let i = 0;
+			i < matchesPerRound;
+			i++
+		) {
+			const home = roundTeams[i];
+			const away =
+				roundTeams[
+					roundTeams.length - 1 - i
+				];
 
-      // Skip matches involving the "BYE" team
-      if (home.teamId === "bye" || away.teamId === "bye") {
-        continue
-      }
+			// Skip matches involving the "BYE" team
+			if (
+				home.teamId === "bye" ||
+				away.teamId === "bye"
+			) {
+				continue;
+			}
 
-      matches.push({
-        id: uuidv4(),
-        team1: home.teamName,
-        team2: away.teamName,
-        team1Id: home.teamId,
-        team2Id: away.teamId,
-        team1Score: 0,
-        team2Score: 0,
-        winner: "TBA",
-        address: "TBA",
-      })
-    }
+			matches.push({
+				id: uuidv4(),
+				team1: home.teamName,
+				team2: away.teamName,
+				team1Id: home.teamId,
+				team2Id: away.teamId,
+				team1Score: 0,
+				team2Score: 0,
+				winner: "TBA",
+				address: "TBA",
+				gameDate: "TBA",
+				gameTime: "TBA",
+			});
+		}
 
-    rounds.push({ round: round + 1, matches })
+		rounds.push({
+			round: round + 1,
+			matches,
+		});
 
-    // Rotate the teams (except the fixed one)
-    rotatingTeams.unshift(rotatingTeams.pop()!)
-  }
+		// Rotate the teams (except the fixed one)
+		rotatingTeams.unshift(
+			rotatingTeams.pop()!
+		);
+	}
 
-  return rounds
+	return rounds;
 }
