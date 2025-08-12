@@ -144,8 +144,6 @@ export default function MatchCard(
 				),
 		};
 
-		console.log("UPDATED", updatedData);
-
 		return updatedData;
 	}
 
@@ -160,7 +158,7 @@ export default function MatchCard(
 				);
 
 			return resp.data;
-		} catch (error) {
+		} catch (error) { 
 			console.error(
 				"Error updating match:",
 				error

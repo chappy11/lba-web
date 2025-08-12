@@ -20,9 +20,10 @@ export type MatchRound = {
 export type MatchSchedule = Array<MatchRound>; 
 
 export type SeasonGames = {
-    id: string;
-    done: boolean;
-    matchSchedule: Array<MatchRound>;
+  id: string
+  seasonId: string
+  done: boolean
+  matchSchedule: Array<MatchRound>
 }
 
 
