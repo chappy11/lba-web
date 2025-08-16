@@ -2,7 +2,11 @@ import { doc, updateDoc } from "firebase/firestore"
 
 import db from "../config/firebaseConfig"
 
-import { CreateMatchSchedule, SeasonGames } from "../dto/MatchSchedule"
+import {
+  CreateMatchSchedule,
+  GameType,
+  SeasonGames,
+} from "../dto/MatchSchedule"
 import { Team } from "../dto/Team.model"
 import { FirebaseCollection } from "../enums/FirebaseCollection.enum"
 
@@ -12,7 +16,7 @@ import { generateRoundRobinSchedule } from "../utils/teamUtils"
 import { getActiveSeason } from "./SeasonService.service"
 import { getTeamFromThisSeason } from "./TeamService.service"
 
-export async function createSchedule() {
+export async function createSchedule(matchType: GameType) {
   try {
     const season = await getActiveSeason()
     if (!season) {
@@ -22,8 +26,9 @@ export async function createSchedule() {
 
     const createMatchesPayload: CreateMatchSchedule = {
       done: false,
-      matchSchedule: matches,
       seasonId: season.id,
+      matchType: matchType,
+      matchSchedule: matches,
     }
 
     const resp = await addCollection(
@@ -38,7 +43,7 @@ export async function createSchedule() {
   }
 }
 
-export async function getMatchSchedule() {
+export async function getMatchSchedule(gameType: GameType) {
   try {
     const season = await getActiveSeason()
     if (!season) {
@@ -46,11 +51,14 @@ export async function getMatchSchedule() {
     }
     const payload: GetFirebaseDataPayload = {
       firebaseCollection: FirebaseCollection.MATCH_SCHEDULE,
-      filter: [["seasonId", "==", season.id]],
+      filter: [
+        ["seasonId", "==", season.id],
+        ["matchType", "==", gameType.toString()],
+      ],
     }
 
     const resp = await getData(payload)
-
+    console.log("data", resp)
     return resp
   } catch (error) {
     throw new Error(
@@ -81,3 +89,4 @@ export async function updateMatches(id: string, matches: SeasonGames) {
 
   return matches
 }
+

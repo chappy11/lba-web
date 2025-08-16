@@ -1,14 +1,14 @@
 import { GameType } from "@/_lib/dto/MatchSchedule"
 import {
-  createSchedule,
-  getMatchSchedule,
+    createSchedule,
+    getMatchSchedule,
 } from "@/_lib/services/MatchSchedule.service"
 
 import { NextResponse } from "next/server"
 
 export async function GET() {
   try {
-    const seasonTeam = await getMatchSchedule(GameType.ROUND_ROBIN)
+    const seasonTeam = await getMatchSchedule(GameType.ELIMINATION)
 
     return NextResponse.json(seasonTeam, { status: 200 })
   } catch (error) {
@@ -18,7 +18,7 @@ export async function GET() {
 
 export async function POST() {
   try {
-    const resp = await createSchedule(GameType.ROUND_ROBIN)
+    const resp = await createSchedule(GameType.ELIMINATION)
 
     return NextResponse.json(resp, { status: 201 })
   } catch (error) {

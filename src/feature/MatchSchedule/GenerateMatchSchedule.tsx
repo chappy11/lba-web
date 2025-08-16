@@ -1,26 +1,31 @@
 "use client"
 
+import { GameType } from "@/_lib/enums/GameTypeEnum"
 import { createMatchSchedule } from "@/_lib/server/matchSchedule";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export default function GenerateMatchSchedule() {
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+type Props = {
+  gameType: GameType
+}
+export default function GenerateMatchSchedule(props: Props) {
+  const { gameType } = props
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
-    async function handleGenerateSchedule() { 
-        try {
-            setIsLoading(true)
-            const resp = await createMatchSchedule();
+  async function handleGenerateSchedule() {
+    try {
+      setIsLoading(true)
+      const resp = await createMatchSchedule()
 
-            if (resp) {
-                toast.success("Match schedule generated successfully");
-            }
-        } catch (error) {
-            toast.error("Something went wrong")
-        } finally {
-            setIsLoading(false);
-        }
+      if (resp) {
+        toast.success("Match schedule generated successfully")
+      }
+    } catch (error) {
+      toast.error("Something went wrong")
+    } finally {
+      setIsLoading(false)
     }
+  }
 
   return (
     <div className="flex flex-col items-center justify-center h-full">
@@ -28,9 +33,9 @@ export default function GenerateMatchSchedule() {
       <p className="text-gray-600 mb-6">This feature is under development.</p>
       <button
         className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        onClick={()=>handleGenerateSchedule()}
-          >
-            {isLoading ? "Loading....":'Generate Schedule'}
+        onClick={() => handleGenerateSchedule()}
+      >
+        {isLoading ? "Loading...." : "Generate Schedule"}
       </button>
     </div>
   )

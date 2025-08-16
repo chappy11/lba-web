@@ -28,3 +28,13 @@ export const updateMatchSchedule =
 
 		return resp;
 	};
+
+export const getEliminationMatchSchedule = async () => {
+  const resp = await axiosConfig.get("/teams/elimination-round")
+  return resp.data
+}
+
+export const createEliminationMatchSchedule = async () => {
+  const resp = await axiosConfig.post("/teams/elimination-round")
+  return resp.data
+}
