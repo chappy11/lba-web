@@ -42,6 +42,7 @@ export default function MatchCard(
 		team2Id,
 		gameDate,
 		gameTime,
+		winner,
 	} = data;
 	const { matchSchedule } = games;
 	const team1ScoreText =
@@ -183,13 +184,28 @@ export default function MatchCard(
 					}
 				>
 					<div className="flex items-center p-2 flex-row justify-between">
-						<p>{team1}</p>
 						<p>{team1ScoreText}</p>
+						<p>{team1}</p>
+
+						{winner === team1Id ? (
+							<p className=" text-green-500 text-right bg-red-500">
+								W
+							</p>
+						) : (
+							<p></p>
+						)}
 					</div>
 					<div className=" border border-gray-200 w-full" />
 					<div className="flex items-center p-2 flex-row justify-between">
-						<p>{team2}</p>
 						<p>{team2ScoreText}</p>
+						<p>{team2}</p>
+						{winner === team2Id ? (
+							<p className=" text-green-500">
+								W
+							</p>
+						) : (
+							<p></p>
+						)}
 					</div>
 				</div>
 			</SheetTrigger>
