@@ -1,5 +1,5 @@
 import { axiosConfig } from "../config/config";
-import { SeasonGames } from "../dto/MatchSchedule";
+import { Match, SeasonGames } from "../dto/MatchSchedule"
 
 export const getMatchSchedule =
 	async () => {
@@ -36,5 +36,10 @@ export const getEliminationMatchSchedule = async () => {
 
 export const createEliminationMatchSchedule = async () => {
   const resp = await axiosConfig.post("/teams/elimination-round")
+  return resp.data
+}
+
+export const eliminationMatchScheduleUpdate = async (data: Match) => {
+  const resp = await axiosConfig.put("/elimination-schedule", data)
   return resp.data
 }

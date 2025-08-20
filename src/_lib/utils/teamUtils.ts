@@ -21,6 +21,7 @@ export function generateRoundRobinSchedule(teams: Team[]): Round[] {
     teamList.push({
       teamId: "bye",
       teamName: "BYE",
+      teamLogo: "BYE",
     })
   }
 
@@ -62,6 +63,10 @@ export function generateRoundRobinSchedule(teams: Team[]): Round[] {
         matchType: MatchType.SEMIFINAL,
         gameType: GameType.ROUND_ROBIN,
         playerMvp: null,
+        team1MatchScore: 0,
+        team2MatchScore: 0,
+        team1Logo: home.teamLogo,
+        team2Logo: away.teamLogo,
       })
     }
 
@@ -87,9 +92,8 @@ export function getStandings(rounds: Round[]): Standing[] {
         standingsMap[match.team1Id] = {
           teamId: match.team1Id,
           teamName: match.team1,
-
+          teamLogo: match.team1Logo || "",
           wins: 0,
-
           losses: 0,
           goalsFor: 0,
         }
@@ -101,6 +105,7 @@ export function getStandings(rounds: Round[]): Standing[] {
           wins: 0,
           losses: 0,
           goalsFor: 0,
+          teamLogo: match.team2Logo || "",
         }
       }
     })
@@ -145,35 +150,43 @@ export function singleElimation(teams: Standing[]) {
   const arrayOfBracket: Match[] = [
     {
       id: uuidv4(),
-      team1: topTeams[0].teamName,
-      team2: topTeams[3].teamName,
-      team1Id: topTeams[0].teamId,
-      team2Id: topTeams[3].teamId,
+      team1: topTeams[0]?.teamName,
+      team2: topTeams[2]?.teamName,
+      team1Id: topTeams[0]?.teamId,
+      team2Id: topTeams[2]?.teamId,
       team1Score: 0,
       team2Score: 0,
-      winner: "",
-      address: "",
-      gameDate: "",
-      gameTime: "",
+      winner: "TBA",
+      address: "TBA",
+      gameDate: "TBA",
+      gameTime: "TBA",
       matchType: MatchType.SEMIFINAL,
       gameType: GameType.ELIMINATION,
       playerMvp: null,
+      team1MatchScore: 0,
+      team2MatchScore: 0,
+      team1Logo: topTeams[0]?.teamLogo,
+      team2Logo: topTeams[2]?.teamLogo,
     },
     {
       id: uuidv4(),
-      team1: topTeams[1].teamName,
-      team2: topTeams[4].teamName,
-      team1Id: topTeams[1].teamId,
-      team2Id: topTeams[4].teamId,
+      team1: topTeams[1]?.teamName,
+      team2: topTeams[3]?.teamName,
+      team1Id: topTeams[1]?.teamId,
+      team2Id: topTeams[3]?.teamId,
       team1Score: 0,
       team2Score: 0,
-      winner: "",
-      address: "",
-      gameDate: "",
-      gameTime: "",
+      winner: "TBA",
+      address: "TBA",
+      gameDate: "TBA",
+      gameTime: "TBA",
       matchType: MatchType.SEMIFINAL,
       gameType: GameType.ELIMINATION,
       playerMvp: null,
+      team1MatchScore: 0,
+      team2MatchScore: 0,
+      team1Logo: topTeams[1]?.teamLogo,
+      team2Logo: topTeams[3]?.teamLogo,
     },
     {
       id: uuidv4(),
@@ -183,13 +196,17 @@ export function singleElimation(teams: Standing[]) {
       team2Id: "",
       team1Score: 0,
       team2Score: 0,
-      winner: "",
-      address: "",
-      gameDate: "",
-      gameTime: "",
+      winner: "TBA",
+      address: "TBA",
+      gameDate: "TBA",
+      gameTime: "TBA",
       matchType: MatchType.FINAL,
       gameType: GameType.ELIMINATION,
       playerMvp: null,
+      team1MatchScore: 0,
+      team2MatchScore: 0,
+      team1Logo: "",
+      team2Logo: "",
     },
   ]
 

@@ -1,15 +1,10 @@
 "use client"
 
-import { GameType } from "@/_lib/enums/GameTypeEnum"
-import { createMatchSchedule } from "@/_lib/server/matchSchedule";
-import { useState } from "react";
-import { toast } from "sonner";
+import { createMatchSchedule } from "@/_lib/server/matchSchedule"
+import { useState } from "react"
+import { toast } from "sonner"
 
-type Props = {
-  gameType: GameType
-}
-export default function GenerateMatchSchedule(props: Props) {
-  const { gameType } = props
+export default function GenerateMatchSchedule() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
   async function handleGenerateSchedule() {
@@ -20,6 +15,7 @@ export default function GenerateMatchSchedule(props: Props) {
       if (resp) {
         toast.success("Match schedule generated successfully")
       }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Something went wrong")
     } finally {

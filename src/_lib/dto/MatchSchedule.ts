@@ -13,8 +13,8 @@ export type MatchTeam = {
 }
 
 export type MatchRound = {
-    round: number;
-    matches: MatchTeam[];
+  round: number
+  matches: Match[]
 }
 
 export type Standing = {
@@ -23,11 +23,13 @@ export type Standing = {
   wins: number
   losses: number
   goalsFor: number
+  teamLogo: string
 }
 
 export type Team = {
   teamId: string
   teamName: string
+  teamLogo: string
 }
 
 type PlayerMvp = {
@@ -39,6 +41,8 @@ type PlayerMvp = {
   score: number
   assists: number
   rebounds: number
+  steal: number
+  turnovers: number
 }
 
 export type Match = {
@@ -56,6 +60,10 @@ export type Match = {
   matchType: MatchType
   gameType: GameType
   playerMvp: PlayerMvp | null
+  team1MatchScore: number
+  team2MatchScore: number
+  team1Logo?: string
+  team2Logo?: string
 }
 
 export type Round = {
@@ -84,5 +92,22 @@ export type SeasonGames = {
   matchType: GameType
 }
 
+export type MatchResult = {
+  id: string
+  gameId: string
+  team1: string
+  team2: string
+  team1Logo: string
+  team2Logo: string
+  team1Id: string
+  team2Id: string
+  team1Score: number
+  team2Score: number
+  gameDate: string
+  winner: string
+  playerMvp: PlayerMvp | null
+}
+
+export type CreateMatchResult = Omit<MatchResult, "id">
 
 export type CreateMatchSchedule = Omit<SeasonGames, "id">;
