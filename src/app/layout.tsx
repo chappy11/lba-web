@@ -27,7 +27,7 @@ export default function RootLayout({
 			lang="en"
 			className={poppins.variable}
 		>
-			<body className=" bg-black">
+			<body className=" ">
 				<Toaster
 					toastOptions={{
 						style: {
