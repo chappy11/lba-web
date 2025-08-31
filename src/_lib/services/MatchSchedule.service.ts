@@ -98,6 +98,26 @@ export async function getMatchSchedule(gameType: GameType) {
   }
 }
 
+export async function getMatchesFromThisSeason() {
+  try {
+    const currentSeason = await getActiveSeason()
+
+    if (!currentSeason) {
+      throw new Error("No active season found")
+    }
+
+    const payload: GetFirebaseDataPayload = {
+      firebaseCollection: FirebaseCollection.MATCH_SCHEDULE,
+      filter: [["seasonId", "==", currentSeason.id]],
+    }
+    const resp = await getData(payload)
+    return resp
+  } catch (error) {
+    console.log(error)
+    throw new Error("Failed to fetch teams for the current season")
+  }
+}
+
 export async function roundRobin() {
   const teams = (await getTeamFromThisSeason()) as unknown as Team[]
 
@@ -117,9 +137,12 @@ export async function roundRobin() {
 }
 
 export async function updateMatches(id: string, matches: SeasonGames) {
-  console.log("ID0", id)
-  console.log("MATCHES0", JSON.stringify(matches, null, 2))
   const cleanedPayload = removeUndefinedFields(matches)
+  console.log(
+    "Cleaned Payload",
+    JSON.stringify(cleanedPayload.matchSchedule, null, 2)
+  )
+
   await updateDoc(
     doc(db, FirebaseCollection.MATCH_SCHEDULE, id),
     cleanedPayload
@@ -128,7 +151,7 @@ export async function updateMatches(id: string, matches: SeasonGames) {
   return matches
 }
 
-function removeUndefinedFields(obj) {
+function removeUndefinedFields(obj: any) {
   if (Array.isArray(obj)) {
     return obj.map(removeUndefinedFields)
   } else if (obj !== null && typeof obj === "object") {
@@ -149,6 +172,7 @@ export async function updateEliminationRound(updatePayload: Match) {
     if (!matches || matches.length === 0) {
       throw new Error("No match schedule found for elimination round update")
     }
+
     const eliminationMatches = matches[0].matchSchedule.map((round) => {
       return {
         ...round,
@@ -173,62 +197,89 @@ export async function updateEliminationRound(updatePayload: Match) {
       team1Score: updatePayload.team1Score || 0,
       team2Score: updatePayload.team2Score || 0,
       gameDate: updatePayload.gameDate || "TBA",
-      winner: updatePayload.winner || "TBA",
+      winner:
+        updatePayload.team1Score > updatePayload.team2Score
+          ? updatePayload.team1Id
+          : updatePayload.team2Id,
       playerMvp: null,
     }
 
+    const checkElimanationMatches = matches[0].matchSchedule.filter((round) => {
+      return {
+        ...round,
+        matches: round.matches.filter((match) => match.id === updatePayload.id),
+      }
+    })[0]
+
+    const filterDataById = checkElimanationMatches.matches.filter(
+      (val) => val.id === updatePayload.id
+    )[0]
+
+    if (filterDataById.address !== "TBA") {
+      await createMatchResult(createMatchResultPayload)
+    }
+
+    await updateMatches(matches[0].id, updatedData)
+
     if (updatePayload.winner !== "TBA") {
-      const finalElimationMatch = matches[0].matchSchedule?.map((round) => {
-        const teamWinner =
-          updatePayload?.winner === updatePayload?.team1Id
-            ? updatePayload?.team1
-            : updatePayload?.team2
+      const retriggerMatches = (await getMatchSchedule(
+        GameType.ELIMINATION
+      )) as Array<SeasonGames>
+      const finalElimationMatch = retriggerMatches[0].matchSchedule?.map(
+        (round) => {
+          const teamWinner =
+            updatePayload?.winner === updatePayload?.team1Id
+              ? updatePayload?.team1
+              : updatePayload?.team2
 
-        const teamWinnerLogo =
-          updatePayload?.winner === updatePayload?.team1Id
-            ? updatePayload?.team1Logo
-            : updatePayload?.team2Logo
-        return {
-          ...round,
-          matches: round?.matches?.map((match) =>
-            match?.matchType === MatchType.FINAL.toString()
-              ? {
-                  ...match,
-                  team1: match?.team1 === "" ? teamWinner : match?.team1,
-                  team2: match?.team2 === "" ? teamWinner : match?.team2,
-                  team1Logo:
-                    match?.team1Logo === "" ? teamWinnerLogo : match?.team1Logo,
-                  team2Logo:
-                    match?.team2Logo === "" ? teamWinnerLogo : match?.team2Logo,
-                  team1Id:
-                    match?.team1Id === ""
-                      ? updatePayload?.winner
-                      : match.team1Id,
-                  team2Id:
-                    match?.team2Id === ""
-                      ? updatePayload?.winner
-                      : match.team2Id,
-                }
-              : match
-          ),
+          const teamWinnerLogo =
+            updatePayload?.winner === updatePayload?.team1Id
+              ? updatePayload?.team1Logo
+              : updatePayload?.team2Logo
+          return {
+            ...round,
+            matches: round?.matches?.map((match) =>
+              match?.matchType === MatchType.FINAL.toString()
+                ? {
+                    ...match,
+
+                    team1: match?.team1 === "" ? teamWinner : match?.team1,
+                    team2:
+                      match?.team2 === "" && match?.team1 !== ""
+                        ? teamWinner
+                        : match?.team2,
+                    team1Logo:
+                      match?.team1Logo === ""
+                        ? teamWinnerLogo
+                        : match?.team1Logo,
+                    team2Logo:
+                      match?.team2Logo === "" && match?.team1Logo !== ""
+                        ? teamWinnerLogo
+                        : match?.team2Logo,
+                    team1Id:
+                      match?.team1Id === ""
+                        ? updatePayload?.winner
+                        : match.team1Id,
+                    team2Id:
+                      match?.team2Id === ""
+                        ? updatePayload?.winner
+                        : match.team2Id,
+                  }
+                : match
+            ),
+          }
         }
-      })
-
-      console.log("UPDATE", JSON.stringify(finalElimationMatch, null, 2))
+      )
 
       const updateD: SeasonGames = {
         ...matches[0],
         matchSchedule: finalElimationMatch,
       }
 
-      console.log("UPDATE DATA", JSON.stringify(updateD, null, 2))
-      await createMatchResult(createMatchResultPayload)
-      return await updateMatches(matches[0].id, updateD)
+      await updateMatches(matches[0].id, updateD)
+
+      return
     }
-
-    await createMatchResult(createMatchResultPayload)
-
-    return await updateMatches(matches[0].id, updatedData)
   } catch (error) {
     console.log("ERROR", error)
   }

@@ -1,5 +1,4 @@
 "use client";
-
 import { Match, SeasonGames } from "@/_lib/dto/MatchSchedule"
 import {
   eliminationMatchScheduleUpdate,
@@ -14,6 +13,7 @@ import {
 	SheetTrigger,
 } from "@/components/ui/sheet";
 import { useState } from "react";
+import Swal from "sweetalert2"
 import TextInput from "./textinput";
 import { Button } from "./ui/button"
 
@@ -57,6 +57,7 @@ export default function MatchCard(props: Props) {
   const [matchTime, setMatchTime] = useState<string>(gameTime || "TBA")
   const [gameAddress, setGameAddress] = useState<string>(address)
   const [selectedWinner, setSelectedWinner] = useState<string>(winner)
+  const [isWinnerDeclared, setIsWinnerDeclared] = useState<boolean>(false)
 
   async function updateMatch() {
     let winner = "TBA"
@@ -96,14 +97,26 @@ export default function MatchCard(props: Props) {
       setIsLoading(true)
       if (isElimination) {
         await handleUpdateElimination()
-
+        Swal.fire({
+          title: "Successs",
+          text: "Successfully Updated",
+          icon: "success",
+        }).then((val) => {
+          window.location.reload()
+        })
         return
       }
 
       const updatedData = await updateMatch()
 
       const resp = await updateMatchSchedule(updatedData)
-
+      Swal.fire({
+        title: "Successs",
+        text: "Successfully Updated",
+        icon: "success",
+      }).then((val) => {
+        window.location.reload()
+      })
       return resp.data
     } catch (error) {
       console.error("Error updating match:", error)
@@ -127,7 +140,11 @@ export default function MatchCard(props: Props) {
 
       const paylod: Match = {
         ...data,
-        winner: selectedWinner,
+        winner: isWinnerDeclared
+          ? parseInt(teamOneScore, 10) > parseInt(teamTwoScore, 10)
+            ? team1Id
+            : team2Id
+          : data.winner,
         team1Score: parseInt(teamOneScore, 10),
         team2Score: parseInt(teamTwoScore, 10),
         address: gameAddress,
@@ -149,6 +166,10 @@ export default function MatchCard(props: Props) {
     } catch (error) {
       console.error("Error updating elimination match:", error)
     }
+  }
+
+  const handleCheckboxChange = (event) => {
+    setIsWinnerDeclared(event.target.checked)
   }
   return (
     <Sheet>
@@ -222,6 +243,22 @@ export default function MatchCard(props: Props) {
                 value={teamTwoScore}
                 onChange={(e) => setTeamTwoScore(e.target.value)}
               />
+              {isElimination && (
+                <>
+                  <h1 className=" text-[14px] font-semibold mt-3">
+                    Declare Series Winner
+                  </h1>
+                  <p className=" text-xs mt-3">
+                    <input
+                      type="checkbox"
+                      onChange={handleCheckboxChange}
+                      checked={isWinnerDeclared}
+                    />{" "}
+                    Declaring winner will proceed to next round if this a series
+                    games please ignore this
+                  </p>
+                </>
+              )}
             </>
           ) : (
             <p className=" text-sm text-red-500">
@@ -229,42 +266,10 @@ export default function MatchCard(props: Props) {
               score, date, or time until the match is played.
             </p>
           )}
-          {isElimination && (
-            <>
-              <h1 className=" text-[14px] font-semibold mt-3">
-                Declare Series Winner
-              </h1>
-              <p className=" text-xs">
-                Declaring winner will proceed to next round if this a series
-                games please ignore this
-              </p>
-              <div className=" flex flex-row gap-3 mt-3">
-                <div
-                  onClick={() => handleSelecteWinner(team1Id)}
-                  className={` p-2 border border-gray-400 rounded-md cursor-pointer text-sm ${
-                    selectedWinner === team1Id
-                      ? "bg-blue-500 text-white"
-                      : "bg-white	 text-black"
-                  }`}
-                >
-                  {team1}
-                </div>
-                <div
-                  onClick={() => handleSelecteWinner(team2Id)}
-                  className={` p-2 border border-gray-400 cursor-pointer rounded-md text-sm ${
-                    selectedWinner === team2Id
-                      ? "bg-blue-500 text-white"
-                      : "bg-white	 text-black"
-                  }`}
-                >
-                  {team2}
-                </div>
-              </div>
-            </>
-          )}
+
           <div className=" h-3" />
           <div className=" flex w-full justify-end">
-            <Button onClick={() => handleUpdate()}>
+            <Button onClick={() => handleUpdate()} disabled={isLoading}>
               {isLoading ? <span>Loading...</span> : "Update"}
             </Button>
           </div>

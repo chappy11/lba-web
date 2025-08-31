@@ -39,20 +39,12 @@ export default function Header(
 			);
 		}, [link, createButtonName]);
 	return (
-		<div className=" h-[50px] px-3 w-full bg-slate-200 flex justify-between items-center gap-3">
-			<div className=" flex flex-row gap-3">
-				<ArrowLeft
-					size={24}
-					color="black"
-					onClick={() =>
-						navigation.back()
-					}
-				/>
-				<p className=" text-[18px]">
-					{title}
-				</p>
-			</div>
-			{displayCreateButton}
-		</div>
-	);
+    <div className=" h-[50px] px-3 w-full bg-black flex justify-between text-white items-center gap-3">
+      <div className=" flex flex-row gap-3">
+        <ArrowLeft size={24} color="white" onClick={() => navigation.back()} />
+        <p className=" text-[16px] font-semibold">{title}</p>
+      </div>
+      {displayCreateButton}
+    </div>
+  )
 }

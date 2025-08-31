@@ -4,10 +4,13 @@ import { CoachInfo } from "@/_lib/dto/Team.model"
 import { GameType } from "@/_lib/enums/GameTypeEnum"
 import { createTeam } from "@/_lib/server/team"
 import { uploadImage } from "@/_lib/server/upload"
+import LoadingScreen from "@/components/loading-screen"
 import TextInput from "@/components/textinput"
 import { Button } from "@/components/ui/button"
+import Image from "next/image"
 import { useMemo, useState } from "react"
 import { toast } from "sonner"
+import Swal from "sweetalert2"
 
 export default function CreateTeam() {
   const [logo, setLoogo] = useState<File | null>(null)
@@ -16,6 +19,7 @@ export default function CreateTeam() {
   const [coachFName, setCoachFName] = useState<string>("")
   const [coachMname, setCoachMName] = useState<string>("")
   const [coachLName, setCoachLName] = useState<string>("")
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const [isDisplayAddPlayer, setIsDisplayAddPlayer] = useState<boolean>(false)
 
@@ -53,6 +57,7 @@ export default function CreateTeam() {
         toast.error("Please enter a coach last name")
         return
       }
+      setIsLoading(true)
 
       const formData = new FormData()
       formData.append("file", logo)
@@ -77,45 +82,73 @@ export default function CreateTeam() {
       const resp = await createTeam(teamsData)
 
       if (!resp) {
-        toast.error("Failed to create team")
+        Swal.fire({
+          icon: "error",
+          title: "Something went wrong",
+          text: "You cannot create a new team at this moment",
+        })
         return
       }
-        
-        if (resp.id) {
-          setIsDisplayAddPlayer(true)
-        }
-      
 
-      toast.success("Team created successfully")
+      if (resp.id) {
+        setIsDisplayAddPlayer(true)
+      }
+      setIsLoading(false)
+      Swal.fire({
+        icon: "success",
+        title: "Team created successfully",
+        showConfirmButton: false,
+      }).then(() => {
+        window.location.reload()
+      })
     } catch (error) {
       console.log(error)
-      toast.error("Failed to create team")
+      Swal.fire({
+        icon: "error",
+        title: "Something went wrong",
+        text: "You cannot create a new team at this moment",
+      })
+    } finally {
+      setIsLoading(false)
     }
   }
-    
-    const displayAddPlayer = useMemo(() => {
-        if (isDisplayAddPlayer) {
-            return <Button>Test</Button>
-        }
-    
-        },[isDisplayAddPlayer])
+
+  const displayAddPlayer = useMemo(() => {
+    if (isDisplayAddPlayer) {
+      return <Button>Test</Button>
+    }
+  }, [isDisplayAddPlayer])
   return (
-    <div className=" flex w-full flex-row gap-5 mt-5">
-      <div className=" flex flex-1 flex-col items-center">
-        {displayLogo}
-        <TextInput
-          label="Upload Season Logo"
-          type="file"
-          className=" text-white"
-          onChange={(e) => {
-            const file = e.target.files?.[0]
-            if (file) {
-              setLoogo(file)
-            }
-          }}
+    <div className=" flex w-full flex-row ">
+      {isLoading && <LoadingScreen />}
+      <div className=" flex  flex-col  ">
+        <Image
+          src={"/team.jpg"}
+          width={400}
+          height={600}
+          // ✅ makes image stretch to parent container
+          className="object-cover" // ✅ keeps aspect ratio, covers screen
+          priority // optional, loads fasteralt="tes"
+          alt="Image of team"
         />
       </div>
-      <div className=" flex flex-1 flex-col gap-2">
+      <div className=" flex flex-1 flex-col py-10 px-16 gap-3 ">
+        <p className=" text-[18px] font-semibold">Team Information</p>
+        <div className=" flex flex-1 justify-center flex-col items-center  ">
+          {displayLogo}
+          <TextInput
+            label="Upload Season Logo"
+            type="file"
+            className=" text-white w-[100px]"
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (file) {
+                setLoogo(file)
+              }
+            }}
+          />
+        </div>
+
         <TextInput
           label="Team Name"
           type="text"
@@ -153,8 +186,8 @@ export default function CreateTeam() {
             setCoachLName(e.target.value)
           }}
         />
-              <div className=" w-full flex flex-1 gap-5 justify-end">
-                  {displayAddPlayer}
+        <div className=" w-full flex flex-1 gap-5 justify-end">
+          {displayAddPlayer}
           <Button onClick={() => handleSubmit()} className=" w-[180px]">
             Submit
           </Button>

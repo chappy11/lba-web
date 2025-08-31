@@ -1,6 +1,7 @@
 "use client"
 
 import { createMatchSchedule } from "@/_lib/server/matchSchedule"
+import LoadingScreen from "@/components/loading-screen"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -15,7 +16,7 @@ export default function GenerateMatchSchedule() {
       if (resp) {
         toast.success("Match schedule generated successfully")
       }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Something went wrong")
     } finally {
@@ -25,6 +26,7 @@ export default function GenerateMatchSchedule() {
 
   return (
     <div className="flex flex-col items-center justify-center h-full">
+      {isLoading && <LoadingScreen />}
       <h1 className="text-2xl font-bold mb-4">Generate Match Schedule</h1>
       <p className="text-gray-600 mb-6">This feature is under development.</p>
       <button

@@ -2,6 +2,8 @@
 
 import { Player } from "@/_lib/dto/Player.model";
 import { createPlayer } from "@/_lib/server/player";
+import { uploadImage } from "@/_lib/server/upload"
+import LoadingScreen from "@/components/loading-screen"
 import TextInput from "@/components/textinput";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,8 +23,9 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
-import { useState } from "react";
+import { useMemo, useState } from "react"
 import { toast } from "sonner";
+import Swal from "sweetalert2"
 
 type Props = {
 	teamId: string;
@@ -47,104 +50,107 @@ export function CreatePlayer(
 		setJerseyNumber,
 	] = useState<string>("");
 
-	const [
-		firstNameError,
-		setFirstNameError,
-	] = useState<string>("");
-	const [
-		middleNameError,
-		setMiddleNameError,
-	] = useState<string>("");
-	const [
-		lastNameError,
-		setLastNameError,
-	] = useState<string>("");
-	const [
-		positionError,
-		setPositionError,
-	] = useState<string>("");
-	const [ageError, setAgeError] =
-		useState<string>("");
-	const [
-		jerseyNumberError,
-		setJerseyNumberError,
-	] = useState<string>("");
+	const [logo, setLogo] = useState<File | null>(null)
 
-	async function handleSubmit() {
-		try {
-			if (!firstname) {
-				setFirstNameError(
-					"Please enter a firstname"
-				);
-				return;
-			}
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
-			if (!middlename) {
-				setMiddleNameError(
-					"Please enter a middlename"
-				);
-				return;
-			}
-			if (!lastname) {
-				setLastNameError(
-					"Please enter a lastname"
-				);
-				return;
-			}
+  const [firstNameError, setFirstNameError] = useState<string>("")
+  const [middleNameError, setMiddleNameError] = useState<string>("")
+  const [lastNameError, setLastNameError] = useState<string>("")
+  const [positionError, setPositionError] = useState<string>("")
+  const [ageError, setAgeError] = useState<string>("")
+  const [jerseyNumberError, setJerseyNumberError] = useState<string>("")
 
-			if (!age) {
-				setAgeError(
-					"Please enter a age"
-				);
-				return;
-			}
+  async function handleSubmit() {
+    try {
+      if (!logo) {
+        toast.error("Please upload a player image")
+        return
+      }
 
-			if (!jerseyNumber) {
-				setJerseyNumberError(
-					"Please enter a jersey number"
-				);
-				return;
-			}
+      if (!firstname) {
+        setFirstNameError("Please enter a firstname")
+        return
+      }
 
-			if (!position) {
-				setPositionError(
-					"Please select a position"
-				);
-				return;
-			}
+      if (!middlename) {
+        setMiddleNameError("Please enter a middlename")
+        return
+      }
+      if (!lastname) {
+        setLastNameError("Please enter a lastname")
+        return
+      }
 
-			const payload: Player = {
-				firstname,
-				middlename,
-				lastname,
-				position,
-				age: parseInt(age),
-				jerseyNumber,
-				dateCreated:
-					new Date().toISOString(),
-				teamId: teamId,
-			};
+      if (!age) {
+        setAgeError("Please enter a age")
+        return
+      }
 
-			const response =
-				await createPlayer(payload);
+      if (!jerseyNumber) {
+        setJerseyNumberError("Please enter a jersey number")
+        return
+      }
 
-			if (response) {
-				toast.success(
-					"Player created successfully",
-					{
-						onDismiss: () => {
-							window.location.reload();
-						},
-					}
-				);
-			}
-		} catch (error) {
-			console.log(error);
-		}
-	}
+      if (!position) {
+        setPositionError("Please select a position")
+        return
+      }
+      setIsLoading(true)
+      const formData = new FormData()
+      formData.append("file", logo)
 
-	return (
+      const imgResp = await uploadImage(formData)
+
+      const payload: Player = {
+        firstname,
+        middlename,
+        lastname,
+        position,
+        playerImage: imgResp?.url as string,
+        age: parseInt(age),
+        jerseyNumber,
+        dateCreated: new Date().toISOString(),
+        teamId: teamId,
+      }
+
+      const response = await createPlayer(payload)
+
+      if (response) {
+        Swal.fire({
+          icon: "success",
+          title: "Player created successfully",
+          text: "You have successfully created a new player",
+        }).then(() => {
+          setIsLoading(false)
+          window.location.reload()
+        })
+      }
+    } catch (error) {
+      console.log(error)
+      Swal.fire({
+        icon: "error",
+        title: "Something went wrong",
+        text: "You cannot create a new player at this moment",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const displayLogo = useMemo(() => {
+    if (!logo) {
+      return <div className=" h-[100px] w-[100px] bg-gray-500 rounded-full" />
+    }
+    const imagePath = URL.createObjectURL(logo)
+
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={imagePath} height={100} width={100} alt="season photo" />
+  }, [logo])
+
+  return (
     <Sheet>
+      {isLoading && <LoadingScreen />}
       <SheetTrigger asChild>
         <Button>Create Player</Button>
       </SheetTrigger>
@@ -156,6 +162,20 @@ export function CreatePlayer(
           </SheetDescription>
         </SheetHeader>
         <div className=" p-3 w-full flex flex-col gap-1">
+          <div className=" flex flex-1 justify-center flex-col items-center  ">
+            {displayLogo}
+            <TextInput
+              label="Upload Season Logo"
+              type="file"
+              className=" text-white w-[100px]"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) {
+                  setLogo(file)
+                }
+              }}
+            />
+          </div>
           <TextInput
             value={firstname}
             onChange={(e) => setFirstname(e.target.value)}

@@ -7,6 +7,7 @@ export enum FirebaseCollection {
   EMPLOYEE = "employee",
   MATCH_SCHEDULE = "match-schedule",
   MATCH_RESULTS = "match-results",
+  USER = "users",
 }
 
 export enum FirebaseOrderDirection {

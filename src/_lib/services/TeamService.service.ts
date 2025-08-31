@@ -11,6 +11,7 @@ import {
 import { addCollection, getData } from "../utils/firebase.utils"
 
 import { getAllGamesViaLatestSeason } from "./GameService.service"
+import { getMatchesFromThisSeason } from "./MatchSchedule.service"
 import { getActiveSeason } from "./SeasonService.service"
 
 export async function insertTeam(payload: TeamInsertPayload) {
@@ -19,6 +20,14 @@ export async function insertTeam(payload: TeamInsertPayload) {
 
     if (!season) {
       throw new Error("No active season found")
+    }
+
+    const matchesThisSeason = await getMatchesFromThisSeason()
+
+    if (matchesThisSeason.length > 0) {
+      throw new Error(
+        "Cannot add team when matches have already been scheduled for the current season"
+      )
     }
 
     const insertPayload: TeamInsertPayload & {
@@ -36,7 +45,7 @@ export async function insertTeam(payload: TeamInsertPayload) {
   }
 }
 
-//1bBhp3PpDTMQOGMgXepD
+
 export async function getTeamBySeasonId(seasonId: string) {
   try {
     const filter: WhereDataType[] = [["seasonId", "==", seasonId]]
