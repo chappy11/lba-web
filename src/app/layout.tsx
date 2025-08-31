@@ -23,27 +23,21 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html
-			lang="en"
-			className={poppins.variable}
-		>
-			<body className=" bg-black">
-				<Toaster
-					toastOptions={{
-						style: {
-							backgroundColor:
-								"#0a0a0a",
-							color: "#ffffff",
-						},
-					}}
-					position="bottom-left"
-					duration={2000}
-				/>
+    <html lang="en" className={poppins.variable}>
+      <body className=" ">
+        <Toaster
+          toastOptions={{
+            style: {
+              backgroundColor: "#0a0a0a",
+              color: "#ffffff",
+            },
+          }}
+          position="bottom-left"
+          duration={2000}
+        />
 
-				<div className=" h-full w-full bg-black ">
-					{children}
-				</div>
-			</body>
-		</html>
-	);
+        <div className=" h-screen w-full bg-gray-50 ">{children}</div>
+      </body>
+    </html>
+  )
 }

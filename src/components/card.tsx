@@ -1,35 +1,27 @@
 type Props = {
-	title: string;
-	icon: React.ReactNode;
-	bgColor: string;
-	onClick: () => void;
-};
+  title: string
+  icon: React.ReactNode
+  bgColor: string
+  onClick: () => void
+  description: string
+  url: string
+}
 
 export const Card = (props: Props) => {
-	const { title, icon, bgColor } =
-		props;
-	return (
-		<div
-			className={`rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden ${bgColor}`}
-		>
-			<div className="p-6 flex flex-col items-center text-white">
-				<div className="mb-4">
-					{icon}
-				</div>
-				<h3 className="text-xl font-bold text-center">
-					{title}
-				</h3>
-				<div
-					className="mt-4 rounded-lg px-4 py-2 border border-white border-opacity-30 hover:opacity-35 cursor-pointer hover:bg-opacity-10 transition-all duration-200"
-					onClick={() =>
-						props.onClick()
-					}
-				>
-					<span className="text-sm font-medium">
-						View Details
-					</span>
-				</div>
-			</div>
-		</div>
-	);
-};
+  const { title, description, icon, url } = props
+  return (
+    <div
+      onClick={() => props.onClick()}
+      className={`rounded-xl bg-white shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 overflow-hidden `}
+    >
+      <div className="p-6 flex gap-5 flex-row items-center text-white">
+        <div className="mb-4">{icon}</div>
+        <div>
+          <h3 className="text-2xl font-bold  text-gray-500">{title}</h3>
+          <h2 className=" text-gray-500">{description}</h2>
+        </div>
+        <div className=" flex flex-1 justify-end items-end"></div>
+      </div>
+    </div>
+  )
+}

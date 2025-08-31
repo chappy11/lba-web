@@ -6,6 +6,12 @@ export default async function TotalNumberOfTeams() {
 
   const count = resp.length
 
+  if (!count) {
+    return (
+      <CardOfNumber count={0} title="Games" description="Total Games Played" />
+    )
+  }
+
   return (
     <CardOfNumber
       count={count}

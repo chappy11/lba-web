@@ -126,7 +126,7 @@ export default function SeasonList(props: Props) {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-4 bg-white rounded-lg shadow">
+    <div className="w-full max-w-6xl mx-auto p-4  rounded-lg shadow">
       {/* <div className="mb-4 flex justify-between items-center">
 				<h2 className="text-xl font-bold text-gray-800">
 					Team Members
