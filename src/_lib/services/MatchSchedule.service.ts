@@ -138,10 +138,6 @@ export async function roundRobin() {
 
 export async function updateMatches(id: string, matches: SeasonGames) {
   const cleanedPayload = removeUndefinedFields(matches)
-  console.log(
-    "Cleaned Payload",
-    JSON.stringify(cleanedPayload.matchSchedule, null, 2)
-  )
 
   await updateDoc(
     doc(db, FirebaseCollection.MATCH_SCHEDULE, id),
@@ -202,6 +198,7 @@ export async function updateEliminationRound(updatePayload: Match) {
           ? updatePayload.team1Id
           : updatePayload.team2Id,
       playerMvp: null,
+      seasonId: matches[0].seasonId || "",
     }
 
     const checkElimanationMatches = matches[0].matchSchedule.filter((round) => {
@@ -302,6 +299,8 @@ export async function createEliminationMatch() {
   return eliminationMatches
 }
 
+// Match Result
+
 export async function createMatchResult(matchResult: CreateMatchResult) {
   try {
     const resp = await addCollection(
@@ -311,5 +310,27 @@ export async function createMatchResult(matchResult: CreateMatchResult) {
     return resp.id
   } catch (error) {
     console.log(error)
+  }
+}
+
+export async function getMatchResults() {
+  try {
+    const currentSeason = await getActiveSeason()
+
+    if (!currentSeason) {
+      throw new Error("No active season found")
+    }
+    const payload: GetFirebaseDataPayload = {
+      firebaseCollection: FirebaseCollection.MATCH_RESULTS,
+      filter: [["seasonId", "==", currentSeason.id]],
+    }
+
+    const resp = await getData(payload)
+
+    return resp
+  } catch (error) {
+    throw new Error(
+      "Something went wrong while fetching match results: " + error
+    )
   }
 }

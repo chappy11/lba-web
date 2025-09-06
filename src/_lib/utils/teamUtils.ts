@@ -137,8 +137,9 @@ export function getStandings(rounds: Round[]): Standing[] {
 
   // Step 4: Sort standings by wins → goalsFor
   return Object.values(standingsMap).sort((a, b) => {
-    if (b.wins !== a.wins) return b.wins - a.wins // Wins first
-    return b.goalsFor - a.goalsFor // Then total goals scored
+    if (b.wins !== a.wins) return b.wins - a.wins // Wins descending
+    if (a.losses !== b.losses) return a.losses - b.losses // Losses ascending
+    return b.goalsFor - a.goalsFor // Goals For descending
   })
 }
 
