@@ -106,6 +106,7 @@ export type MatchResult = {
   gameDate: string
   winner: string
   playerMvp: PlayerMvp | null
+  seasonId: string
 }
 
 export type CreateMatchResult = Omit<MatchResult, "id">

@@ -43,3 +43,9 @@ export const eliminationMatchScheduleUpdate = async (data: Match) => {
   const resp = await axiosConfig.put("/elimination-schedule", data)
   return resp.data
 }
+
+export const getMatchResuts = async () => {
+  const resp = await axiosConfig.get("/match-results")
+
+  return resp.data
+}
