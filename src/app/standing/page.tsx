@@ -1,19 +1,17 @@
 import { getTeamStandingThisSeason } from "@/_lib/server/team";
 import NavigationHeader from "@/components/navigation-header";
 import {
-	Table,
-	TableBody,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import TeamStanding from "@/feature/teams/TeamStanding";
 
 export default async function Page() {
 	const resp =
 		await getTeamStandingThisSeason();
-
-	console.log("Standing Page", resp);
 
 	return (
     <div className=" w-full flex-1 ">

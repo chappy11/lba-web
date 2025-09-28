@@ -8,6 +8,7 @@ export enum FirebaseCollection {
   MATCH_SCHEDULE = "match-schedule",
   MATCH_RESULTS = "match-results",
   USER = "users",
+  MVP_PLAYER = "mvp-players",
 }
 
 export enum FirebaseOrderDirection {
