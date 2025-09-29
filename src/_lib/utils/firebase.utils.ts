@@ -9,6 +9,7 @@ import {
 	QueryDocumentSnapshot,
 	where,
 } from "firebase/firestore";
+
 import db from "../config/firebaseConfig";
 import { GetFirebaseDataPayload } from "../type/firebaseType.type";
 

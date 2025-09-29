@@ -17,7 +17,7 @@ type Props = {
 
 export default function DisplayMatchSchedule(props: Props) {
   const { data } = props
-  const { matchSchedule } = data
+  const { matchSchedule, id } = data
 
   const standing = getStandings(matchSchedule)
 
@@ -27,6 +27,8 @@ export default function DisplayMatchSchedule(props: Props) {
       <div className=" flex flex-row  gap-5">
         <div className=" flex flex-1 flex-wrap gap-3">
           {matchSchedule?.map((val: MatchRound, index: number) => {
+            console.log("TEST", val)
+
             return (
               <div className=" mt-3" key={index + 1}>
                 <div className=" w-full flex flex-col flex-wrap justify-center gap-4">
@@ -37,7 +39,7 @@ export default function DisplayMatchSchedule(props: Props) {
                         id={data.id}
                         key={i.toString()}
                         games={data}
-                        matchId={val.id || ""}
+                        matchId={id}
                       />
                     )
                   })}

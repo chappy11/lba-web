@@ -53,6 +53,7 @@ export default function DisplayEliminationMatchSchedule(props: Props) {
                 data={filterSemifinal[1]}
                 id={filterSemifinal[1].id}
                 games={data}
+                matchId={""}
               />
             </div>
           </div>
@@ -67,6 +68,7 @@ export default function DisplayEliminationMatchSchedule(props: Props) {
                 data={final[0]}
                 id={final[0].id}
                 games={data}
+                matchId={""}
               />
             </div>
             <div className=" flex flex-1 justify-center">

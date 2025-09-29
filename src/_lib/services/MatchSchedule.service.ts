@@ -147,7 +147,7 @@ export async function updateMatches(id: string, matches: SeasonGames) {
   return matches
 }
 
-function removeUndefinedFields(obj: any) {
+export function removeUndefinedFields(obj: any) {
   if (Array.isArray(obj)) {
     return obj.map(removeUndefinedFields)
   } else if (obj !== null && typeof obj === "object") {
