@@ -5,7 +5,7 @@ export const getBaseUrlFromRequest = (req:NextApiRequest) => {
   return `${proto}://${req.headers.host}`
 }
 export const axiosConfig = axios.create({
-  baseURL: "http://localhost:3001/api/", // only available in browser
+  baseURL: "http://localhost:3000/api/", // only available in browser
   headers: {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",

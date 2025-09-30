@@ -1,4 +1,5 @@
 import { Player, PlayerWithTeam } from "@/_lib/dto/Player.model";
+import UpdateFeaturePlayer from "@/feature/teams/UpdateFeaturePlayer"
 import Image from "next/image";
 
 type Props = {
@@ -27,16 +28,24 @@ export default function PlayerCard(props:Props) {
         <div className=" absolute top-2 right-2 text-xs p-2 rounded-full bg-orange-200">
           {player.jerseyNumber}
         </div>
-        <Image
-          src={player.playerImage}
-          width={300}
-          height={300}
-          alt="player"
-          className=" rounded-md"
-        />
-        <div className=" mt-3 p-3">
-          <p>{player.firstname + " " + player.lastname}</p>
-          <p>{displayTeam()}</p>
+        <div className=" h-[300px]">
+          <Image
+            src={player.playerImage}
+            width={300}
+            height={300}
+            alt="player"
+            className=" rounded-md"
+          />
+        </div>
+
+        <div className=" mt-3 p-3 flex flex-row justify-between items-center">
+          <p>
+            {player.firstname.toUpperCase() +
+              " " +
+              player.lastname.toUpperCase()}
+          </p>
+
+          <UpdateFeaturePlayer teamId={player.teamId} />
         </div>
       </div>
     )

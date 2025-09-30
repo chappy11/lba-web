@@ -69,6 +69,7 @@ export const TeamProfile = (
         <div className=" w-full px-3 py-2 flex flex-row itesm-center justify-between ">
           <h1 className=" font-bold text-[18px]">Players</h1>
           <CreatePlayer teamId={id as string} />
+          
         </div>
         <div className=" flex flex-row flex-wrap gap-2 mt-3">
           {data.map((item: Player) => {
@@ -94,6 +95,7 @@ export const TeamProfile = (
               // 	</div>
               // </div>
               <PlayerCard player={item} key={item.id as string} />
+
             )
           })}
         </div>

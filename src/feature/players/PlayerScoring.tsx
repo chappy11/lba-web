@@ -1,6 +1,9 @@
 import { Match, SeasonGames } from "@/_lib/dto/MatchSchedule"
 import { Player } from "@/_lib/dto/Player.model"
-import { PlayerScoreModel } from "@/_lib/dto/TeamScoring.model"
+import {
+  PlayerScoreModeBasedInsert,
+  PlayerScoreModel,
+} from "@/_lib/dto/TeamScoring.model"
 import {
   getEliminationMatchSchedule,
   getMatchSchedule,
@@ -15,7 +18,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import UpdatePlayerScoringStatus from "./UpdatePlayerScoringStatus"
 
 type Props = {
   gameId: string
@@ -102,18 +106,86 @@ export default function PlayerScoring(props: Props) {
     combineAllMatches()
   }, [])
 
-  function findPlayerStatus(playerId: string, key: string) {
-    const stats = gamePlayerStatus.find(
-      (status) => status.playerId === playerId
-    )
+  const findPlayerStatus = useCallback(
+    (playerId: string, key: string) => {
+      const stats = gamePlayerStatus.find(
+        (status) => status.playerId === playerId
+      )
 
-    if (!stats) return 0
+      if (!stats) return 0
 
-    return stats[key as keyof PlayerScoreModel] ?? 0
-  }
+      return (stats[key as keyof PlayerScoreModel] as number) ?? 0
+    },
+    [gamePlayerStatus]
+  )
+
+  const findPlayerStatusId = useCallback(
+    (playerId: string) => {
+      const stats = gamePlayerStatus.find(
+        (status) => status.playerId === playerId
+      )
+      console.log("St", stats)
+      if (!stats) return null
+
+      return stats.id ?? null
+    },
+    [gamePlayerStatus]
+  )
+
+  const displayTableRowTeamOne = useMemo(() => {
+    {
+      return teamPlayerOne.map((player, index) => {
+        const playerScore: PlayerScoreModeBasedInsert = {
+          playerId: player.id as string,
+          gameId: gameId,
+          player: player,
+          points: findPlayerStatus(player.id as string, "points") ?? 0,
+          rebound: findPlayerStatus(player.id as string, "rebound") ?? 0,
+          assist: findPlayerStatus(player.id as string, "assist") ?? 0,
+          threepoints:
+            findPlayerStatus(player.id as string, "threepoints") ?? 0,
+          foul: findPlayerStatus(player.id as string, "foul") ?? 0,
+          steal: findPlayerStatus(player.id as string, "steal") ?? 0,
+        }
+
+        console.log("TEST", findPlayerStatusId(player?.id as string))
+        return (
+          <TableRow key={player.id}>
+            <TableCell>
+              {player.firstname.toUpperCase()} {player.lastname.toUpperCase()}
+            </TableCell>
+            <TableCell>
+              {findPlayerStatus(player.id as string, "rebound").toString()}
+            </TableCell>
+            <TableCell>
+              {findPlayerStatus(player.id as string, "assist").toString()}
+            </TableCell>
+            <TableCell>
+              {findPlayerStatus(player.id as string, "threepoints").toString()}
+            </TableCell>
+            <TableCell>
+              {findPlayerStatus(player.id as string, "foul").toString()}
+            </TableCell>
+            <TableCell>
+              {findPlayerStatus(player.id as string, "steal").toString()}
+            </TableCell>
+            <TableCell>
+              {findPlayerStatus(player.id as string, "points").toString()}
+            </TableCell>
+            <TableCell>
+              <UpdatePlayerScoringStatus
+                {...playerScore}
+                id={findPlayerStatusId(player.id as string) ?? null}
+              />
+            </TableCell>
+          </TableRow>
+        )
+      })
+    }
+  }, [gameId, teamPlayerOne, findPlayerStatus, findPlayerStatusId])
 
   return (
-    <div>
+    <div className=" w-[80%] mx-auto">
       <Table>
         <TableHeader>
           <TableRow>
@@ -124,48 +196,18 @@ export default function PlayerScoring(props: Props) {
             <TableHead>Foul</TableHead>
             <TableHead>Steal</TableHead>
             <TableHead>Points</TableHead>
+            <TableHead>Action</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
-          {teamPlayerOne.map((player, index) => {
-            return (
-              <TableRow key={player.id}>
-                <TableCell>
-                  {player.firstname} {player.lastname}
-                </TableCell>
-                <TableCell>
-                  {findPlayerStatus(player.id as string, "rebound").toString()}
-                </TableCell>
-                <TableCell>
-                  {findPlayerStatus(player.id as string, "assist").toString()}
-                </TableCell>
-                <TableCell>
-                  {findPlayerStatus(
-                    player.id as string,
-                    "threepoints"
-                  ).toString()}
-                </TableCell>
-                <TableCell>
-                  {findPlayerStatus(player.id as string, "foul").toString()}
-                </TableCell>
-                <TableCell>
-                  {findPlayerStatus(player.id as string, "rebound").toString()}
-                </TableCell>
-                <TableCell>
-                  {findPlayerStatus(player.id as string, "rebound").toString()}
-                </TableCell>
-              </TableRow>
-            )
-          })}
-        </TableBody>
+        <TableBody>{displayTableRowTeamOne}</TableBody>
         <TableBody>
           {teamPlayerTwo.map((player, index) => {
             return (
-              <TableRow key={player.id}>
+              <TableRow className=" border border-b" key={player.id}>
                 <TableCell>
                   {player.firstname} {player.lastname}
                 </TableCell>
-                <TableCell clas>{player.position}</TableCell>
+                <TableCell>{player.position}</TableCell>
                 <TableCell>
                   {findPlayerStatus(player.id as string, "rebound").toString()}
                 </TableCell>

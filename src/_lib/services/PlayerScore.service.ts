@@ -13,7 +13,22 @@ export async function createPlayerStatus(payload: PlayerStatusPayload) {
   try {
     if (payload.id === null) {
       // insert
-      const resp = await insertPlayerStatus(payload)
+
+      const cleanPayload: PlayerScoreModeBasedInsert = {
+        playerId: payload.playerId,
+        gameId: payload.gameId,
+        player: payload.player,
+        points: payload.points ?? 0,
+        rebound: payload.rebound ?? 0,
+        assist: payload.assist ?? 0,
+        threepoints: payload.threepoints ?? 0,
+        steal: payload.steal ?? 0,
+        foul: payload.foul ?? 0,
+      }
+
+      console.log("PLAYLOAD", cleanPayload)
+
+      const resp = await insertPlayerStatus(cleanPayload)
       return resp
     }
 
