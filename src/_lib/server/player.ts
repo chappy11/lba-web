@@ -9,8 +9,9 @@ export const createPlayer = async (player:Player) => {
 
 
 export const getPlayerByTeams = async (teamId:string) => {
-    const resp = await axiosConfig.get(`/players?teamId=${teamId}`)
 
+  const resp = await axiosConfig.get(`/players?teamId=${teamId}`)
+  console.log(teamId, resp.data)
     return resp.data;
 }
 

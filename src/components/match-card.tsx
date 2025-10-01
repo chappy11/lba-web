@@ -1,17 +1,20 @@
 "use client";
 import { Match, SeasonGames } from "@/_lib/dto/MatchSchedule"
+import { Player } from "@/_lib/dto/Player.model"
 import {
   eliminationMatchScheduleUpdate,
   updateMatchSchedule,
 } from "@/_lib/server/matchSchedule"
 import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetHeader,
-	SheetTitle,
-	SheetTrigger,
-} from "@/components/ui/sheet";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import UpdateMvpOfTheGame from "@/feature/MatchSchedule/UpdateMvpOfTheGame"
+import Link from "next/link"
 import { useState } from "react";
 import Swal from "sweetalert2"
 import TextInput from "./textinput";
@@ -23,10 +26,17 @@ type Props = {
   games: SeasonGames
   isUseMatchScore?: boolean
   isElimination?: boolean
+  matchId: string
 }
 
 export default function MatchCard(props: Props) {
-  const { data, games, isUseMatchScore = false, isElimination = false } = props
+  const {
+    data,
+    games,
+    isUseMatchScore = false,
+    isElimination = false,
+    matchId,
+  } = props
   const {
     team1,
     team2,
@@ -58,6 +68,7 @@ export default function MatchCard(props: Props) {
   const [gameAddress, setGameAddress] = useState<string>(address)
   const [selectedWinner, setSelectedWinner] = useState<string>(winner)
   const [isWinnerDeclared, setIsWinnerDeclared] = useState<boolean>(false)
+  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null)
 
   async function updateMatch() {
     let winner = "TBA"
@@ -273,6 +284,24 @@ export default function MatchCard(props: Props) {
               {isLoading ? <span>Loading...</span> : "Update"}
             </Button>
           </div>
+        </div>
+        <div className=" w-full px-3">
+          {winner !== "TBA" && (
+            <>
+              <UpdateMvpOfTheGame
+                teamId={winner}
+                gameId={id}
+                selectedPlayer={selectedPlayer}
+                setSelectedPlayer={setSelectedPlayer}
+              />
+              <Link
+                href={`match-schedule/player-standing?gameId=${id}&matchId=${matchId}`}
+                className=" text-blue-500 underline"
+              >
+                Test
+              </Link>
+            </>
+          )}
         </div>
       </SheetContent>
     </Sheet>

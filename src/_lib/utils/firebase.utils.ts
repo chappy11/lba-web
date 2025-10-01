@@ -9,6 +9,7 @@ import {
 	QueryDocumentSnapshot,
 	where,
 } from "firebase/firestore";
+
 import db from "../config/firebaseConfig";
 import { GetFirebaseDataPayload } from "../type/firebaseType.type";
 
@@ -69,21 +70,14 @@ export const getData = async (
 	}
 };
 
-export const addCollection = async <
-	FirebaseCollection,
-	T
->(
-	dbCollection: FirebaseCollection,
-	payload: T
+export const addCollection = async <FirebaseCollection, T>(
+  TEAMS: FirebaseCollection,
+  teamRef: unknown,
+  dbCollection: FirebaseCollection,
+  payload: T
 ) => {
-	const colRef = collection(
-		db,
-		dbCollection as string
-	);
-	const docRef = await addDoc(
-		colRef,
-		payload as DocumentData
-	);
+  const colRef = collection(db, dbCollection as string)
+  const docRef = await addDoc(colRef, payload as DocumentData)
 
-	return docRef;
-};
+  return docRef
+}

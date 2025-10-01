@@ -1,4 +1,4 @@
-import { Player } from "./Player.model";
+import { Player } from "./Player.model"
 
 export type PlayerGameInfo = Pick<
   Player,
@@ -11,7 +11,8 @@ export type PlayerGameInfo = Pick<
   | "position"
 >
 
-export interface GamePlayer {
+export interface PlayerScoreModel {
+  id: string
   playerId: string
   gameId: string
   player: PlayerGameInfo
@@ -19,8 +20,12 @@ export interface GamePlayer {
   rebound: number
   assist: number
   threepoints: number
+  steal: number
   foul: number
 }
 
-export type GamePlayerInfoPayload =
-	Omit<GamePlayer, "id">;
+export type PlayerScoreModeBasedInsert = Omit<PlayerScoreModel, "id">
+
+export type PlayerStatusPayload = PlayerScoreModeBasedInsert & {
+  id: string | null
+}

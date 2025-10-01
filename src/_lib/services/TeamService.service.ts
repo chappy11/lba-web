@@ -1,8 +1,13 @@
-import { doc, getDoc } from "firebase/firestore"
+import { doc, getDoc, updateDoc } from "firebase/firestore"
 
 import db from "../config/firebaseConfig"
 import { Game } from "../dto/Game.model"
-import { Team, TeamInsertPayload, TeamsStanding } from "../dto/Team.model"
+import {
+  Team,
+  TeamInsertPayload,
+  TeamsStanding,
+  UpdateTeam,
+} from "../dto/Team.model"
 import { FirebaseCollection } from "../enums/FirebaseCollection.enum"
 import {
   GetFirebaseDataPayload,
@@ -44,7 +49,6 @@ export async function insertTeam(payload: TeamInsertPayload) {
     throw new Error("Failed to insert team")
   }
 }
-
 
 export async function getTeamBySeasonId(seasonId: string) {
   try {
@@ -159,6 +163,21 @@ export async function getStandingThisSeason() {
     })
   } catch (error) {
     throw new Error("Failed to get standings for this season")
+  }
+}
+
+export const udpateTeamById = async (teamId: string, payload: UpdateTeam) => {
+  try {
+    if (!teamId) {
+      throw new Error("Team ID is required")
+    }
+
+    const docRef = doc(db, FirebaseCollection.TEAMS, teamId)
+
+    await updateDoc(docRef, { ...payload, updatedAt: new Date() })
+    return true
+  } catch (error) {
+    throw new Error(`Error updating team: ${error}`)
   }
 }
 

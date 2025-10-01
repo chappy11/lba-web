@@ -5,7 +5,6 @@ import MatchCard from "@/components/match-card"
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -18,11 +17,9 @@ type Props = {
 
 export default function DisplayMatchSchedule(props: Props) {
   const { data } = props
-  const { matchSchedule } = data
+  const { matchSchedule, id } = data
 
   const standing = getStandings(matchSchedule)
-
-  console.table(standing)
 
   return (
     <div className="flex flex-col mt-5 h-full overflow-y-auto mb-10">
@@ -30,6 +27,8 @@ export default function DisplayMatchSchedule(props: Props) {
       <div className=" flex flex-row  gap-5">
         <div className=" flex flex-1 flex-wrap gap-3">
           {matchSchedule?.map((val: MatchRound, index: number) => {
+            console.log("TEST", val)
+
             return (
               <div className=" mt-3" key={index + 1}>
                 <div className=" w-full flex flex-col flex-wrap justify-center gap-4">
@@ -40,6 +39,7 @@ export default function DisplayMatchSchedule(props: Props) {
                         id={data.id}
                         key={i.toString()}
                         games={data}
+                        matchId={id}
                       />
                     )
                   })}
@@ -50,13 +50,15 @@ export default function DisplayMatchSchedule(props: Props) {
         </div>
         <div className=" flex flex-1">
           <Table>
-            <TableCaption>Team standing</TableCaption>
+            {/* <TableCaption>Team standing</TableCaption> */}
             <TableHeader>
-              <TableHead>Rank</TableHead>
-              <TableHead>Team</TableHead>
-              <TableHead className=" text-center">Win</TableHead>
-              <TableHead className=" text-center">Loss</TableHead>
-              <TableHead className=" text-end">Total Points</TableHead>
+              <TableRow>
+                <TableHead>Rank</TableHead>
+                <TableHead>Team</TableHead>
+                <TableHead className=" text-center">Win</TableHead>
+                <TableHead className=" text-center">Loss</TableHead>
+                <TableHead className=" text-end">Total Points</TableHead>
+              </TableRow>
             </TableHeader>
             <TableBody>
               {standing.map((val, index) => {
