@@ -1,5 +1,5 @@
 import { axiosConfig } from "../config/config";
-import { TeamInsertPayload } from "../dto/Team.model";
+import { TeamInsertPayload, UpdateTeam } from "../dto/Team.model"
 
 export const createTeam = async (payload: TeamInsertPayload) => {
   try {
@@ -43,4 +43,8 @@ export const getTeamStandingThisSeason = async () => {
   }
 }
 	
+export const updateTeamById = async (teamId: string, payload: UpdateTeam) => {
+  const resp = await axiosConfig.put("/teams?teamId=" + teamId, payload)
 
+  return resp.data
+}

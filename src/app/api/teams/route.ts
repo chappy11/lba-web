@@ -1,7 +1,12 @@
-import { TeamInsertPayload } from "@/_lib/dto/Team.model";
-import { getTeamById, insertTeam } from "@/_lib/services/TeamService.service"
+import { TeamInsertPayload, UpdateTeam } from "@/_lib/dto/Team.model"
 
-import { NextResponse } from "next/server";
+import {
+  getTeamById,
+  insertTeam,
+  udpateTeamById,
+} from "@/_lib/services/TeamService.service"
+
+import { NextResponse } from "next/server"
 
 export async function POST(request: Request) {
   try {
@@ -26,6 +31,23 @@ export async function GET(request: Request) {
     const seasonTeam = await getTeamById(teamId as string)
 
     return NextResponse.json(seasonTeam, { status: 200 })
+  } catch (error) {
+    return NextResponse.json(error, { status: 500 })
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const teamId = searchParams.get("teamId")
+    const body = (await request.json()) as unknown as UpdateTeam
+
+    const resp = await udpateTeamById(teamId as string, body)
+
+    return NextResponse.json(
+      { message: "Successfully Updated", data: resp },
+      { status: 200 }
+    )
   } catch (error) {
     return NextResponse.json(error, { status: 500 })
   }

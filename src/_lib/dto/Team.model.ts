@@ -35,3 +35,5 @@ export type TeamsStanding = Team & {
 	win: number;
 	games: number;
 };
+
+export type UpdateTeam = Omit<Team, "id"> 
