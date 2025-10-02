@@ -71,8 +71,6 @@ export const getData = async (
 };
 
 export const addCollection = async <FirebaseCollection, T>(
-  TEAMS: FirebaseCollection,
-  teamRef: unknown,
   dbCollection: FirebaseCollection,
   payload: T
 ) => {
