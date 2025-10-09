@@ -77,6 +77,7 @@ export default function CreateTeam() {
         isActive: "1",
         dateCreate: new Date().toString(),
         teamType: GameType.BASKETBALL,
+        featurePlayer: null,
       }
 
       const resp = await createTeam(teamsData)

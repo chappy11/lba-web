@@ -22,6 +22,7 @@ export interface PlayerScoreModel {
   threepoints: number
   steal: number
   foul: number
+  turnOver: number
 }
 
 export type PlayerScoreModeBasedInsert = Omit<PlayerScoreModel, "id">

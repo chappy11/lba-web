@@ -2,8 +2,7 @@
 "use client";
 
 import { Team } from "@/_lib/dto/Team.model";
-import { getTeamById } from "@/_lib/server/team";
-import Header from "@/components/header";
+import { getTeamById } from "@/_lib/server/team"
 import { TeamProfile } from "@/feature/teams/TeamProfile";
 import { useSearchParams } from "next/navigation";
 import {
@@ -36,19 +35,12 @@ export default function Page() {
 		sendRequest();
 	}, [id]);
 
-	if (!data) {
-		return (
-			<div className=" w-full h-full flex items-center justify-center">
-				Loading...
-			</div>
-		);
-	}
+
 	return (
-		<div className=" flex flex-1 flex-col">
-			<div className=" w-[60%] mx-auto mt-10">
-				<Header title="Team Info" />
-				<TeamProfile data={data} />
-			</div>
-		</div>
-	);
+    <div className=" flex flex-1 flex-col">
+      <div className=" w-[60%] mx-auto mt-10">
+        {data && <TeamProfile data={data} />}
+      </div>
+    </div>
+  )
 }

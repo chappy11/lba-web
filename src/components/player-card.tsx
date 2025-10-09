@@ -5,7 +5,7 @@ import Image from "next/image";
 
 type Props = {
   player: Player | PlayerWithTeam
-  team: Team
+  team: Team | undefined
 }
 
 export default function PlayerCard(props: Props) {
@@ -33,8 +33,7 @@ export default function PlayerCard(props: Props) {
         <p>
           {player.firstname.toUpperCase() + " " + player.lastname.toUpperCase()}
         </p>
-
-        <UpdateFeaturePlayer player={player} team={team} />
+        {team && <UpdateFeaturePlayer player={player} team={team} />}
       </div>
     </div>
   )

@@ -86,12 +86,13 @@ export const TeamProfile = (
             <div className=" flex flex-col">
               <h1 className=" font-bold text-[24px]">{teamName}</h1>
               <h3>
-                Coach: {firstname} {middlename} {lastname}
+                Coach: {firstname.toUpperCase()} {middlename.toUpperCase()}{" "}
+                {lastname.toUpperCase()}
               </h3>
             </div>
           </div>
-          <div className="">{displayFeaturePlayer
-          }</div>
+          
+          <div className="">{displayFeaturePlayer}</div>
         </div>
         <div className=" w-full px-3 py-2 flex flex-row itesm-center justify-between ">
           <h1 className=" font-bold text-[18px]">Players</h1>

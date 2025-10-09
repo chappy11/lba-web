@@ -1,4 +1,6 @@
-import { Team } from "./Team.model";
+import { PlayerType } from "@/feature/players/CreatePlayer"
+
+import { Team } from "./Team.model"
 
 export interface Player {
   id?: string
@@ -11,16 +13,15 @@ export interface Player {
   jerseyNumber: string
   dateCreated: string
   playerImage: string
+  playerType: PlayerType
+  height: string
+  weight: string
 }
 
-export type PlayerInsertPayload = Omit<
-	Player,
-	"id"
->;
+export type PlayerInsertPayload = Omit<Player, "id">
 
 export type PlayerWithTeam = Player & {
-	team: Team;
-};
+  team: Team
+}
 
-export type PlayerResponse =
-	Array<PlayerWithTeam>;
+export type PlayerResponse = PlayerWithTeam

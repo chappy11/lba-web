@@ -1,0 +1,1 @@
+export type QueryParams =  { searchParams: { [key: string]: string | string[] | undefined } }

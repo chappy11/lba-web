@@ -1,6 +1,8 @@
 "use client"
 
 import { Team } from "@/_lib/dto/Team.model"
+import { DateFormatEnum } from "@/_lib/enums/DateFormatEnum.enum"
+import { formatDate } from "@/_lib/utils/date.utils"
 import {
   ChevronDown,
   ChevronLeft,
@@ -151,7 +153,7 @@ export default function SeasonList(props: Props) {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th>Logo</th>
+              <th className=" font-normal text-left text-sm">Logo</th>
               <th
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                 onClick={() => requestSort("teamName")}
@@ -187,12 +189,15 @@ export default function SeasonList(props: Props) {
                   className="hover:bg-gray-50 transition-colors duration-150"
                 >
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    <Image
-                      src={item.teamLogo}
-                      alt="team logo"
-                      width={50}
-                      height={50}
-                    />
+                    <div className=" rounded-full h-[80px] w-[80px] justify-center items-center flex">
+                      <Image
+                        src={item.teamLogo}
+                        alt="team logo"
+                        width={50}
+                        height={50}
+                        className=" rounded-full"
+                      />
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {item.teamName}
@@ -203,7 +208,9 @@ export default function SeasonList(props: Props) {
                     {item.coachInfo.lastname}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {item.dateCreate}
+                    {item.dateCreate
+                      ? formatDate(item.dateCreate, DateFormatEnum.FORMAT_USER)
+                      : ""}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <Link

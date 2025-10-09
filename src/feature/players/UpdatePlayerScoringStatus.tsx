@@ -1,19 +1,19 @@
 import {
-    PlayerGameInfo,
-    PlayerStatusPayload
+  PlayerGameInfo,
+  PlayerStatusPayload,
 } from "@/_lib/dto/TeamScoring.model"
 import { createPlayerStatus } from "@/_lib/server/playerStatus"
 import TextInput from "@/components/textinput"
 import { Button } from "@/components/ui/button"
 import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet"
-import React from "react"
+import React, { useState } from "react"
 import Swal from "sweetalert2"
 
 type Props = PlayerStatusPayload
@@ -26,16 +26,18 @@ export default function UpdatePlayerScoringStatus(props: Props) {
     foul,
     assist,
     steal,
-      id,
-      gameId,
-    playerId
+    id,
+    gameId,
+    playerId,
+    turnOver,
   } = props
   const [pointsValue, setPointsValue] = React.useState<string>(
     points?.toString()
   )
-    
 
-   const [reboundValue,setReboundValue] = React.useState<string>(props.rebound?.toString() || "0") 
+  const [reboundValue, setReboundValue] = React.useState<string>(
+    props.rebound?.toString() || "0"
+  )
   const [threePointsValue, setThreePointsValue] = React.useState<string>(
     threepoints?.toString()
   )
@@ -43,55 +45,60 @@ export default function UpdatePlayerScoringStatus(props: Props) {
   const [assistValue, setAssistValue] = React.useState<string>(
     assist?.toString()
   )
-    const [stealValue, setStealValue] = React.useState<string>(steal?.toString())
-    const [isLoading,setIsLoading] = React.useState<boolean>(false)
+  const [stealValue, setStealValue] = React.useState<string>(steal?.toString())
+  const [isLoading, setIsLoading] = React.useState<boolean>(false)
+
+  const [turnOverValue, setTurnOverValue] = useState<string>(
+    turnOver?.toString() || "0"
+  )
 
   async function handleUpdate() {
-      try {
-       
-          setIsLoading(true)
-          const playerData: PlayerGameInfo = {
-              id: player?.id || "",
-              firstname: player?.firstname || "",
-              middlename: player?.middlename || "",
-              lastname: player?.lastname || "",
-              jerseyNumber: player?.jerseyNumber || "",
-              playerImage: player?.playerImage || "",
-              position: player?.position || "",
-          }
-          const payload: PlayerStatusPayload = {
-              id: id ?? null,
-              playerId: playerId,
-              gameId: gameId,
-              points: parseInt(pointsValue) || 0,
-              threepoints: parseInt(threePointsValue) || 0,
-              foul: parseInt(foulValue) || 0,
-              assist: parseInt(assistValue) || 0,
-              steal: parseInt(stealValue) || 0,
-              rebound: parseInt(reboundValue) || 0,
-              player: playerData,
-          }
-
-          const resp = await createPlayerStatus(payload)
-
-          if (resp) {
-              Swal.fire({
-                  icon: "success",
-                  title: "Success",
-                  text: "Player status updated successfully",
-              }).then((val) => {
-                  window.location.reload()
-              })
-          }
-      } catch (error) {
-          Swal.fire({
-              icon: "error",
-              title: "Error",
-              text: "Failed to update player status",
-          })
-      } finally { 
-          setIsLoading(false)
+    try {
+      setIsLoading(true)
+      const playerData: PlayerGameInfo = {
+        id: player?.id || "",
+        firstname: player?.firstname || "",
+        middlename: player?.middlename || "",
+        lastname: player?.lastname || "",
+        jerseyNumber: player?.jerseyNumber || "",
+        playerImage: player?.playerImage || "",
+        position: player?.position || "",
       }
+
+      const payload: PlayerStatusPayload = {
+        id: id ?? null,
+        playerId: playerId,
+        gameId: gameId,
+        points: parseInt(pointsValue) || 0,
+        threepoints: parseInt(threePointsValue) || 0,
+        foul: parseInt(foulValue) || 0,
+        assist: parseInt(assistValue) || 0,
+        steal: parseInt(stealValue) || 0,
+        rebound: parseInt(reboundValue) || 0,
+        player: playerData,
+        turnOver: parseInt(turnOverValue) || 0,
+      }
+
+      const resp = await createPlayerStatus(payload)
+
+      if (resp) {
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Player status updated successfully",
+        }).then((val) => {
+          window.location.reload()
+        })
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to update player status",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
   return (
     <Sheet>
@@ -133,6 +140,11 @@ export default function UpdatePlayerScoringStatus(props: Props) {
               label="Rebound"
               value={reboundValue}
               onChange={(e) => setReboundValue(e.target.value)}
+            />
+            <TextInput
+              label="Turn over"
+              value={turnOverValue}
+              onChange={(e) => setTurnOverValue(e.target.value)}
             />
           </div>
           <Button onClick={() => handleUpdate()}>

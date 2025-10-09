@@ -18,6 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import Image from "next/image"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import UpdatePlayerScoringStatus from "./UpdatePlayerScoringStatus"
 
@@ -29,7 +30,6 @@ type Props = {
 
 export default function PlayerScoring(props: Props) {
   const { gameId, gameRecordId, isUpdate } = props
-  const [matches, setMathes] = useState<SeasonGames[]>([])
   const [game, setGame] = useState<Match | null>(null)
 
   const [teamPlayerOne, setTeamPlayerOne] = useState<Player[]>([])
@@ -51,7 +51,7 @@ export default function PlayerScoring(props: Props) {
   async function fetchEliminationMatches() {
     try {
       const eliminationMatches = await getEliminationMatchSchedule()
-
+      console.log("ELIMINATION", eliminationMatches)
       return eliminationMatches
     } catch (error) {
       console.log("Error Elimination", error)
@@ -65,12 +65,10 @@ export default function PlayerScoring(props: Props) {
     ])
 
     const allMatches = [...(roundRobin ?? []), ...(elimination ?? [])]
-    console.log("ID", gameRecordId)
+
     const findTheCurrentMatch = allMatches.find(
       (season) => season.id === gameRecordId
     ) as SeasonGames
-
-    console.log(allMatches)
     if (!findTheCurrentMatch) {
       console.log("No match found")
       return
@@ -82,7 +80,6 @@ export default function PlayerScoring(props: Props) {
     setGame(findTheGame)
 
     if (!findTheGame) {
-      console.log("No game found")
       return
     }
 
@@ -132,9 +129,11 @@ export default function PlayerScoring(props: Props) {
     [gamePlayerStatus]
   )
 
-  const displayTableRowTeamOne = useMemo(() => {
-    {
-      return teamPlayerOne.map((player, index) => {
+  const displayTeamCard = useCallback(
+    (type: string) => {
+      const teamplay = type === "ONE" ? teamPlayerOne : teamPlayerTwo
+
+      return teamplay.map((player) => {
         const playerScore: PlayerScoreModeBasedInsert = {
           playerId: player.id as string,
           gameId: gameId,
@@ -146,76 +145,93 @@ export default function PlayerScoring(props: Props) {
             findPlayerStatus(player.id as string, "threepoints") ?? 0,
           foul: findPlayerStatus(player.id as string, "foul") ?? 0,
           steal: findPlayerStatus(player.id as string, "steal") ?? 0,
+          turnOver: findPlayerStatus(player.id as string, "turnOver") ?? 0,
         }
 
-        console.log("TEST", findPlayerStatusId(player?.id as string))
         return (
-          <TableRow key={player.id}>
-            <TableCell>
-              {player.firstname.toUpperCase()} {player.lastname.toUpperCase()}
-            </TableCell>
-            <TableCell>
-              {findPlayerStatus(player.id as string, "rebound").toString()}
-            </TableCell>
-            <TableCell>
-              {findPlayerStatus(player.id as string, "assist").toString()}
-            </TableCell>
-            <TableCell>
-              {findPlayerStatus(player.id as string, "threepoints").toString()}
-            </TableCell>
-            <TableCell>
-              {findPlayerStatus(player.id as string, "foul").toString()}
-            </TableCell>
-            <TableCell>
-              {findPlayerStatus(player.id as string, "steal").toString()}
-            </TableCell>
-            <TableCell>
-              {findPlayerStatus(player.id as string, "points").toString()}
-            </TableCell>
-            <TableCell>
-              <UpdatePlayerScoringStatus
-                {...playerScore}
-                id={findPlayerStatusId(player.id as string) ?? null}
+          <div
+            className=" flex flex-row w-fit items-center gap-5 bg-white my-3 p-3 rounded-md shadow-md "
+            key={player.id}
+          >
+            <div className=" flex flex-col gap-3 justify-center items-center w-[200px]">
+              <Image
+                src={player.playerImage}
+                width={100}
+                height={100}
+                alt="player"
+                className=" rounded-full h-[100px] w-[100px]"
               />
-            </TableCell>
-          </TableRow>
+              <h1 className=" font-semibold text-center">
+                {player.firstname.toUpperCase() +
+                  " " +
+                  player.middlename.toUpperCase() +
+                  " " +
+                  player.lastname.toUpperCase()}
+              </h1>
+            </div>
+            <div className="flex flex-col gap-3 w-[150px]">
+              <p>Points: {playerScore.points}</p>
+              <p>3 pts: {playerScore.threepoints}</p>
+              <p>Rebound: {playerScore.rebound}</p>
+            </div>
+            <div className="flex flex-col gap-3 w-[150px]">
+              <p>Assist: {playerScore.assist}</p>
+              <p>Steal: {playerScore.steal}</p>
+              <p>Turn Over: {playerScore.turnOver}</p>
+            </div>
+            <div className="flex flex-col gap-3 w-[150px]">
+              <p>Foul: {playerScore.foul}</p>
+              <div className=" mt-2">
+                <UpdatePlayerScoringStatus
+                  {...playerScore}
+                  id={findPlayerStatusId(player.id as string) ?? null}
+                />
+              </div>
+            </div>
+          </div>
         )
       })
-    }
-  }, [gameId, teamPlayerOne, findPlayerStatus, findPlayerStatusId])
+    },
+    [teamPlayerOne, teamPlayerTwo, gameId, findPlayerStatus, findPlayerStatusId]
+  )
 
   return (
     <div className=" w-[80%] mx-auto">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Player Name</TableHead>
-            <TableHead>Rebound</TableHead>
-            <TableHead>Assist</TableHead>
-            <TableHead>Threepoints</TableHead>
-            <TableHead>Foul</TableHead>
-            <TableHead>Steal</TableHead>
-            <TableHead>Points</TableHead>
-            <TableHead>Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>{displayTableRowTeamOne}</TableBody>
-        <TableBody>
-          {teamPlayerTwo.map((player, index) => {
-            return (
-              <TableRow className=" border border-b" key={player.id}>
-                <TableCell>
-                  {player.firstname} {player.lastname}
-                </TableCell>
-                <TableCell>{player.position}</TableCell>
-                <TableCell>
-                  {findPlayerStatus(player.id as string, "rebound").toString()}
-                </TableCell>
-              </TableRow>
-            )
-          })}
-        </TableBody>
-      </Table>
+      <div className=" flex flex-row justify-between items-center my-5">
+        <div>
+          <div className=" flex flex-row items-center gap-5">
+            <div className=" h-[150px] w-[150px] flex justify-center items-center rounded-full">
+              {game?.team1Logo && (
+                <Image
+                  src={game?.team1Logo}
+                  width={200}
+                  height={200}
+                  alt="team1"
+                />
+              )}
+            </div>
+            <h1 className=" font-semibold">{game?.team1.toUpperCase()}</h1>
+          </div>
+          {displayTeamCard("ONE")}
+        </div>
+        <div>
+          <div className=" flex flex-row items-center gap-5">
+            <div className=" h-[150px] w-[150px] flex justify-center items-center rounded-full">
+              {game?.team2Logo && (
+                <Image
+                  src={game?.team2Logo}
+                  width={150}
+                  height={150}
+                  alt="team2"
+                  className=" rounded-full"
+                />
+              )}
+            </div>
+            <h1 className=" font-semibold">{game?.team2.toUpperCase()}</h1>
+          </div>
+          {displayTeamCard("TWO")}
+        </div>
+      </div>
     </div>
   )
 }

@@ -24,9 +24,9 @@ export async function createPlayerStatus(payload: PlayerStatusPayload) {
         threepoints: payload.threepoints ?? 0,
         steal: payload.steal ?? 0,
         foul: payload.foul ?? 0,
+        turnOver: payload.turnOver ?? 0,
       }
 
-      console.log("PLAYLOAD", cleanPayload)
 
       const resp = await insertPlayerStatus(cleanPayload)
       return resp

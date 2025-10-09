@@ -7,22 +7,22 @@ import LoadingScreen from "@/components/loading-screen"
 import TextInput from "@/components/textinput";
 import { Button } from "@/components/ui/button";
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
-	Sheet,
-	SheetClose,
-	SheetContent,
-	SheetDescription,
-	SheetFooter,
-	SheetHeader,
-	SheetTitle,
-	SheetTrigger,
-} from "@/components/ui/sheet";
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { useMemo, useState } from "react"
 import { toast } from "sonner";
 import Swal from "sweetalert2"
@@ -31,26 +31,25 @@ type Props = {
 	teamId: string;
 };
 
-export function CreatePlayer(
-	props: Props
-) {
-	const { teamId } = props;
-	const [firstname, setFirstname] =
-		useState<string>("");
-	const [middlename, setMiddlename] =
-		useState<string>("");
-	const [lastname, setLastname] =
-		useState<string>("");
-	const [position, setPosition] =
-		useState<string>("");
-	const [age, setAge] =
-		useState<string>("0");
-	const [
-		jerseyNumber,
-		setJerseyNumber,
-	] = useState<string>("");
 
-	const [logo, setLogo] = useState<File | null>(null)
+export enum PlayerType {
+  RESERVE = "RESERVE",
+  MAIN = "MAIN",
+}
+
+export function CreatePlayer(props: Props) {
+  const { teamId } = props
+  const [firstname, setFirstname] = useState<string>("")
+  const [middlename, setMiddlename] = useState<string>("")
+  const [lastname, setLastname] = useState<string>("")
+  const [position, setPosition] = useState<string>("")
+  const [age, setAge] = useState<string>("0")
+  const [jerseyNumber, setJerseyNumber] = useState<string>("")
+  const [playerType, setPlayerType] = useState<string | null>(null)
+  const [height, setHeight] = useState<string>("0")
+  const [weight, setWeight] = useState<string>("0")
+
+  const [logo, setLogo] = useState<File | null>(null)
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 
@@ -112,6 +111,9 @@ export function CreatePlayer(
         jerseyNumber,
         dateCreated: new Date().toISOString(),
         teamId: teamId,
+        playerType: playerType as PlayerType,
+        height: height,
+        weight: weight,
       }
 
       const response = await createPlayer(payload)
@@ -158,11 +160,11 @@ export function CreatePlayer(
         <SheetHeader>
           <SheetTitle>Create Player</SheetTitle>
           <SheetDescription>
-            Make changes to your profile here. Click save when you're done.
+            Make changes to your profile here. Click save when you&apos;re done.
           </SheetDescription>
         </SheetHeader>
-        <div className=" p-3 w-full flex flex-col gap-1">
-          <div className=" flex flex-1 justify-center flex-col items-center  ">
+        <div className=" p-3 w-full flex flex-col gap-1 overflow-auto h-full">
+          <div className=" flex flex-col items-center ">
             {displayLogo}
             <TextInput
               label="Upload Season Logo"
@@ -180,27 +182,43 @@ export function CreatePlayer(
             value={firstname}
             onChange={(e) => setFirstname(e.target.value)}
             label=" Player Firstname"
+            error={firstNameError}
           />
           <TextInput
             value={middlename}
             onChange={(e) => setMiddlename(e.target.value)}
             label=" Player Middlename"
+            error={middleNameError}
           />
           <TextInput
             value={lastname}
             onChange={(e) => setLastname(e.target.value)}
             label=" Player Lastname"
+            error={lastNameError}
           />
           <TextInput
             label=" Age"
             value={age}
             onChange={(e) => setAge(e.target.value)}
+            error={ageError}
           />
           <TextInput
             label=" Jersey Number"
             value={jerseyNumber}
             onChange={(e) => setJerseyNumber(e.target.value)}
+            error={jerseyNumberError}
           />
+          <TextInput
+            label=" Height"
+            value={height}
+            onChange={(e) => setHeight(e.target.value)}
+          />
+          <TextInput
+            label="Weight"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+          />
+          <TextInput />
           <div className=" w-full">
             <p className=" text-[14px]">Position</p>
             <Select onValueChange={(e) => setPosition(e)} value={position}>
@@ -215,13 +233,37 @@ export function CreatePlayer(
                 <SelectItem value="C">Center (C)</SelectItem>
               </SelectContent>
             </Select>
+            {positionError && (
+              <p className=" text-red-500 text-[12px]">{positionError}</p>
+            )}
+          </div>
+          <div className=" w-full mt-5">
+            <p className=" text-[14px]">Player Type</p>
+            <Select
+              onValueChange={(e) => setPlayerType(e)}
+              value={playerType || ""}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select Player Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={PlayerType.MAIN}>
+                  {PlayerType.MAIN} PLAYER
+                </SelectItem>
+                <SelectItem value={PlayerType.RESERVE}>
+                  {PlayerType.RESERVE} PLAYER
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            {positionError && (
+              <p className=" text-red-500 text-[12px]">{positionError}</p>
+            )}
           </div>
         </div>
+        <Button onClick={() => handleSubmit()}>Save changes</Button>
 
         <SheetFooter>
-          <SheetClose asChild>
-            <Button onClick={() => handleSubmit()}>Save changes</Button>
-          </SheetClose>
+          <SheetClose asChild></SheetClose>
         </SheetFooter>
       </SheetContent>
     </Sheet>

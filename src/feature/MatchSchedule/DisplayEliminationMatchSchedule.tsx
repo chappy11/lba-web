@@ -32,6 +32,8 @@ export default function DisplayEliminationMatchSchedule(props: Props) {
     }
   }
 
+  console.log(games[0].matches)
+
   return (
     <div className=" mx-auto w-full">
       <div className=" flex flex-1 flex-row">
@@ -44,6 +46,7 @@ export default function DisplayEliminationMatchSchedule(props: Props) {
                 data={filterSemifinal[0]}
                 id={filterSemifinal[0].id}
                 games={data}
+                matchId={data.id}
               />
             </div>
             <div className="   absolute -top-10">
@@ -53,7 +56,7 @@ export default function DisplayEliminationMatchSchedule(props: Props) {
                 data={filterSemifinal[1]}
                 id={filterSemifinal[1].id}
                 games={data}
-                matchId={""}
+                matchId={data.id}
               />
             </div>
           </div>
@@ -68,7 +71,7 @@ export default function DisplayEliminationMatchSchedule(props: Props) {
                 data={final[0]}
                 id={final[0].id}
                 games={data}
-                matchId={""}
+                matchId={data.id}
               />
             </div>
             <div className=" flex flex-1 justify-center">
