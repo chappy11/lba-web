@@ -14,6 +14,7 @@ import {
 import { Team } from "../dto/Team.model"
 import { FirebaseCollection } from "../enums/FirebaseCollection.enum"
 
+import dayjs from "dayjs"
 import { GetFirebaseDataPayload } from "../type/firebaseType.type"
 import { addCollection, getData } from "../utils/firebase.utils"
 import {
@@ -88,7 +89,7 @@ export async function getMatchSchedule(gameType: GameType) {
       ],
     }
 
-    const resp = await getData(payload)
+    const resp = (await getData(payload)) as Array<SeasonGames>
 
     return resp
   } catch (error) {
@@ -332,5 +333,47 @@ export async function getMatchResults() {
     throw new Error(
       "Something went wrong while fetching match results: " + error
     )
+  }
+}
+
+export async function getNearestMatches() {
+  try {
+    const now = dayjs()
+    const roundRobinMatches = await getMatchSchedule(GameType.ROUND_ROBIN)
+    const eliminationMatches = await getMatchSchedule(GameType.ELIMINATION)
+
+    const allMatches = [
+      ...(roundRobinMatches ?? []),
+      ...(eliminationMatches ?? []),
+    ]
+
+    const findMatchWithDate = allMatches
+      .map((data: SeasonGames) =>
+        data.matchSchedule
+          .map((round: Round) =>
+            round.matches.filter(
+              (match: Match) =>
+                match.gameDate !== "TBA" && match.gameTime !== "TBA"
+            )
+          )
+          .flat()
+      )
+      .flat()
+
+    let nearestMatch = findMatchWithDate
+      .map((m) => ({ ...m, datetime: dayjs(`${m.gameDate} ${m.gameTime}`) }))
+      .filter((m) => m.datetime.isAfter(now))
+      .sort((a, b) => a.datetime.diff(now) - b.datetime.diff(now))[0]
+
+    if (!nearestMatch) {
+      nearestMatch = findMatchWithDate
+        .map((m) => ({ ...m, datetime: dayjs(`${m.gameDate} ${m.gameTime}`) }))
+        .filter((m) => m.datetime.isBefore(now))
+        .sort((a, b) => now.diff(a.datetime) - now.diff(b.datetime))[0]
+    }
+
+    return nearestMatch
+  } catch (error) {
+    throw new Error("Something went wrong while fetching nearest matches")
   }
 }
