@@ -138,7 +138,7 @@ export async function roundRobin() {
 }
 
 export async function updateMatches(id: string, matches: SeasonGames) {
-  const cleanedPayload = removeUndefinedFields(matches)
+  const cleanedPayload = removeUndefinedFields(matches) as Partial<SeasonGames>
 
   await updateDoc(
     doc(db, FirebaseCollection.MATCH_SCHEDULE, id),
@@ -148,13 +148,13 @@ export async function updateMatches(id: string, matches: SeasonGames) {
   return matches
 }
 
-export function removeUndefinedFields(obj: any) {
+export function removeUndefinedFields(obj: unknown): unknown {
   if (Array.isArray(obj)) {
     return obj.map(removeUndefinedFields)
   } else if (obj !== null && typeof obj === "object") {
     return Object.fromEntries(
       Object.entries(obj)
-        .filter(([_, v]) => v !== undefined)
+        .filter(([, v]) => v !== undefined)
         .map(([k, v]) => [k, removeUndefinedFields(v)])
     )
   }
@@ -219,6 +219,10 @@ export async function updateEliminationRound(updatePayload: Match) {
 
     await updateMatches(matches[0].id, updatedData)
 
+    if (filterDataById.address === "TBA" && filterDataById.gameTime === "TBA") {
+      return await updateMatches(matches[0].id, updatedData)
+    }
+
     if (updatePayload.winner !== "TBA") {
       const retriggerMatches = (await getMatchSchedule(
         GameType.ELIMINATION
@@ -236,35 +240,36 @@ export async function updateEliminationRound(updatePayload: Match) {
               : updatePayload?.team2Logo
           return {
             ...round,
-            matches: round?.matches?.map((match) =>
-              match?.matchType === MatchType.FINAL.toString()
-                ? {
-                    ...match,
+            matches: round?.matches?.map((match) => {
+              if (match?.matchType === MatchType.FINAL.toString()) {
+                // Determine which slot to fill based on current state
+                const isTeam1Empty = !match?.team1 || match?.team1 === ""
+                const isTeam2Empty = !match?.team2 || match?.team2 === ""
 
-                    team1: match?.team1 === "" ? teamWinner : match?.team1,
-                    team2:
-                      match?.team2 === "" && match?.team1 !== ""
-                        ? teamWinner
-                        : match?.team2,
-                    team1Logo:
-                      match?.team1Logo === ""
-                        ? teamWinnerLogo
-                        : match?.team1Logo,
-                    team2Logo:
-                      match?.team2Logo === "" && match?.team1Logo !== ""
-                        ? teamWinnerLogo
-                        : match?.team2Logo,
-                    team1Id:
-                      match?.team1Id === ""
-                        ? updatePayload?.winner
-                        : match.team1Id,
-                    team2Id:
-                      match?.team2Id === ""
-                        ? updatePayload?.winner
-                        : match.team2Id,
-                  }
-                : match
-            ),
+                // If team1 is empty, fill team1. Otherwise, fill team2
+                const shouldFillTeam1 = isTeam1Empty
+                const shouldFillTeam2 = !isTeam1Empty && isTeam2Empty
+
+                return {
+                  ...match,
+                  team1: shouldFillTeam1 ? teamWinner : match?.team1,
+                  team2: shouldFillTeam2 ? teamWinner : match?.team2,
+                  team1Logo: shouldFillTeam1
+                    ? teamWinnerLogo
+                    : match?.team1Logo,
+                  team2Logo: shouldFillTeam2
+                    ? teamWinnerLogo
+                    : match?.team2Logo,
+                  team1Id: shouldFillTeam1
+                    ? updatePayload?.winner
+                    : match?.team1Id,
+                  team2Id: shouldFillTeam2
+                    ? updatePayload?.winner
+                    : match?.team2Id,
+                }
+              }
+              return match
+            }),
           }
         }
       )
@@ -373,7 +378,7 @@ export async function getNearestMatches() {
     }
 
     return nearestMatch
-  } catch (error) {
+  } catch {
     throw new Error("Something went wrong while fetching nearest matches")
   }
 }
