@@ -1,97 +1,141 @@
-import { TeamsStanding } from "@/_lib/dto/Team.model";
-import { TableRow } from "@/components/ui/table";
-import Image from "next/image";
+import { TeamsStanding } from "@/_lib/dto/Team.model"
+import { THEME } from "@/lib/theme"
+import { Medal } from "lucide-react"
+import Image from "next/image"
 
 type Props = {
-	teamStanding: Array<TeamsStanding>;
-};
+  teamStanding: Array<TeamsStanding>
+  statistics?: Array<{
+    teamId: string
+    goalDifference: number
+    goalsFor: number
+    goalsAgainst: number
+  }>
+}
 
-export default async function TeamStanding(
-	props: Props
-) {
-	const { teamStanding } = props;
-	return teamStanding.map((standing: TeamsStanding, index: number) => (
-    <TableRow
-      key={standing?.id}
-      className="group hover:bg-slate-800/50 transition-colors duration-200 border-b border-slate-700/50"
-    >
-      {/* Team Name */}
-      <td className="py-4 px-6 text-left">
-        <div className="flex items-center space-x-3">
-          {/* <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center  font-bold text-sm">
-							{index + 1}
-						</div> */}
-          <p className="  mr-5 text-lg">{index + 1}</p>
-          <Image
-            src={standing.teamLogo}
-            alt={standing.teamName}
-            width={32}
-            className="rounded-full"
-            height={32}
-          />
-          <span className=" uppercase font-medium text-lg group-hover:text-blue-300 transition-colors">
-            {standing.teamName}
-          </span>
-        </div>
-      </td>
+export default async function TeamStanding(props: Props) {
+  const { teamStanding, statistics } = props
 
-      {/* Wins */}
-      <td className="py-4 px-4 text-center">
-        <div className="inline-flex flex-col items-center space-y-1">
-          <span className="text-2xl font-bold text-green-600">
+  return teamStanding.map((standing: TeamsStanding, index: number) => {
+    const winRate =
+      standing.games > 0 ? (standing.win / standing.games) * 100 : 0
+    const isTopThree = index < 3
+
+    // Find the goal difference for this team from statistics
+    const teamStats = statistics?.find((stat) => stat.teamId === standing.id)
+    const goalDiff = teamStats?.goalDifference || 0
+
+    return (
+      <tr
+        key={standing?.id || index}
+        className={`group hover:bg-gray-50 transition-colors duration-200 ${
+          isTopThree ? "bg-yellow-50/50" : ""
+        }`}
+      >
+        {/* Rank */}
+        <td className="px-6 py-4">
+          <div className="flex items-center gap-3">
+            {isTopThree ? (
+              <div
+                className={`${
+                  index === 0
+                    ? THEME.WARNING.GRADIENT
+                    : index === 1
+                    ? "bg-gradient-to-br from-gray-400 to-gray-500"
+                    : "bg-gradient-to-br from-orange-400 to-orange-500"
+                } w-8 h-8 rounded-full flex items-center justify-center shadow-md`}
+              >
+                <Medal className="w-5 h-5 text-white" />
+              </div>
+            ) : (
+              <div className="w-8 h-8 flex items-center justify-center">
+                <span className="text-lg font-bold text-gray-600">
+                  {index + 1}
+                </span>
+              </div>
+            )}
+          </div>
+        </td>
+
+        {/* Team Name */}
+        <td className="px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-gray-200 flex-shrink-0">
+              {standing.teamLogo ? (
+                <Image
+                  src={standing.teamLogo}
+                  alt={standing.teamName}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div
+                  className={`w-full h-full ${THEME.TEAMS.GRADIENT} flex items-center justify-center`}
+                >
+                  <span className="text-white font-bold text-sm">
+                    {standing.teamName.charAt(0)}
+                  </span>
+                </div>
+              )}
+            </div>
+            <span className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+              {standing.teamName}
+            </span>
+          </div>
+        </td>
+
+        {/* Wins */}
+        <td className="px-4 py-4 text-center">
+          <span className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-green-50 text-green-700 font-bold text-lg">
             {standing.win}
           </span>
-          <span className="text-xs text-green-500/80 uppercase tracking-wide">
-            Wins
-          </span>
-        </div>
-      </td>
+        </td>
 
-      {/* Losses */}
-      <td className="py-4 px-4 text-center">
-        <div className="inline-flex flex-col items-center space-y-1">
-          <span className="text-2xl font-bold text-red-600">
+        {/* Losses */}
+        <td className="px-4 py-4 text-center">
+          <span className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-red-50 text-red-700 font-bold text-lg">
             {standing.lose}
           </span>
-          <span className="text-xs text-red-500/80 uppercase tracking-wide">
-            Losses
-          </span>
-        </div>
-      </td>
+        </td>
 
-      {/* Total Games */}
-      <td className="py-4 px-4 text-center">
-        <div className="inline-flex flex-col items-center space-y-1">
-          <span className="text-2xl font-bold text-blue-400">
+        {/* Games Played */}
+        <td className="px-4 py-4 text-center">
+          <span className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-blue-50 text-blue-700 font-bold text-lg">
             {standing.games}
           </span>
-          <span className="text-xs text-blue-300/70 uppercase tracking-wide">
-            Games
-          </span>
-        </div>
-      </td>
+        </td>
 
-      {/* Win Percentage (Optional Enhancement) */}
-      <td className="py-4 px-6 text-center">
-        <div className="inline-flex flex-col items-center space-y-2">
-          <span className="text-lg font-semibold text-yellow-400">
-            {standing.games > 0
-              ? ((standing.win / standing.games) * 100).toFixed(1) + "%"
-              : "0%"}
+        {/* Goal Difference */}
+        <td className="px-4 py-4 text-center">
+          <span
+            className={`inline-flex items-center justify-center min-w-[48px] h-12 rounded-lg font-bold text-lg ${
+              goalDiff > 0
+                ? "bg-green-50 text-green-700"
+                : goalDiff < 0
+                ? "bg-red-50 text-red-700"
+                : "bg-gray-50 text-gray-700"
+            }`}
+          >
+            {goalDiff > 0 ? "+" : ""}
+            {goalDiff}
           </span>
-          <div className="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-yellow-400 to-yellow-500 transition-all duration-300"
-              style={{
-                width:
-                  standing.games > 0
-                    ? `${(standing.win / standing.games) * 100}%`
-                    : "0%",
-              }}
-            />
+        </td>
+
+        {/* Win Percentage */}
+        <td className="px-6 py-4">
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-lg font-bold text-gray-900">
+              {winRate.toFixed(1)}%
+            </span>
+            <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div
+                className={`h-full ${THEME.SUCCESS.GRADIENT} transition-all duration-500`}
+                style={{ width: `${winRate}%` }}
+              />
+            </div>
           </div>
-        </div>
-      </td>
-    </TableRow>
-  ))
+        </td>
+      </tr>
+    )
+  })
 }

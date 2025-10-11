@@ -1,9 +1,9 @@
 import { Player, PlayerWithTeam } from "@/_lib/dto/Player.model"
 import { Team } from "@/_lib/dto/Team.model"
-import { THEME } from "@/lib/theme"
 import UpdateFeaturePlayer from "@/feature/teams/UpdateFeaturePlayer"
+import { THEME } from "@/lib/theme"
+import { User, Users } from "lucide-react"
 import Image from "next/image"
-import { Users, User } from "lucide-react"
 
 type Props = {
   player: Player | PlayerWithTeam

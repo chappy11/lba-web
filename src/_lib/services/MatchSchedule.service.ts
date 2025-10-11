@@ -7,6 +7,7 @@ import {
   CreateMatchSchedule,
   GameType,
   Match,
+  MatchResult,
   MatchType,
   Round,
   SeasonGames,
@@ -319,7 +320,7 @@ export async function createMatchResult(matchResult: CreateMatchResult) {
   }
 }
 
-export async function getMatchResults() {
+export async function getMatchResults(): Promise<MatchResult[]> {
   try {
     const currentSeason = await getActiveSeason()
 
@@ -333,7 +334,7 @@ export async function getMatchResults() {
 
     const resp = await getData(payload)
 
-    return resp
+    return resp as MatchResult[]
   } catch (error) {
     throw new Error(
       "Something went wrong while fetching match results: " + error
@@ -382,3 +383,454 @@ export async function getNearestMatches() {
     throw new Error("Something went wrong while fetching nearest matches")
   }
 }
+
+/**
+ * Arranges winners in elimination match schedule based on total scores
+ * This function processes all semifinal matches and advances winners to the finals
+ * @returns Updated SeasonGames with winners arranged
+ */
+export async function arrangeEliminationWinners() {
+  try {
+    // Get elimination matches
+    const matches = (await getMatchSchedule(
+      GameType.ELIMINATION
+    )) as Array<SeasonGames>
+
+    if (!matches || matches.length === 0) {
+      throw new Error("No elimination match schedule found")
+    }
+
+    const eliminationSchedule = matches[0]
+
+    // Find semifinal and final rounds
+    const semifinalRound = eliminationSchedule.matchSchedule.find((round) =>
+      round.matches.some((match) => match.matchType === MatchType.SEMIFINAL)
+    )
+
+    const finalRound = eliminationSchedule.matchSchedule.find((round) =>
+      round.matches.some((match) => match.matchType === MatchType.FINAL)
+    )
+
+    if (!semifinalRound) {
+      throw new Error("No semifinal round found")
+    }
+
+    if (!finalRound) {
+      throw new Error("No final round found")
+    }
+
+    // Process semifinal matches and determine winners
+    const semifinalWinners: Array<{
+      teamId: string
+      teamName: string
+      teamLogo: string
+      totalScore: number
+      matchIndex: number
+    }> = []
+
+    semifinalRound.matches.forEach((match, index) => {
+      // Only process completed matches
+      if (match.team1Score > 0 || match.team2Score > 0) {
+        const team1TotalScore = match.team1Score + match.team1MatchScore
+        const team2TotalScore = match.team2Score + match.team2MatchScore
+
+        if (team1TotalScore > team2TotalScore) {
+          semifinalWinners.push({
+            teamId: match.team1Id,
+            teamName: match.team1,
+            teamLogo: match.team1Logo || "",
+            totalScore: team1TotalScore,
+            matchIndex: index,
+          })
+        } else if (team2TotalScore > team1TotalScore) {
+          semifinalWinners.push({
+            teamId: match.team2Id,
+            teamName: match.team2,
+            teamLogo: match.team2Logo || "",
+            totalScore: team2TotalScore,
+            matchIndex: index,
+          })
+        }
+      }
+    })
+
+    // Update the match schedule with winners
+    const updatedMatchSchedule = eliminationSchedule.matchSchedule.map(
+      (round) => {
+        // Update semifinal matches with winner information
+        if (
+          round.matches.some((match) => match.matchType === MatchType.SEMIFINAL)
+        ) {
+          return {
+            ...round,
+            matches: round.matches.map((match) => {
+              const team1TotalScore = match.team1Score + match.team1MatchScore
+              const team2TotalScore = match.team2Score + match.team2MatchScore
+
+              let winner = "TBA"
+              if (team1TotalScore > team2TotalScore) {
+                winner = match.team1Id
+              } else if (team2TotalScore > team1TotalScore) {
+                winner = match.team2Id
+              }
+
+              return {
+                ...match,
+                winner,
+              }
+            }),
+          }
+        }
+
+        // Update final match with semifinal winners
+        if (
+          round.matches.some((match) => match.matchType === MatchType.FINAL)
+        ) {
+          return {
+            ...round,
+            matches: round.matches.map((match) => {
+              if (match.matchType === MatchType.FINAL) {
+                // Fill team1 with first semifinal winner
+                // Fill team2 with second semifinal winner
+                const team1 = semifinalWinners[0] || {
+                  teamId: "",
+                  teamName: "",
+                  teamLogo: "",
+                }
+                const team2 = semifinalWinners[1] || {
+                  teamId: "",
+                  teamName: "",
+                  teamLogo: "",
+                }
+
+                return {
+                  ...match,
+                  team1: team1.teamName,
+                  team1Id: team1.teamId,
+                  team1Logo: team1.teamLogo,
+                  team2: team2.teamName,
+                  team2Id: team2.teamId,
+                  team2Logo: team2.teamLogo,
+                }
+              }
+              return match
+            }),
+          }
+        }
+
+        return round
+      }
+    )
+
+    const updatedData: SeasonGames = {
+      ...eliminationSchedule,
+      matchSchedule: updatedMatchSchedule,
+    }
+
+    // Save updated match schedule
+    await updateMatches(eliminationSchedule.id, updatedData)
+
+    return {
+      success: true,
+      message: "Winners arranged successfully",
+      semifinalWinners,
+      updatedSchedule: updatedData,
+    }
+  } catch (error) {
+    console.error("Error arranging elimination winners:", error)
+    throw new Error("Failed to arrange elimination winners: " + error)
+  }
+}
+
+/**
+ * Get winner of a specific match based on total scores
+ * @param match The match to evaluate
+ * @returns Winner information
+ */
+export function getMatchWinner(match: Match): {
+  winnerId: string
+  winnerName: string
+  winnerLogo: string
+  totalScore: number
+} | null {
+  const team1TotalScore = match.team1Score + match.team1MatchScore
+  const team2TotalScore = match.team2Score + match.team2MatchScore
+
+  if (team1TotalScore > team2TotalScore) {
+    return {
+      winnerId: match.team1Id,
+      winnerName: match.team1,
+      winnerLogo: match.team1Logo || "",
+      totalScore: team1TotalScore,
+    }
+  } else if (team2TotalScore > team1TotalScore) {
+    return {
+      winnerId: match.team2Id,
+      winnerName: match.team2,
+      winnerLogo: match.team2Logo || "",
+      totalScore: team2TotalScore,
+    }
+  }
+
+  return null // Tie or no scores yet
+}
+
+/**
+ * Advance specific winner to the final match
+ * @param semifinalMatchId The ID of the semifinal match
+ * @param finalSlot Which slot to fill in the final (1 or 2)
+ */
+export async function advanceWinnerToFinal(
+  semifinalMatchId: string,
+  finalSlot: 1 | 2
+) {
+  try {
+    const matches = (await getMatchSchedule(
+      GameType.ELIMINATION
+    )) as Array<SeasonGames>
+
+    if (!matches || matches.length === 0) {
+      throw new Error("No elimination match schedule found")
+    }
+
+    const eliminationSchedule = matches[0]
+
+    // Find the semifinal match
+    let semifinalMatch: Match | null = null
+    for (const round of eliminationSchedule.matchSchedule) {
+      const found = round.matches.find((m) => m.id === semifinalMatchId)
+      if (found) {
+        semifinalMatch = found
+        break
+      }
+    }
+
+    if (!semifinalMatch) {
+      throw new Error("Semifinal match not found")
+    }
+
+    // Get winner
+    const winner = getMatchWinner(semifinalMatch)
+    if (!winner) {
+      throw new Error("No winner determined for this match")
+    }
+
+    // Update final match
+    const updatedMatchSchedule = eliminationSchedule.matchSchedule.map(
+      (round) => {
+        return {
+          ...round,
+          matches: round.matches.map((match) => {
+            if (match.matchType === MatchType.FINAL) {
+              if (finalSlot === 1) {
+                return {
+                  ...match,
+                  team1: winner.winnerName,
+                  team1Id: winner.winnerId,
+                  team1Logo: winner.winnerLogo,
+                }
+              } else {
+                return {
+                  ...match,
+                  team2: winner.winnerName,
+                  team2Id: winner.winnerId,
+                  team2Logo: winner.winnerLogo,
+                }
+              }
+            }
+            return match
+          }),
+        }
+      }
+    )
+
+    const updatedData: SeasonGames = {
+      ...eliminationSchedule,
+      matchSchedule: updatedMatchSchedule,
+    }
+
+    await updateMatches(eliminationSchedule.id, updatedData)
+
+    return {
+      success: true,
+      message: `Winner advanced to final (team ${finalSlot})`,
+      winner,
+    }
+  } catch (error) {
+    console.error("Error advancing winner to final:", error)
+    throw new Error("Failed to advance winner: " + error)
+  }
+}
+
+/**
+ * Calculate team statistics (wins and losses) from all matches
+ * Uses match results as the source of truth for completed games
+ *
+ * @returns {Promise<Object>} Team statistics with wins, losses, and games played
+ */
+export async function calculateTeamStatistics() {
+  try {
+    const season = await getActiveSeason()
+    if (!season) {
+      throw new Error("No active season found")
+    }
+
+    // Get match results (actual completed games)
+    const matchResults: MatchResult[] = await getMatchResults()
+
+    console.log("=== CALCULATING TEAM STATISTICS ===")
+    console.log(`Total match results found: ${matchResults?.length || 0}`)
+
+    // Initialize team statistics map
+    const teamStats: Record<
+      string,
+      {
+        teamId: string
+        teamName: string
+        teamLogo: string
+        wins: number
+        losses: number
+        games: number
+        goalsFor: number
+        goalsAgainst: number
+      }
+    > = {}
+
+    // Process match results
+    if (matchResults && matchResults.length > 0) {
+      matchResults.forEach((match: MatchResult) => {
+        // Initialize team1 if not exists
+        if (!teamStats[match.team1Id]) {
+          teamStats[match.team1Id] = {
+            teamId: match.team1Id,
+            teamName: match.team1,
+            teamLogo: match.team1Logo || "",
+            wins: 0,
+            losses: 0,
+            games: 0,
+            goalsFor: 0,
+            goalsAgainst: 0,
+          }
+        }
+
+        // Initialize team2 if not exists
+        if (!teamStats[match.team2Id]) {
+          teamStats[match.team2Id] = {
+            teamId: match.team2Id,
+            teamName: match.team2,
+            teamLogo: match.team2Logo || "",
+            wins: 0,
+            losses: 0,
+            games: 0,
+            goalsFor: 0,
+            goalsAgainst: 0,
+          }
+        }
+
+        // Update games played
+        teamStats[match.team1Id].games += 1
+        teamStats[match.team2Id].games += 1
+
+        // Update goals
+        teamStats[match.team1Id].goalsFor += match.team1Score
+        teamStats[match.team1Id].goalsAgainst += match.team2Score
+        teamStats[match.team2Id].goalsFor += match.team2Score
+        teamStats[match.team2Id].goalsAgainst += match.team1Score
+
+        // Update wins and losses based on winner
+        if (match.winner === match.team1Id) {
+          teamStats[match.team1Id].wins += 1
+          teamStats[match.team2Id].losses += 1
+          console.log(
+            `${match.team1} (${match.team1Score}) beat ${match.team2} (${match.team2Score})`
+          )
+        } else if (match.winner === match.team2Id) {
+          teamStats[match.team2Id].wins += 1
+          teamStats[match.team1Id].losses += 1
+          console.log(
+            `${match.team2} (${match.team2Score}) beat ${match.team1} (${match.team1Score})`
+          )
+        } else {
+          // Draw or no winner specified - use score to determine
+          if (match.team1Score > match.team2Score) {
+            teamStats[match.team1Id].wins += 1
+            teamStats[match.team2Id].losses += 1
+            console.log(
+              `${match.team1} (${match.team1Score}) beat ${match.team2} (${match.team2Score}) - determined by score`
+            )
+          } else if (match.team2Score > match.team1Score) {
+            teamStats[match.team2Id].wins += 1
+            teamStats[match.team1Id].losses += 1
+            console.log(
+              `${match.team2} (${match.team2Score}) beat ${match.team1} (${match.team1Score}) - determined by score`
+            )
+          }
+        }
+      })
+    }
+
+    console.log("=== END CALCULATING STATISTICS ===")
+    console.log("Team Statistics:", JSON.stringify(teamStats, null, 2))
+
+    // Convert to array and sort by wins, then by goal difference
+    const statistics = Object.values(teamStats)
+      .map((team) => ({
+        ...team,
+        winRate: team.games > 0 ? (team.wins / team.games) * 100 : 0,
+        goalDifference: team.goalsFor - team.goalsAgainst,
+      }))
+      .sort((a, b) => {
+        // Sort by wins (descending)
+        if (b.wins !== a.wins) return b.wins - a.wins
+        // Then by losses (ascending)
+        if (a.losses !== b.losses) return a.losses - b.losses
+        // Then by goal difference (descending)
+        if (b.goalDifference !== a.goalDifference)
+          return b.goalDifference - a.goalDifference
+        // Finally by goals for (descending)
+        return b.goalsFor - a.goalsFor
+      })
+
+    return {
+      success: true,
+      totalTeams: statistics.length,
+      totalGames: statistics.reduce((sum, team) => sum + team.games, 0) / 2, // Divide by 2 as each game counts for 2 teams
+      totalWins: statistics.reduce((sum, team) => sum + team.wins, 0),
+      totalLosses: statistics.reduce((sum, team) => sum + team.losses, 0),
+      statistics,
+    }
+  } catch (error) {
+    console.error("Error calculating team statistics:", error)
+    throw new Error("Failed to calculate team statistics: " + error)
+  }
+}
+
+/**
+ * Get statistics for a specific team
+ * @param teamId The ID of the team
+ * @returns Team statistics
+ */
+export async function getTeamStatistics(teamId: string) {
+  try {
+    const allStats = await calculateTeamStatistics()
+    const teamStat = allStats.statistics.find((stat) => stat.teamId === teamId)
+
+    if (!teamStat) {
+      throw new Error("Team not found in statistics")
+    }
+
+    return {
+      success: true,
+      team: teamStat,
+      rank: allStats.statistics.indexOf(teamStat) + 1,
+      totalTeams: allStats.totalTeams,
+    }
+  } catch (error) {
+    console.error("Error getting team statistics:", error)
+    throw new Error("Failed to get team statistics: " + error)
+  }
+}
+
+
+
+

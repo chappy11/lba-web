@@ -2,7 +2,7 @@ import { getAllPlayers } from "@/_lib/server/player"
 import NavigationHeader from "@/components/navigation-header"
 import PlayerDashboard from "@/feature/players/PlayerDashboard"
 import { THEME } from "@/lib/theme"
-import { Users, Search } from "lucide-react"
+import { Search, Users } from "lucide-react"
 
 export default async function PlayersPage() {
   const resp = await getAllPlayers()

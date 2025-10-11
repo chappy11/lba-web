@@ -55,3 +55,19 @@ export const getNearestMatches = async () => {
   const resp = await axiosConfig.get("/nearest-match")
   return resp.data
 }
+/**
+ * Get comprehensive team statistics from all matches
+ * Calculates wins, losses, games played, goals, and rankings
+ */
+export const getTeamStatistics = async () => {
+  const resp = await axiosConfig.get("/team-statistics")
+  return resp.data
+}
+
+/**
+ * Get statistics for a specific team
+ */
+export const getTeamStatisticsById = async (teamId: string) => {
+  const resp = await axiosConfig.get(`/team-statistics/${teamId}`)
+  return resp.data
+}
