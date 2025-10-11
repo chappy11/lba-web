@@ -1,4 +1,5 @@
 import NavigationHeader from "@/components/navigation-header";
+import { THEME } from "@/lib/theme"
 import CarouselTeam from "./(dashboardComponent)/@CarouselTeams/page"
 import NumberOfPlayerComponent from "./(dashboardComponent)/@NumberOfPlayers/page";
 import NumberOfTeam from "./(dashboardComponent)/@NumberOfTeam/page";
@@ -29,12 +30,17 @@ export default function Home() {
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-10">
         {/* Teams Carousel Section */}
         <div className="mb-10 transform transition-all duration-500 hover:scale-[1.01]">
-          <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-200">
-            <div className="mb-6">
+          <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-200 relative overflow-hidden">
+            <div
+              className={`absolute top-0 right-0 w-32 h-32 ${THEME.INFO.GRADIENT} opacity-10 rounded-bl-full`}
+            />
+            <div className="mb-6 relative">
               <h2 className="text-3xl font-bold text-gray-900 mb-2">
                 Featured Teams
               </h2>
-              <div className="h-1 w-24 bg-gradient-to-r from-orange-500 to-red-500 rounded-full" />
+              <div
+                className={`h-1 w-24 ${THEME.INFO.GRADIENT} rounded-full shadow-lg`}
+              />
             </div>
             <CarouselTeam />
           </div>
@@ -46,7 +52,7 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
               League Statistics
             </h2>
-            <div className="h-1 w-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
+            <div className={`h-1 w-24 ${THEME.INFO.GRADIENT} rounded-full`} />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="transform transition-all duration-300 hover:scale-105 hover:shadow-2xl">
@@ -62,23 +68,28 @@ export default function Home() {
         </div>
 
         {/* Additional Info Section */}
-        <div className="mb-12 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 rounded-2xl shadow-xl p-8 md:p-12 text-center">
-          <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Professional Basketball League
-          </h3>
-          <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-            Experience the thrill of competitive basketball. Follow your
-            favorite teams, track player statistics, and stay updated with live
-            scores and schedules.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg px-6 py-3 border border-white/20">
-              <p className="text-sm text-gray-400">Season</p>
-              <p className="text-2xl font-bold text-white">2024-2025</p>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg px-6 py-3 border border-white/20">
-              <p className="text-sm text-gray-400">Status</p>
-              <p className="text-2xl font-bold text-green-400">Active</p>
+        <div
+          className={`mb-12 ${THEME.INFO.GRADIENT} rounded-2xl shadow-xl p-8 md:p-12 text-center relative overflow-hidden`}
+        >
+          <div className="absolute inset-0 bg-[url('/basketball.jpg')] bg-cover bg-center opacity-10" />
+          <div className="relative">
+            <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Professional Basketball League
+            </h3>
+            <p className="text-lg text-blue-100 max-w-2xl mx-auto">
+              Experience the thrill of competitive basketball. Follow your
+              favorite teams, track player statistics, and stay updated with
+              live scores and schedules.
+            </p>
+            <div className="mt-8 flex flex-wrap justify-center gap-4">
+              <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3 border border-white/30 hover:bg-white/30 transition-all">
+                <p className="text-sm text-blue-100">Season</p>
+                <p className="text-2xl font-bold text-white">2024-2025</p>
+              </div>
+              <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3 border border-white/30 hover:bg-white/30 transition-all">
+                <p className="text-sm text-blue-100">Status</p>
+                <p className="text-2xl font-bold text-green-300">Active</p>
+              </div>
             </div>
           </div>
         </div>

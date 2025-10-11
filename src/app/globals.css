@@ -76,6 +76,18 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Custom LBA Color Palette */
+  --lba-primary-from: #a855f7; /* purple-500 */
+  --lba-primary-to: #4f46e5; /* indigo-600 */
+  --lba-secondary-from: #2563eb; /* blue-600 */
+  --lba-secondary-to: #4f46e5; /* indigo-600 */
+  --lba-player-from: #ef4444; /* red-500 */
+  --lba-player-to: #ea580c; /* orange-600 */
+  --lba-success-from: #22c55e; /* green-500 */
+  --lba-success-to: #10b981; /* emerald-600 */
+  --lba-warning-from: #facc15; /* yellow-400 */
+  --lba-warning-to: #f97316; /* orange-500 */
 }
 
 .dark {

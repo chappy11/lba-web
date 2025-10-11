@@ -14,6 +14,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import UpdateMvpOfTheGame from "@/feature/MatchSchedule/UpdateMvpOfTheGame"
+import { Award, CheckCircle2, MapPin, Trophy } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react";
 import Swal from "sweetalert2"
@@ -179,7 +180,7 @@ export default function MatchCard(props: Props) {
     }
   }
 
-  const handleCheckboxChange = (event) => {
+  const handleCheckboxChange = (event: { target: { checked: boolean | ((prevState: boolean) => boolean); }; }) => {
     setIsWinnerDeclared(event.target.checked)
   }
   return (
@@ -211,83 +212,139 @@ export default function MatchCard(props: Props) {
           </div>
         </div>
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className="overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Match Details</SheetTitle>
-          <SheetDescription>
+          <SheetTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            Match Details
+          </SheetTitle>
+          <SheetDescription className="text-lg font-semibold text-gray-700">
             {team1} VS {team2}
           </SheetDescription>
         </SheetHeader>
-        <div className=" p-2">
-          <TextInput
-            label="Game Address"
-            type="text"
-            value={gameAddress}
-            onChange={(e) => setGameAddress(e.target.value)}
-          />
-          <TextInput
-            label="Game Date"
-            type="date"
-            value={matchDate}
-            onChange={(e) => setMatchDate(e.target.value)}
-          />
-          <TextInput
-            label="Game Time"
-            type="time"
-            value={matchTime}
-            onChange={(e) => setMatchTime(e.target.value)}
-          />
 
+        <div className="p-2 space-y-4 mt-6">
+          {/* Match Information Section */}
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+            <div className="flex items-center gap-2 mb-3">
+              <MapPin className="w-5 h-5 text-blue-600" />
+              <h3 className="font-bold text-gray-900">Match Information</h3>
+            </div>
+            <div className="space-y-3">
+              <TextInput
+                label="Game Address"
+                type="text"
+                value={gameAddress}
+                onChange={(e) => setGameAddress(e.target.value)}
+              />
+              <TextInput
+                label="Game Date"
+                type="date"
+                value={matchDate}
+                onChange={(e) => setMatchDate(e.target.value)}
+              />
+              <TextInput
+                label="Game Time"
+                type="time"
+                value={matchTime}
+                onChange={(e) => setMatchTime(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Scores Section */}
           {address !== "TBA" ||
           gameTime !== "TBA" ||
           (gameDate !== "TBA" && !isElimination) ? (
-            <>
-              <TextInput
-                label={team1 + " Score"}
-                type="number"
-                value={teamOneScore}
-                onChange={(e) => setTeamOneScore(e.target.value)}
-              />
-              <TextInput
-                label={team2 + " Score"}
-                type="number"
-                value={teamTwoScore}
-                onChange={(e) => setTeamTwoScore(e.target.value)}
-              />
-              {isElimination && (
-                <>
-                  <h1 className=" text-[14px] font-semibold mt-3">
-                    Declare Series Winner
-                  </h1>
-                  <p className=" text-xs mt-3">
-                    <input
-                      type="checkbox"
-                      onChange={handleCheckboxChange}
-                      checked={isWinnerDeclared}
-                    />{" "}
-                    Declaring winner will proceed to next round if this a series
-                    games please ignore this
-                  </p>
-                </>
-              )}
-            </>
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100">
+              <div className="flex items-center gap-2 mb-3">
+                <Trophy className="w-5 h-5 text-green-600" />
+                <h3 className="font-bold text-gray-900">Match Score</h3>
+              </div>
+              <div className="space-y-3">
+                <TextInput
+                  label={team1 + " Score"}
+                  type="number"
+                  value={teamOneScore}
+                  onChange={(e) => setTeamOneScore(e.target.value)}
+                />
+                <TextInput
+                  label={team2 + " Score"}
+                  type="number"
+                  value={teamTwoScore}
+                  onChange={(e) => setTeamTwoScore(e.target.value)}
+                />
+                {isElimination && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle2 className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1">
+                        <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                          Declare Series Winner
+                        </h4>
+                        <label className="flex items-start gap-2 text-xs text-gray-600 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            onChange={handleCheckboxChange}
+                            checked={isWinnerDeclared}
+                            className="mt-0.5"
+                          />
+                          <span>
+                            Declaring winner will proceed to next round. If this
+                            is a series game, please ignore this.
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           ) : (
-            <p className=" text-sm text-red-500">
-              <span className=" font-bold">Notes: </span>You cannot update the
-              score, date, or time until the match is played.
-            </p>
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-red-100 rounded-lg">
+                  <MapPin className="w-5 h-5 text-red-600" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-red-900 mb-1">
+                    Match Not Scheduled
+                  </h4>
+                  <p className="text-sm text-red-700">
+                    You cannot update the score until the match date, time, and
+                    venue are set.
+                  </p>
+                </div>
+              </div>
+            </div>
           )}
 
-          <div className=" h-3" />
-          <div className=" flex w-full justify-end">
-            <Button onClick={() => handleUpdate()} disabled={isLoading}>
-              {isLoading ? <span>Loading...</span> : "Update"}
+          {/* Update Button */}
+          <div className="flex w-full justify-end pt-2">
+            <Button
+              onClick={() => handleUpdate()}
+              disabled={isLoading}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold px-6 py-3 rounded-lg shadow-lg hover:shadow-xl transition-all"
+            >
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Updating...
+                </span>
+              ) : (
+                "Update Match"
+              )}
             </Button>
           </div>
         </div>
-        <div className=" w-full px-3">
+
+        {/* MVP and Links Section */}
+        <div className="w-full px-3 mt-6">
           {winner !== "TBA" && (
-            <>
+            <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-100 space-y-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Award className="w-5 h-5 text-purple-600" />
+                <h3 className="font-bold text-gray-900">Post-Match</h3>
+              </div>
               <UpdateMvpOfTheGame
                 teamId={winner}
                 gameId={id}
@@ -296,11 +353,12 @@ export default function MatchCard(props: Props) {
               />
               <Link
                 href={`match-schedule/player-standing?gameId=${id}&matchId=${matchId}`}
-                className=" text-blue-500 underline"
+                className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-semibold underline transition-colors"
               >
-                Test
+                <Trophy className="w-4 h-4" />
+                View Player Standings
               </Link>
-            </>
+            </div>
           )}
         </div>
       </SheetContent>

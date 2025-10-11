@@ -35,12 +35,33 @@ export default function GetTeamInfo(props: Props) {
     console.log(team)
 
   return (
-    <div className=" flex flex-row gap-5 items-center">
-      {isLoading && <p>Loading...</p>}
-      {team?.teamLogo && (
-        <Image src={team.teamLogo} alt="Team" width={50} height={50} />
+    <div className="flex items-center gap-4">
+      {isLoading && (
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          <p className="text-white/80">Loading team...</p>
+        </div>
       )}
-      <p>{team?.teamName}</p>
+      {!isLoading && team && (
+        <>
+          {team.teamLogo && (
+            <div className="relative">
+              <div className="absolute inset-0 bg-white/20 rounded-full blur-md" />
+              <Image
+                src={team.teamLogo}
+                alt="Team"
+                width={60}
+                height={60}
+                className="relative rounded-full ring-2 ring-white/50 object-cover shadow-lg"
+              />
+            </div>
+          )}
+          <div>
+            <p className="text-xs text-white/70 font-medium">Playing for</p>
+            <p className="text-xl font-bold text-white">{team.teamName}</p>
+          </div>
+        </>
+      )}
     </div>
   )
 }

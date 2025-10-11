@@ -3,6 +3,7 @@
 import { Team } from "@/_lib/dto/Team.model"
 import { DateFormatEnum } from "@/_lib/enums/DateFormatEnum.enum"
 import { formatDate } from "@/_lib/utils/date.utils"
+import { SECTION_BG, THEME } from "@/lib/theme"
 import {
   ChevronDown,
   ChevronLeft,
@@ -128,140 +129,198 @@ export default function SeasonList(props: Props) {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-4  rounded-lg shadow">
-      {/* <div className="mb-4 flex justify-between items-center">
-				<h2 className="text-xl font-bold text-gray-800">
-					Team Members
-				</h2>
-				<div className="relative">
-					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-					<input
-						type="text"
-						placeholder="Search..."
-						className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-						value={searchTerm}
-						onChange={(e) =>
-							handleSearch(
-								e.target.value
-							)
-						}
-					/>
-				</div>
-			</div> */}
+    <div className="w-full max-w-7xl mx-auto p-6">
+      {/* Header */}
+      <div className="bg-white rounded-t-2xl border border-gray-200 border-b-0 p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Teams List</h2>
+            <p className="text-sm text-gray-600 mt-1">
+              Showing {sortedData.length} team
+              {sortedData.length !== 1 ? "s" : ""}
+            </p>
+          </div>
+          <div className={`h-1 w-24 ${THEME.TEAMS.GRADIENT} rounded-full`} />
+        </div>
+      </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className=" font-normal text-left text-sm">Logo</th>
-              <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                onClick={() => requestSort("teamName")}
-              >
-                Name {getSortIcon("teamName")}
-              </th>
-
-              <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                onClick={() => requestSort("role")}
-              >
-                Coach{" "}
-              </th>
-              <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                onClick={() => requestSort("role")}
-              >
-                Date Created
-              </th>
-              <th
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
-                onClick={() => requestSort("status")}
-              >
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {currentItems.length > 0 ? (
-              currentItems.map((item) => (
-                <tr
-                  key={item.id}
-                  className="hover:bg-gray-50 transition-colors duration-150"
+      {/* Table */}
+      <div className="bg-white rounded-b-2xl border border-gray-200 shadow-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  Logo
+                </th>
+                <th
+                  className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
+                  onClick={() => requestSort("teamName")}
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    <div className=" rounded-full h-[80px] w-[80px] justify-center items-center flex">
-                      <Image
-                        src={item.teamLogo}
-                        alt="team logo"
-                        width={50}
-                        height={50}
-                        className=" rounded-full"
-                      />
+                  <div className="flex items-center gap-2">
+                    Team Name {getSortIcon("teamName")}
+                  </div>
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  Coach
+                </th>
+                <th
+                  className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider cursor-pointer hover:bg-gray-200 transition-colors"
+                  onClick={() => requestSort("dateCreate")}
+                >
+                  <div className="flex items-center gap-2">
+                    Date Created {getSortIcon("dateCreate")}
+                  </div>
+                </th>
+                <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
+                  Action
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-100">
+              {currentItems.length > 0 ? (
+                currentItems.map((item, index) => (
+                  <tr
+                    key={item.id}
+                    className={`hover:${
+                      SECTION_BG.PURPLE
+                    } transition-all duration-200 ${
+                      index % 2 === 0 ? "bg-white" : "bg-gray-50/50"
+                    }`}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="relative group">
+                        <div
+                          className={`h-16 w-16 rounded-full ${SECTION_BG.PURPLE} p-1 ring-2 ring-purple-200 group-hover:ring-purple-400 transition-all`}
+                        >
+                          <Image
+                            src={item.teamLogo}
+                            alt="team logo"
+                            width={64}
+                            height={64}
+                            className="rounded-full object-cover w-full h-full"
+                          />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-semibold text-gray-900">
+                        {item.teamName}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-700">
+                        <span className="font-medium">
+                          {item.coachInfo.firstname} {item.coachInfo.middlename}{" "}
+                          {item.coachInfo.lastname}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-600">
+                        {item.dateCreate
+                          ? formatDate(
+                              item.dateCreate,
+                              DateFormatEnum.FORMAT_USER
+                            )
+                          : "N/A"}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <Link
+                        href={`/administrator/teams/team-profile?id=${item.id}`}
+                        className={`inline-flex items-center gap-2 ${THEME.TEAMS.GRADIENT} text-white px-4 py-2 rounded-lg text-sm font-medium ${THEME.TEAMS.GRADIENT_HOVER} transform hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg`}
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                          />
+                        </svg>
+                        View
+                      </Link>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="bg-gray-100 rounded-full p-4 mb-4">
+                        <svg
+                          className="w-12 h-12 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                          />
+                        </svg>
+                      </div>
+                      <p className="text-gray-500 font-medium">
+                        No results found
+                      </p>
+                      <p className="text-sm text-gray-400 mt-1">
+                        Try adjusting your search
+                      </p>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {item.teamName}
-                  </td>
-
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {item.coachInfo.firstname} {item.coachInfo.middlename}{" "}
-                    {item.coachInfo.lastname}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {item.dateCreate
-                      ? formatDate(item.dateCreate, DateFormatEnum.FORMAT_USER)
-                      : ""}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <Link
-                      href={`/administrator/teams/team-profile?id=${item.id}`}
-                      className="text-blue-600 hover:text-blue-900"
-                    >
-                      View
-                    </Link>
-                  </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={5}
-                  className="px-6 py-4 text-center text-sm text-gray-500"
-                >
-                  No results found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between border-t border-gray-200 px-4 py-3 sm:px-6 mt-4">
-        <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+      <div className="bg-white border border-gray-200 border-t-0 rounded-b-2xl px-6 py-4 mt-0">
+        <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-700">
               Showing{" "}
-              <span className="font-medium">{indexOfFirstItem + 1}</span> to{" "}
-              <span className="font-medium">
+              <span className="font-bold text-purple-600">
+                {indexOfFirstItem + 1}
+              </span>{" "}
+              to{" "}
+              <span className="font-bold text-purple-600">
                 {Math.min(indexOfLastItem, sortedData.length)}
               </span>{" "}
-              of <span className="font-medium">{sortedData.length}</span>{" "}
+              of{" "}
+              <span className="font-bold text-purple-600">
+                {sortedData.length}
+              </span>{" "}
               results
             </p>
           </div>
           <div>
             <nav
-              className="isolate inline-flex -space-x-px rounded-md shadow-sm"
+              className="isolate inline-flex -space-x-px rounded-xl shadow-md"
               aria-label="Pagination"
             >
               <button
                 onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className={`relative inline-flex items-center rounded-l-md px-2 py-2 ${
+                className={`relative inline-flex items-center rounded-l-xl px-3 py-2 transition-all ${
                   currentPage === 1
-                    ? "text-gray-300 cursor-not-allowed"
-                    : "text-gray-500 hover:bg-gray-50 cursor-pointer"
+                    ? "text-gray-300 bg-gray-100 cursor-not-allowed"
+                    : "text-purple-600 bg-white hover:bg-purple-50 cursor-pointer border border-purple-200"
                 }`}
               >
                 <ChevronLeft className="h-5 w-5" />
@@ -273,10 +332,10 @@ export default function SeasonList(props: Props) {
                   <button
                     key={page}
                     onClick={() => handlePageChange(page)}
-                    className={`relative inline-flex items-center px-4 py-2 text-sm font-medium ${
+                    className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold transition-all ${
                       currentPage === page
-                        ? "z-10 bg-blue-600 text-white"
-                        : "text-gray-500 hover:bg-gray-50"
+                        ? `z-10 ${THEME.TEAMS.GRADIENT} text-white shadow-lg`
+                        : "text-gray-700 bg-white hover:bg-purple-50 border border-gray-200"
                     }`}
                   >
                     {page}
@@ -289,10 +348,10 @@ export default function SeasonList(props: Props) {
                   handlePageChange(Math.min(totalPages, currentPage + 1))
                 }
                 disabled={currentPage === totalPages}
-                className={`relative inline-flex items-center rounded-r-md px-2 py-2 ${
+                className={`relative inline-flex items-center rounded-r-xl px-3 py-2 transition-all ${
                   currentPage === totalPages
-                    ? "text-gray-300 cursor-not-allowed"
-                    : "text-gray-500 hover:bg-gray-50 cursor-pointer"
+                    ? "text-gray-300 bg-gray-100 cursor-not-allowed"
+                    : "text-purple-600 bg-white hover:bg-purple-50 cursor-pointer border border-purple-200"
                 }`}
               >
                 <ChevronRight className="h-5 w-5" />

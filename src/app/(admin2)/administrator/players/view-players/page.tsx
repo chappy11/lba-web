@@ -10,8 +10,8 @@ export default async function Page(query: QueryParams) {
     
 
   return (
-    <div className=" mx-auto w-[80%] mt-5">
-        <ViewPlayer data={resp}/>
+    <div className="container mx-auto px-4 md:px-6 lg:px-8 py-8 max-w-7xl">
+      <ViewPlayer data={resp} />
     </div>
   )
 }

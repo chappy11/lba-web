@@ -49,3 +49,9 @@ export const getMatchResuts = async () => {
 
   return resp.data
 }
+
+
+export const getNearestMatches = async () => {
+  const resp = await axiosConfig.get("/nearest-match")
+  return resp.data
+}

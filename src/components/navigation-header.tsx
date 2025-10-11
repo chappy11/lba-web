@@ -1,157 +1,133 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
+import { THEME } from "@/lib/theme"
+import { Home, LogIn, Menu, TrendingUp, Trophy, Users, X } from "lucide-react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { useState } from "react";
 
 export default function NavigationHeader() {
-	const [activeTab, setActiveTab] =
-		useState("upcoming");
-	const [
-		mobileMenuOpen,
-		setMobileMenuOpen,
-	] = useState(false);
+	const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const pathname = usePathname()
+
+  const navItems = [
+    { href: "/", label: "Home", icon: Home },
+    { href: "/teams", label: "Teams", icon: Users },
+    { href: "/standing", label: "Standings", icon: TrendingUp },
+    { href: "/players", label: "Players", icon: Trophy },
+  ]
+
 	return (
-    <div className=" w-full">
-      <header className="bg-blue-500 ">
+    <div className="w-full sticky top-0 z-50">
+      {/* Main Navigation */}
+      <header className="bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* <div className="flex items-center">
-							<div className="bg-blue-600 rounded-lg p-2 mr-3">
-								<div className="text-white font-bold text-sm">
-									<div>LEAGUE BALL</div>
-									<div>ASSOCIATION</div>
-								</div>
-							</div>
-						</div> */}
-
-            <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-4">
-                <a
-                  href="/"
-                  className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium"
-                >
-                  Home
-                </a>
-                <a
-                  href="/teams"
-                  className="text-white px-3 py-2 text-sm font-medium"
-                >
-                  Teams
-                </a>
-                <a
-                  href="/standing"
-                  className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium"
-                >
-                  Game Standings
-                </a>
-                <a
-                  href="/players"
-                  className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium"
-                >
-                  Players
-                </a>
-                <a
-                  href="/auth/login"
-                  className="text-gray-300 hover:text-white px-3 py-2 text-sm font-medium"
-                >
-                  Login
-                </a>
-              </div>
-            </div>
-
-            <div className="md:hidden">
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="text-gray-400 hover:text-white"
+          <div className="flex items-center justify-between h-20">
+            {/* Logo Section */}
+            <Link href="/" className="flex items-center gap-3 group">
+              <div
+                className={`${THEME.INFO.GRADIENT} rounded-xl p-2.5 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105`}
               >
-                {mobileMenuOpen ? (
-                  <X className="h-6 w-6" />
-                ) : (
-                  <Menu className="h-6 w-6" />
-                )}
-              </button>
-            </div>
+                <Trophy className="w-7 h-7 text-white" />
+              </div>
+              <div className="hidden sm:block">
+                <div className="text-xl font-black text-gray-900 leading-tight">
+                  LBA
+                </div>
+                <div className="text-xs font-semibold text-gray-600 -mt-0.5">
+                  League Basketball
+                </div>
+              </div>
+            </Link>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-1">
+              {navItems.map((item) => {
+                const Icon = item.icon
+                const isActive = pathname === item.href
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${
+                      isActive
+                        ? `${THEME.INFO.GRADIENT} text-white shadow-md`
+                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {item.label}
+                  </Link>
+                )
+              })}
+
+              {/* Login Button */}
+              <Link
+                href="/auth/login"
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm ${THEME.TEAMS.GRADIENT} text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 ml-2`}
+              >
+                <LogIn className="w-4 h-4" />
+                Admin Login
+              </Link>
+            </nav>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </button>
           </div>
         </div>
+
+        {/* Decorative Bottom Gradient Bar */}
+        <div className={`h-1 ${THEME.INFO.GRADIENT}`}></div>
       </header>
+
+      {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-gray-900 border-b border-gray-800">
-          <div className="px-2 pt-2 pb-3 space-y-1">
-            <a
-              href="/"
-              className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium"
-            >
-              Home
-            </a>
-            <a
-              href="/teams"
-              className="text-white block px-3 py-2 text-base font-medium"
-            >
-              Teams
-            </a>
-            <a
-              href="/standing"
-              className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium"
-            >
-              Game Standings
-            </a>
-            <a
-              href="/players"
-              className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium"
-            >
-              Players
-            </a>
-            <a
+        <div className="md:hidden bg-white border-b border-gray-200 shadow-xl animate-in slide-in-from-top duration-200">
+          <div className="px-4 pt-2 pb-4 space-y-1">
+            {navItems.map((item) => {
+              const Icon = item.icon
+              const isActive = pathname === item.href
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all duration-200 ${
+                    isActive
+                      ? `${THEME.INFO.GRADIENT} text-white shadow-md`
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  {item.label}
+                </Link>
+              )
+            })}
+
+            {/* Mobile Login Button */}
+            <Link
               href="/auth/login"
-              className="text-gray-300 hover:text-white block px-3 py-2 text-base font-medium"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-bold ${THEME.TEAMS.GRADIENT} text-white shadow-lg mt-2`}
             >
-              Login
-            </a>
+              <LogIn className="w-5 h-5" />
+              Admin Login
+            </Link>
           </div>
         </div>
       )}
-
-      {/* Hero Section */}
-      {/* Navigation Tabs */}
-      {/* <nav className="border-b border-gray-800 bg-slate-900">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
-            <div className="flex justify-center space-x-8">
-              {[
-                {
-                  id: "upcoming",
-                  label: "Upcoming Games",
-                  icon: Calendar,
-                },
-                {
-                  id: "results",
-                  label: "Game Results",
-                  icon: Trophy,
-                },
-                {
-                  id: "standings",
-                  label: "League Standings",
-                  icon: Users,
-                },
-              ].map((tab) => {
-                const Icon = tab.icon
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center px-4 py-4 text-sm font-medium border-b-2 transition-colors ${
-                      activeTab === tab.id
-                        ? "border-blue-500 text-blue-400"
-                        : "border-transparent text-gray-400 hover:text-white hover:border-gray-600"
-                    }`}
-                  >
-                    <Icon className="w-4 h-4 mr-2" />
-                    {tab.label}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        </nav> */}
     </div>
   )
 }

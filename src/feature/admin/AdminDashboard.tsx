@@ -1,30 +1,30 @@
 "use client"
 import { Card } from "@/components/card"
+import { THEME } from "@/lib/theme"
 import { Calendar, Users } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 const categories = [
- 
   {
     title: "Teams",
-        icon: <Users size={60} color="#fab56c" />,
+    icon: <Users size={60} color="#fab56c" />,
     description: "Manage Teams",
     url: "/administrator/teams",
-    bgColor: "bg-gradient-to-br from-purple-500 to-purple-700",
+    bgColor: THEME.TEAMS.GRADIENT,
   },
   {
     title: "Players",
-      url: "/administrator/players",
+    url: "/administrator/players",
     description: "Manage Players",
     icon: <Users size={60} strokeWidth={1.5} color="#fab56c" />,
-    bgColor: "bg-gradient-to-br from-red-500 to-red-700",
+    bgColor: THEME.PLAYER.GRADIENT,
   },
   {
     title: "Games",
-      url: "/administrator/match-schedule",
+    url: "/administrator/match-schedule",
     description: "Manage Game",
     icon: <Calendar size={60} color="#fab56c" />,
-    bgColor: "bg-gradient-to-br from-green-500 to-green-700",
+    bgColor: THEME.SUCCESS.GRADIENT,
   },
 ]
 
