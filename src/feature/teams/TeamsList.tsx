@@ -3,6 +3,7 @@
 import { Team } from "@/_lib/dto/Team.model"
 import { DateFormatEnum } from "@/_lib/enums/DateFormatEnum.enum"
 import { formatDate } from "@/_lib/utils/date.utils"
+
 import { SECTION_BG, THEME } from "@/lib/theme"
 import {
   ChevronDown,
@@ -101,32 +102,32 @@ export default function SeasonList(props: Props) {
       return <ChevronsUpDown className="inline h-4 w-4 text-gray-400" />
     }
     return sortConfig.direction === "ascending" ? (
-      <ChevronUp className="inline h-4 w-4 text-blue-500" />
+      <ChevronUp className="inline h-4 w-4 text-purple-600" />
     ) : (
-      <ChevronDown className="inline h-4 w-4 text-blue-500" />
+      <ChevronDown className="inline h-4 w-4 text-purple-600" />
     )
   }
 
-  // Handle search
-  const handleSearch = (e: string) => {
-    setSearchTerm(e)
-    setCurrentPage(1) // Reset to first page on search
-  }
+  // // Handle search
+  // const handleSearch = (e: string) => {
+  //   setSearchTerm(e)
+  //   setCurrentPage(1) // Reset to first page on search
+  // }
 
-  // Status badge
-  const StatusBadge = ({ status }: { status: string }) => {
-    return (
-      <span
-        className={`px-2 py-1 rounded-full text-xs font-medium ${
-          status === "Active"
-            ? "bg-green-100 text-green-800"
-            : "bg-red-100 text-red-800"
-        }`}
-      >
-        {status}
-      </span>
-    )
-  }
+  // // Status badge
+  // const StatusBadge = ({ status }: { status: string }) => {
+  //   return (
+  //     <span
+  //       className={`px-2 py-1 rounded-full text-xs font-medium ${
+  //         status === "Active"
+  //           ? "bg-green-100 text-green-800"
+  //           : "bg-red-100 text-red-800"
+  //       }`}
+  //     >
+  //       {status}
+  //     </span>
+  //   )
+  // }
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6">
@@ -140,7 +141,25 @@ export default function SeasonList(props: Props) {
               {sortedData.length !== 1 ? "s" : ""}
             </p>
           </div>
-          <div className={`h-1 w-24 ${THEME.TEAMS.GRADIENT} rounded-full`} />
+          <Link
+            href={"/administrator/teams/create"}
+            className={`inline-flex items-center gap-2 ${THEME.TEAMS.GRADIENT} text-white px-6 py-2.5 rounded-lg text-sm font-semibold ${THEME.TEAMS.GRADIENT_HOVER} transform hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg`}
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            Create Team
+          </Link>
         </div>
       </div>
 
@@ -320,7 +339,7 @@ export default function SeasonList(props: Props) {
                 className={`relative inline-flex items-center rounded-l-xl px-3 py-2 transition-all ${
                   currentPage === 1
                     ? "text-gray-300 bg-gray-100 cursor-not-allowed"
-                    : "text-purple-600 bg-white hover:bg-purple-50 cursor-pointer border border-purple-200"
+                    : `${THEME.TEAMS.TEXT} bg-white hover:${SECTION_BG.PURPLE} cursor-pointer border ${THEME.TEAMS.BORDER}`
                 }`}
               >
                 <ChevronLeft className="h-5 w-5" />
@@ -335,7 +354,7 @@ export default function SeasonList(props: Props) {
                     className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold transition-all ${
                       currentPage === page
                         ? `z-10 ${THEME.TEAMS.GRADIENT} text-white shadow-lg`
-                        : "text-gray-700 bg-white hover:bg-purple-50 border border-gray-200"
+                        : `text-gray-700 bg-white hover:${SECTION_BG.PURPLE} border border-gray-200`
                     }`}
                   >
                     {page}
@@ -351,7 +370,7 @@ export default function SeasonList(props: Props) {
                 className={`relative inline-flex items-center rounded-r-xl px-3 py-2 transition-all ${
                   currentPage === totalPages
                     ? "text-gray-300 bg-gray-100 cursor-not-allowed"
-                    : "text-purple-600 bg-white hover:bg-purple-50 cursor-pointer border border-purple-200"
+                    : `${THEME.TEAMS.TEXT} bg-white hover:${SECTION_BG.PURPLE} cursor-pointer border ${THEME.TEAMS.BORDER}`
                 }`}
               >
                 <ChevronRight className="h-5 w-5" />

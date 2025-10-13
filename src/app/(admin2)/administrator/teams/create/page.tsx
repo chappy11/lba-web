@@ -1,16 +1,18 @@
-import Header from "@/components/header";
-import CreateTeam from "@/feature/teams/CreateTeams";
+import CreateTeam from "@/feature/teams/CreateTeams"
 
 export default function Page() {
-    return (
-      <div className=" w-full">
-        <div className=" w-[50%] mt-5 mx-auto shadow-md bg-white rounded-lg">
-          <Header title="Create Teams" />
-          <div className=" w-full ">
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50 to-indigo-50 py-8 px-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Decorative header accent */}
+        <div className="h-1 w-32 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full mb-6 mx-auto" />
+
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
+          <div className="w-full">
             <CreateTeam />
           </div>
         </div>
       </div>
-    )
- 
+    </div>
+  )
 }
