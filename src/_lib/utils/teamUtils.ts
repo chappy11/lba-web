@@ -213,3 +213,139 @@ export function singleElimation(teams: Standing[]) {
 
   return arrayOfBracket
 }
+
+/**
+ * Generate dynamic single elimination bracket for any number of teams
+ * Handles complex scenarios like 10 teams with proper round organization
+ * 
+ * @param teams - Array of teams to include in bracket
+ * @returns Array of matches for the entire elimination tournament
+ */
+export function generateDynamicElimination(teams: Team[]): Match[] {
+  const teamCount = teams.length
+  
+  if (teamCount < 2) {
+    throw new Error("At least 2 teams are required for elimination bracket")
+  }
+
+  console.log(`=== GENERATING DYNAMIC ELIMINATION FOR ${teamCount} TEAMS ===`)
+
+  const allMatches: Match[] = []
+  let teamsInCurrentRound = teamCount
+  let roundNumber = 1
+
+  // Generate all rounds from first to final
+  while (teamsInCurrentRound > 1) {
+    const matchesThisRound = Math.floor(teamsInCurrentRound / 2)
+    const byesThisRound = teamsInCurrentRound % 2
+    
+    console.log(`Round ${roundNumber}: ${teamsInCurrentRound} teams → ${matchesThisRound} matches, ${byesThisRound} bye`)
+
+    // Determine match type based on teams remaining after this round
+    const teamsAfterRound = matchesThisRound + byesThisRound
+    let matchType: MatchType
+    
+    if (teamsAfterRound === 1) {
+      matchType = MatchType.FINAL
+    } else if (teamsAfterRound === 2) {
+      matchType = MatchType.SEMIFINAL
+    } else {
+      matchType = MatchType.NONE
+    }
+
+    // Create matches for this round
+    for (let i = 0; i < matchesThisRound; i++) {
+      let team1Name = ""
+      let team2Name = ""
+      let team1Id = ""
+      let team2Id = ""
+      let team1Logo = ""
+      let team2Logo = ""
+
+      // First round: Use actual team data
+      if (roundNumber === 1) {
+        const team1Index = i * 2
+        const team2Index = i * 2 + 1
+        
+        if (team1Index < teams.length) {
+          team1Name = teams[team1Index].teamName
+          team1Id = teams[team1Index].teamId
+          team1Logo = teams[team1Index].teamLogo
+        }
+        
+        if (team2Index < teams.length) {
+          team2Name = teams[team2Index].teamName
+          team2Id = teams[team2Index].teamId
+          team2Logo = teams[team2Index].teamLogo
+        }
+      } else {
+        // Subsequent rounds: Use TBA values that will be populated by winners
+        team1Name = "TBA"
+        team2Name = "TBA"
+        team1Id = ""
+        team2Id = ""
+        team1Logo = ""
+        team2Logo = ""
+      }
+      
+      const match: Match = {
+        id: uuidv4(),
+        team1: team1Name,
+        team2: team2Name,
+        team1Id: team1Id,
+        team2Id: team2Id,
+        team1Score: 0,
+        team2Score: 0,
+        winner: "TBA",
+        address: "TBA",
+        gameDate: "TBA",
+        gameTime: "TBA",
+        matchType: matchType,
+        gameType: GameType.ELIMINATION,
+        playerMvp: null,
+        team1MatchScore: 0,
+        team2MatchScore: 0,
+        team1Logo: team1Logo,
+        team2Logo: team2Logo,
+      }
+      
+      allMatches.push(match)
+    }
+
+    // Calculate teams for next round
+    teamsInCurrentRound = matchesThisRound + byesThisRound
+    roundNumber++
+  }
+
+  console.log(`Generated ${allMatches.length} total matches across ${roundNumber - 1} rounds`)
+  
+  // Log the structure for debugging
+  console.log("Match structure:")
+  let currentRound = 1
+  let matchIndex = 0
+  let teamsThisRound = teamCount
+  
+  while (teamsThisRound > 1) {
+    const matchesInRound = Math.floor(teamsThisRound / 2)
+    const byesInRound = teamsThisRound % 2
+    
+    console.log(`  Round ${currentRound}: ${matchesInRound} matches (${teamsThisRound} teams → ${matchesInRound + byesInRound} advance)`)
+    
+    for (let i = 0; i < matchesInRound; i++) {
+      const match = allMatches[matchIndex + i]
+      console.log(`    Match ${matchIndex + i + 1}: ${match.team1} vs ${match.team2} (${match.matchType})`)
+    }
+    
+    if (byesInRound > 0) {
+      console.log(`    1 team gets bye`)
+    }
+    
+    matchIndex += matchesInRound
+    teamsThisRound = matchesInRound + byesInRound
+    currentRound++
+  }
+  
+  console.log("=== END DYNAMIC ELIMINATION GENERATION ===")
+
+  return allMatches
+}

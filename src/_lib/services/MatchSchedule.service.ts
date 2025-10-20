@@ -8,6 +8,7 @@ import {
   GameType,
   Match,
   MatchResult,
+  Team as MatchTeam,
   MatchType,
   Round,
   SeasonGames,
@@ -19,6 +20,7 @@ import dayjs from "dayjs"
 import { GetFirebaseDataPayload } from "../type/firebaseType.type"
 import { addCollection, getData } from "../utils/firebase.utils"
 import {
+  generateDynamicElimination,
   generateRoundRobinSchedule,
   getStandings,
   singleElimation,
@@ -306,6 +308,145 @@ export async function createEliminationMatch() {
   return eliminationMatches
 }
 
+export async function createEliminationMatchRound() {
+  try {
+    const teams = (await getTeamFromThisSeason()) as Team[]
+
+    if (teams.length < 2) {
+      throw new Error("Not enough teams for elimination matches")
+    }
+
+    // Create and save dynamic elimination bracket to match-schedule
+    const matchScheduleId = await createDynamicEliminationMatch(teams)
+
+    console.log(
+      `✅ Elimination round created with schedule ID: ${matchScheduleId}`
+    )
+
+    return matchScheduleId
+  } catch (error) {
+    console.error("Error in createEliminationMatchRound:", error)
+    throw new Error("Failed to create elimination match round: " + error)
+  }
+}
+
+/**
+ * Create dynamic elimination bracket for any number of teams
+ * Generates bracket and saves it to match-schedule collection
+ * Automatically handles byes for non-power-of-2 team counts
+ *
+ * @returns Document ID of the created match schedule
+ */
+export async function createDynamicEliminationMatch(teams: Team[]) {
+  try {
+    if (!teams || teams.length === 0) {
+      throw new Error("No teams provided for elimination bracket")
+    }
+
+    if (teams.length < 2) {
+      throw new Error("At least 2 teams are required for elimination bracket")
+    }
+
+    // Get current active season
+    const season = await getActiveSeason()
+    if (!season) {
+      throw new Error("No active season found")
+    }
+
+    console.log("=== CREATING DYNAMIC ELIMINATION BRACKET ===")
+    console.log(`Teams for bracket: ${teams.length}`)
+    console.log(`Season ID: ${season.id}`)
+
+    // Map Team model to MatchTeam format
+    const matchTeams: MatchTeam[] = teams.map((team) => ({
+      teamId: team.id || "",
+      teamName: team.teamName,
+      teamLogo: team.teamLogo,
+    }))
+
+    console.table(matchTeams)
+
+    // Generate the elimination bracket using the dynamic generator
+    const eliminationMatches = generateDynamicElimination(matchTeams)
+
+    console.log(`Generated ${eliminationMatches.length} matches`)
+
+    // Organize matches into proper rounds based on logical progression
+    const rounds: Round[] = []
+
+    // Calculate round structure for proper organization
+    let teamsInRound = teams.length
+    let matchIndex = 0
+    let roundNumber = 1
+
+    while (teamsInRound > 1) {
+      const matchesInThisRound = Math.floor(teamsInRound / 2)
+      const byesInThisRound = teamsInRound % 2
+
+      // Get matches for this round
+      const roundMatches = eliminationMatches.slice(
+        matchIndex,
+        matchIndex + matchesInThisRound
+      )
+
+      if (roundMatches.length > 0) {
+        rounds.push({
+          round: roundNumber,
+          matches: roundMatches,
+        })
+
+        console.log(
+          `  Round ${roundNumber}: ${
+            roundMatches.length
+          } matches (${teamsInRound} teams → ${
+            matchesInThisRound + byesInThisRound
+          } advance)`
+        )
+      }
+
+      matchIndex += matchesInThisRound
+      teamsInRound = matchesInThisRound + byesInThisRound
+      roundNumber++
+    }
+
+    console.log(`Organized into ${rounds.length} rounds with proper structure`)
+
+    // Debug output for verification
+    rounds.forEach((round) => {
+      console.log(`  Round ${round.round}: ${round.matches.length} matches`)
+      round.matches.forEach((match, index) => {
+        console.log(
+          `    Match ${index + 1}: ${match.team1} vs ${match.team2} (${
+            match.matchType
+          })`
+        )
+      })
+    })
+
+    // Create the match schedule payload
+    const createMatchesPayload: CreateMatchSchedule = {
+      done: false,
+      seasonId: season.id,
+      matchType: GameType.ELIMINATION,
+      matchSchedule: rounds, // Use the organized rounds
+    }
+
+    // Save to Firestore
+    const resp = await addCollection(
+      FirebaseCollection.MATCH_SCHEDULE,
+      createMatchesPayload
+    )
+
+    console.log(`✅ Dynamic elimination bracket saved with ID: ${resp.id}`)
+    console.log("=== END ELIMINATION BRACKET CREATION ===")
+
+    return resp.id
+  } catch (error) {
+    console.error("Error creating dynamic elimination matches:", error)
+    throw new Error("Failed to create dynamic elimination bracket: " + error)
+  }
+}
+
 // Match Result
 
 export async function createMatchResult(matchResult: CreateMatchResult) {
@@ -365,6 +506,10 @@ export async function getNearestMatches() {
           .flat()
       )
       .flat()
+
+    if (findMatchWithDate.length < 1) {
+      return null
+    }
 
     let nearestMatch = findMatchWithDate
       .map((m) => ({ ...m, datetime: dayjs(`${m.gameDate} ${m.gameTime}`) }))
@@ -429,11 +574,17 @@ export async function arrangeEliminationWinners() {
     }> = []
 
     semifinalRound.matches.forEach((match, index) => {
-      // Only process completed matches
-      if (match.team1Score > 0 || match.team2Score > 0) {
-        const team1TotalScore = match.team1Score + match.team1MatchScore
-        const team2TotalScore = match.team2Score + match.team2MatchScore
+      // Only process completed matches (matches where the scores are actually set and the match is finished)
+      const team1TotalScore = match.team1Score + match.team1MatchScore
+      const team2TotalScore = match.team2Score + match.team2MatchScore
 
+      // A match is considered completed only if it has actual scores (not just 0 vs 0) and a winner is determined
+      const isMatchCompleted =
+        (team1TotalScore > 0 || team2TotalScore > 0) &&
+        team1TotalScore !== team2TotalScore &&
+        match.winner !== "TBA"
+
+      if (isMatchCompleted) {
         if (team1TotalScore > team2TotalScore) {
           semifinalWinners.push({
             teamId: match.team1Id,
@@ -467,11 +618,19 @@ export async function arrangeEliminationWinners() {
               const team1TotalScore = match.team1Score + match.team1MatchScore
               const team2TotalScore = match.team2Score + match.team2MatchScore
 
-              let winner = "TBA"
-              if (team1TotalScore > team2TotalScore) {
-                winner = match.team1Id
-              } else if (team2TotalScore > team1TotalScore) {
-                winner = match.team2Id
+              let winner = match.winner // Keep existing winner unless we need to update it
+
+              // Only update winner if the match has been completed with actual scores
+              const isMatchCompleted =
+                (team1TotalScore > 0 || team2TotalScore > 0) &&
+                team1TotalScore !== team2TotalScore
+
+              if (isMatchCompleted) {
+                if (team1TotalScore > team2TotalScore) {
+                  winner = match.team1Id
+                } else if (team2TotalScore > team1TotalScore) {
+                  winner = match.team2Id
+                }
               }
 
               return {

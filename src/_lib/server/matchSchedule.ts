@@ -52,8 +52,8 @@ export const getMatchResuts = async () => {
 
 
 export const getNearestMatches = async () => {
-  const resp = await axiosConfig.get("/nearest-match")
-  return resp.data
+    const resp = await axiosConfig.get("/nearest-match")
+    return resp.data
 }
 /**
  * Get comprehensive team statistics from all matches

@@ -1,6 +1,6 @@
 import { MatchType, Round, SeasonGames } from "@/_lib/dto/MatchSchedule"
 import MatchCard from "@/components/match-card"
-import { Medal, Trophy } from "lucide-react"
+import { Medal, Trophy, Users } from "lucide-react"
 import DisplayMatchResult from "./DisplayMatchResult"
 
 type Props = {
@@ -10,163 +10,208 @@ type Props = {
 export default function DisplayEliminationMatchSchedule(props: Props) {
   const { data } = props
   const games = data?.matchSchedule as Array<Round>
-
+  console.log(games)
   if (games?.length < 1) {
-    return
+    return (
+      <div className="mx-auto w-full p-8">
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl border-2 border-dashed border-gray-300 p-12 text-center">
+          <Users className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+          <h3 className="text-xl font-semibold text-gray-600 mb-2">
+            No Elimination Matches
+          </h3>
+          <p className="text-gray-500">
+            The elimination bracket has not been created yet.
+          </p>
+        </div>
+      </div>
+    )
   }
 
-  const filterSemifinal = games[0].matches.filter(
-    (val) => val.matchType === MatchType.SEMIFINAL.toString()
+  const allRounds = games
+
+  // Calculate tournament structure information
+  const totalMatches = allRounds.reduce(
+    (total, round) => total + round.matches.length,
+    0
   )
 
-  const final = games[0].matches.filter(
-    (val) => val.matchType === MatchType.FINAL.toString()
+  // Get final match for winner display
+  const finalRound = allRounds[allRounds.length - 1]
+  const finalMatch = finalRound?.matches.find(
+    (match) => match.matchType === MatchType.FINAL.toString()
   )
 
-  const displayWinner = () => {
-    if (final[0].winner !== "TBA") {
-      return final[0].winner === final[0].team1Id
-        ? final[0].team1
-        : final[0].team2
-    } else {
-      return "TBA"
+  const getWinner = () => {
+    if (finalMatch && finalMatch.winner !== "TBA") {
+      return finalMatch.winner === finalMatch.team1Id
+        ? finalMatch.team1
+        : finalMatch.team2
     }
+    return "TBA"
   }
 
-  const hasWinner = final[0].winner !== "TBA"
+  const hasWinner = finalMatch && finalMatch.winner !== "TBA"
 
-  console.log(games[0].matches)
+  const getRoundName = (roundNumber: number, totalRounds: number) => {
+    if (roundNumber === totalRounds) return "Final"
+    if (roundNumber === totalRounds - 1) return "Semifinal"
+    if (roundNumber === totalRounds - 2) return "Quarterfinal"
+    return `Round ${roundNumber}`
+  }
+
+  console.log("Tournament Structure:", {
+    rounds: allRounds.length,
+    totalMatches,
+    roundDetails: allRounds.map((round) => ({
+      round: round.round,
+      matches: round.matches.length,
+      matchTypes: round.matches.map((m) => m.matchType),
+    })),
+  })
 
   return (
     <div className="mx-auto w-full">
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Bracket Section - Increased width */}
-        <div className="lg:w-[65%] bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+        {/* Dynamic Bracket Section */}
+        <div className="lg:w-[70%] bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
           {/* Bracket Title */}
           <div className="mb-6">
             <div className="flex items-center gap-3 mb-2">
-              <div className="bg-gradient-to-br from-yellow-500 to-orange-600 p-2 rounded-lg">
+              <div className="bg-gradient-to-br from-purple-500 to-indigo-600 p-2 rounded-lg">
                 <Trophy className="w-6 h-6 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                Tournament Bracket
-              </h2>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Tournament Bracket
+                </h2>
+                <p className="text-sm text-gray-600">
+                  {totalMatches} total matches • {allRounds.length} rounds
+                </p>
+              </div>
             </div>
-            <div className="h-1 w-24 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-full" />
+            <div className="h-1 w-24 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full" />
           </div>
 
-          {/* Bracket Visualization */}
-          <div className="flex flex-row h-[450px] mt-8">
-            {/* Semifinals */}
-            <div className="flex flex-1 flex-col relative">
-              {/* Bracket Connector Lines */}
-              <div className="absolute inset-0 border-t-2 border-r-2 border-b-2 border-dashed border-gray-300 rounded-r-lg" />
+          {/* Dynamic Bracket Visualization */}
+          <div className="overflow-x-auto">
+            <div className="flex flex-row gap-8 min-w-max p-4">
+              {allRounds.map((round, roundIndex) => (
+                <div
+                  key={round.round}
+                  className="flex flex-col justify-center min-w-[280px]"
+                >
+                  {/* Round Header */}
+                  <div className="text-center mb-4">
+                    <div
+                      className={`inline-block px-4 py-2 rounded-lg font-semibold text-sm ${
+                        round.matches.some(
+                          (m) => m.matchType === MatchType.FINAL.toString()
+                        )
+                          ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white"
+                          : round.matches.some(
+                              (m) =>
+                                m.matchType === MatchType.SEMIFINAL.toString()
+                            )
+                          ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
+                          : "bg-gradient-to-r from-purple-500 to-indigo-600 text-white"
+                      }`}
+                    >
+                      {getRoundName(round.round, allRounds.length)}
+                    </div>
+                  </div>
 
-              {/* Semifinal Match 1 */}
-              <div className="absolute -bottom-7 z-10 transform hover:scale-105 transition-transform duration-300">
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-1 rounded-lg shadow-md">
-                  <MatchCard
-                    isElimination
-                    isUseMatchScore={true}
-                    data={filterSemifinal[0]}
-                    id={filterSemifinal[0].id}
-                    games={data}
-                    matchId={data.id}
-                  />
-                </div>
-                <div className="text-xs text-gray-600 font-semibold mt-1 text-center bg-blue-100 py-1 px-2 rounded">
-                  Semifinal 1
-                </div>
-              </div>
+                  {/* Matches in this round */}
+                  <div className="space-y-6">
+                    {round.matches.map((match) => (
+                      <div key={match.id} className="relative">
+                        {/* Connection lines for non-final rounds */}
+                        {roundIndex < allRounds.length - 1 && (
+                          <div className="absolute -right-4 top-1/2 w-8 h-0.5 bg-gray-300 z-0" />
+                        )}
 
-              {/* Semifinal Match 2 */}
-              <div className="absolute -top-10 z-10 transform hover:scale-105 transition-transform duration-300">
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-1 rounded-lg shadow-md">
-                  <MatchCard
-                    isElimination
-                    isUseMatchScore={true}
-                    data={filterSemifinal[1]}
-                    id={filterSemifinal[1].id}
-                    games={data}
-                    matchId={data.id}
-                  />
-                </div>
-                <div className="text-xs text-gray-600 font-semibold mt-1 text-center bg-blue-100 py-1 px-2 rounded">
-                  Semifinal 2
-                </div>
-              </div>
-            </div>
+                        {/* Match Card */}
+                        <div
+                          className={`transform hover:scale-105 transition-all duration-300 z-10 relative ${
+                            round.matches.some(
+                              (m) => m.matchType === MatchType.FINAL.toString()
+                            )
+                              ? "bg-gradient-to-r from-yellow-50 to-orange-50 p-2 rounded-lg shadow-lg"
+                              : "bg-gradient-to-r from-purple-50 to-indigo-50 p-2 rounded-lg shadow-md"
+                          }`}
+                        >
+                          <MatchCard
+                            isElimination
+                            isUseMatchScore={true}
+                            data={match}
+                            id={match.id}
+                            games={data}
+                            matchId={data.id}
+                          />
+                        </div>
 
-            {/* Finals */}
-            <div className="flex flex-1 justify-center items-center flex-row">
-              <div className="flex flex-1 justify-center">
-                <div className="h-0.5 border-t-2 border-dashed border-gray-300 w-full" />
-              </div>
-              <div className="transform hover:scale-105 transition-transform duration-300">
-                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 p-1 rounded-lg shadow-lg">
-                  <MatchCard
-                    isElimination
-                    isUseMatchScore={true}
-                    data={final[0]}
-                    id={final[0].id}
-                    games={data}
-                    matchId={data.id}
-                  />
-                </div>
-                <div className="text-xs text-gray-600 font-bold mt-1 text-center bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-1 px-2 rounded">
-                  🏆 FINAL
-                </div>
-              </div>
-              <div className="flex flex-1 justify-center">
-                <div className="h-0.5 border-t-2 border-gray-300 w-full" />
-              </div>
-            </div>
+                        {/* TBA indicator */}
+                        {(match.team1 === "TBA" || match.team2 === "TBA") && (
+                          <div className="text-xs text-center mt-1">
+                            <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
+                              Awaiting Teams
+                            </span>
+                          </div>
+                        )}
 
-            {/* Winner Display */}
-            <div className="flex flex-1 justify-center items-center">
-              <div className="flex flex-1 justify-start relative">
+                        {/* Bye indicator */}
+                        {(match.team1 === "" || match.team2 === "") &&
+                          match.team1 !== "TBA" &&
+                          match.team2 !== "TBA" && (
+                            <div className="text-xs text-center mt-1">
+                              <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full font-medium">
+                                Bye
+                              </span>
+                            </div>
+                          )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              {/* Winner Display */}
+              <div className="flex flex-col justify-center min-w-[200px]">
+                <div className="text-center mb-4">
+                  <div className="inline-block px-4 py-2 rounded-lg font-semibold text-sm bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
+                    🏆 Champion
+                  </div>
+                </div>
+
                 <div
                   className={`relative ${
                     hasWinner ? "animate-pulse-slow" : ""
                   }`}
                 >
-                  <div className="absolute -top-8 left-0 right-0 text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      {hasWinner ? (
-                        <Trophy className="w-5 h-5 text-yellow-500" />
-                      ) : (
-                        <Medal className="w-5 h-5 text-gray-400" />
-                      )}
-                      <h3 className="text-sm font-bold text-gray-700">
-                        Champion
-                      </h3>
-                    </div>
-                  </div>
                   <div
-                    className={`min-w-[140px] px-6 py-4 rounded-xl shadow-lg flex items-center justify-center text-center transition-all duration-300 ${
+                    className={`min-w-[160px] px-6 py-8 rounded-xl shadow-lg flex flex-col items-center justify-center text-center transition-all duration-300 ${
                       hasWinner
                         ? "bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-500 border-2 border-yellow-600"
                         : "bg-gradient-to-br from-gray-100 to-gray-200 border-2 border-gray-300"
                     }`}
                   >
-                    {hasWinner && (
-                      <Trophy className="w-6 h-6 text-white mr-2" />
+                    {hasWinner ? (
+                      <Trophy className="w-8 h-8 text-white mb-2" />
+                    ) : (
+                      <Medal className="w-8 h-8 text-gray-400 mb-2" />
                     )}
                     <p
                       className={`font-bold text-lg ${
                         hasWinner ? "text-white" : "text-gray-500"
                       }`}
                     >
-                      {displayWinner()}
+                      {getWinner()}
                     </p>
-                  </div>
-                  {hasWinner && (
-                    <div className="absolute -bottom-2 left-0 right-0 flex justify-center">
-                      <div className="bg-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow">
+                    {hasWinner && (
+                      <div className="mt-2 bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full">
                         ⭐ Winner
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

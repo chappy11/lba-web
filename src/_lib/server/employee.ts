@@ -20,4 +20,3 @@ export const retrivedEmployee =
 		return response.data.data;
 	};
 
-//http://localhost:3000/api/employee
