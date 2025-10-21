@@ -5,6 +5,7 @@ import {
 } from "@/_lib/server/matchSchedule"
 import DisplayEliminationMatchSchedule from "@/feature/MatchSchedule/DisplayEliminationMatchSchedule"
 import GenerateEliminationButton from "@/feature/MatchSchedule/GenerateEliminationButton"
+import Link from "next/link"
 
 export default async function EleminationRoundMatch() {
   const resp = await getMatchSchedule()
@@ -31,7 +32,12 @@ export default async function EleminationRoundMatch() {
 
   return (
     <div className="mx-auto w-full">
-      <GenerateEliminationButton />
+      <Link
+        href={"/administrator/game-schedule/match-settings"}
+        className=" h-10 px-6 py-2.5 has-[>svg]:px-4 rounded-lg bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-md hover:from-purple-600 hover:to-indigo-700 hover:shadow-lg transform hover:scale-105 focus-visible:ring-purple-400"
+      >
+        Generate Elimination Round
+      </Link>
     </div>
   )
 }

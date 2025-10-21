@@ -447,7 +447,7 @@ export default function TeamSelectionSheet({
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                      {/* Team 1 Selection */}
+                      {/* Team 1 Selection */}   
                       <div>
                         <label className="block text-xs font-medium text-gray-600 mb-1">
                           Team 1
