@@ -5,6 +5,7 @@ import {
 } from "@/_lib/server/matchSchedule"
 import DisplayEliminationMatchSchedule from "@/feature/MatchSchedule/DisplayEliminationMatchSchedule"
 import GenerateEliminationButton from "@/feature/MatchSchedule/GenerateEliminationButton"
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 export default async function EleminationRoundMatch() {
@@ -27,7 +28,23 @@ export default async function EleminationRoundMatch() {
   }
 
   if (elimationResp.length > 0) {
-    return <DisplayEliminationMatchSchedule data={elimationResp[0]} />
+    return (
+      <div className="mx-auto w-full">
+        {/* Back Navigation */}
+        <div className="mb-6">
+          <Link
+            href="/administrator/match-schedule"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Match Schedule
+          </Link>
+        </div>
+
+        {/* Elimination Schedule Display */}
+        <DisplayEliminationMatchSchedule data={elimationResp[0]} />
+      </div>
+    )
   }
 
   return (
