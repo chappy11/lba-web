@@ -202,6 +202,14 @@ export default function TeamSelectionSheet({
         setMessage(`⚠️ Warning: ${getTeamName(teamId)} is already assigned to ${usage.matchName}`)
         return // Prevent assignment
       }
+
+      // Check if the same team is being assigned to both positions in the same match
+      const currentMatch = selectedTeams[matchId]
+      const otherPosition = position === 'team1' ? 'team2' : 'team1'
+      if (currentMatch?.[otherPosition] === teamId) {
+        setMessage(`⚠️ Warning: ${getTeamName(teamId)} cannot be assigned to both Team 1 and Team 2 in the same match`)
+        return // Prevent assignment
+      }
     }
 
     setSelectedTeams(prev => ({
@@ -462,19 +470,24 @@ export default function TeamSelectionSheet({
                           {availableTeams.map((team) => {
                             const { isUsed, usage } = isTeamAlreadyAssigned(team.id, match.id)
                             const isCurrentlySelected = selectedTeams[match.id]?.team1 === team.id
+                            const isSelectedInTeam2 = selectedTeams[match.id]?.team2 === team.id
                             const isAvailable = !isUsed || isCurrentlySelected
+                            const isDisabled = !isAvailable || isSelectedInTeam2
                             
                             return (
                               <option 
                                 key={team.id} 
                                 value={team.id}
-                                disabled={!isAvailable}
+                                disabled={isDisabled}
                                 style={{ 
-                                  color: !isAvailable ? '#9CA3AF' : 'inherit',
-                                  fontStyle: !isAvailable ? 'italic' : 'normal'
+                                  color: isDisabled ? '#9CA3AF' : 'inherit',
+                                  fontStyle: isDisabled ? 'italic' : 'normal'
                                 }}
                               >
-                                {team.teamName} {!isAvailable && usage ? `(assigned to ${usage.matchName})` : ''}
+                                {team.teamName} {
+                                  isSelectedInTeam2 ? '(selected as Team 2)' :
+                                  !isAvailable && usage ? `(assigned to ${usage.matchName})` : ''
+                                }
                               </option>
                             )
                           })}
@@ -501,19 +514,24 @@ export default function TeamSelectionSheet({
                           {availableTeams.map((team) => {
                             const { isUsed, usage } = isTeamAlreadyAssigned(team.id, match.id)
                             const isCurrentlySelected = selectedTeams[match.id]?.team2 === team.id
+                            const isSelectedInTeam1 = selectedTeams[match.id]?.team1 === team.id
                             const isAvailable = !isUsed || isCurrentlySelected
+                            const isDisabled = !isAvailable || isSelectedInTeam1
                             
                             return (
                               <option 
                                 key={team.id} 
                                 value={team.id}
-                                disabled={!isAvailable}
+                                disabled={isDisabled}
                                 style={{ 
-                                  color: !isAvailable ? '#9CA3AF' : 'inherit',
-                                  fontStyle: !isAvailable ? 'italic' : 'normal'
+                                  color: isDisabled ? '#9CA3AF' : 'inherit',
+                                  fontStyle: isDisabled ? 'italic' : 'normal'
                                 }}
                               >
-                                {team.teamName} {!isAvailable && usage ? `(assigned to ${usage.matchName})` : ''}
+                                {team.teamName} {
+                                  isSelectedInTeam1 ? '(selected as Team 1)' :
+                                  !isAvailable && usage ? `(assigned to ${usage.matchName})` : ''
+                                }
                               </option>
                             )
                           })}
@@ -546,7 +564,8 @@ export default function TeamSelectionSheet({
         <ul className="text-sm text-blue-800 space-y-1">
           <li>• ✅ Each team can only be assigned to <strong>one match</strong></li>
           <li>• ✅ Teams already assigned will show as <span className="italic text-gray-500">&ldquo;(assigned to Match)&rdquo;</span> in dropdown</li>
-          <li>• ✅ You cannot assign the same team to both positions in one match</li>
+          <li>• ✅ You cannot assign the same team to both Team 1 and Team 2 positions in one match</li>
+          <li>• ✅ Teams selected in one position will be disabled in the other position for the same match</li>
           <li>• ⚡ Only Round 1 matches can be manually assigned teams</li>
           <li>• 🏆 Round 2+ matches will be populated automatically when Round 1 matches are completed</li>
           <li>• 💾 Save your changes before leaving this page</li>
