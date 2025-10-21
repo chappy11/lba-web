@@ -57,26 +57,41 @@ export default function Page() {
               10 Team Elimination Tournament
             </h2>
             <p className="text-gray-600">
-              Create a complete elimination tournament structure with all teams set to &quot;TBA&quot; for later assignment.
+              Create a complete elimination tournament structure with all teams
+              set to &quot;TBA&quot; for later assignment.
             </p>
           </div>
-          
+
           <div className="space-y-4">
             {/* Tournament Structure Info */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="font-semibold text-blue-900 mb-2">Tournament Structure:</h4>
+              <h4 className="font-semibold text-blue-900 mb-2">
+                Tournament Structure:
+              </h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-1 bg-blue-100 border border-blue-300 rounded text-xs">Round 1</span>
-                  <span className="text-sm text-blue-700">5 matches (10 → 5 teams)</span>
+                  <span className="px-2 py-1 bg-blue-100 border border-blue-300 rounded text-xs">
+                    Round 1
+                  </span>
+                  <span className="text-sm text-blue-700">
+                    5 matches (10 → 5 teams)
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-1 bg-purple-100 border border-purple-300 rounded text-xs">Round 2</span>
-                  <span className="text-sm text-purple-700">2 matches + 1 bye (5 → 3 teams)</span>
+                  <span className="px-2 py-1 bg-purple-100 border border-purple-300 rounded text-xs">
+                    Round 2
+                  </span>
+                  <span className="text-sm text-purple-700">
+                    2 matches + 1 bye (5 → 3 teams)
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-1 bg-yellow-100 border border-yellow-300 rounded text-xs">Round 3</span>
-                  <span className="text-sm text-yellow-700">1 final match (3 → 1 winner)</span>
+                  <span className="px-2 py-1 bg-yellow-100 border border-yellow-300 rounded text-xs">
+                    Round 3
+                  </span>
+                  <span className="text-sm text-yellow-700">
+                    1 final match (3 → 1 winner)
+                  </span>
                 </div>
               </div>
             </div>
@@ -87,47 +102,67 @@ export default function Page() {
                 <Users className="w-4 h-4 text-green-500 mt-1" />
                 <div>
                   <p className="font-medium text-sm">Empty Match Structure</p>
-                  <p className="text-xs text-gray-600">All teams set to &quot;TBA&quot; for future assignment</p>
+                  <p className="text-xs text-gray-600">
+                    All teams set to &quot;TBA&quot; for future assignment
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-2">
                 <Calendar className="w-4 h-4 text-blue-500 mt-1" />
                 <div>
                   <p className="font-medium text-sm">Flexible Scheduling</p>
-                  <p className="text-xs text-gray-600">Dates and times can be set later</p>
+                  <p className="text-xs text-gray-600">
+                    Dates and times can be set later
+                  </p>
                 </div>
               </div>
             </div>
 
             {/* Status Message */}
             {creationStatus && (
-              <div className={`p-3 rounded-lg text-sm ${
-                creationStatus.includes('✅') 
-                  ? 'bg-green-50 text-green-700 border border-green-200' 
-                  : 'bg-red-50 text-red-700 border border-red-200'
-              }`}>
+              <div
+                className={`p-3 rounded-lg text-sm ${
+                  creationStatus.includes("✅")
+                    ? "bg-green-50 text-green-700 border border-green-200"
+                    : "bg-red-50 text-red-700 border border-red-200"
+                }`}
+              >
                 {creationStatus}
               </div>
             )}
 
-            {/* Action Button */}
-            <Button 
-              onClick={create10TeamMatches} 
-              disabled={isCreating}
-              className="w-full md:w-auto"
-            >
-              {isCreating ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Creating Tournament...
-                </>
-              ) : (
-                <>
-                  <Trophy className="w-4 h-4 mr-2" />
-                  Create TBA Tournament (10 Teams)
-                </>
-              )}
-            </Button>
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-3">
+              <Button
+                onClick={create10TeamMatches}
+                disabled={isCreating}
+                className="flex-1 md:flex-initial"
+              >
+                {isCreating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Creating Tournament...
+                  </>
+                ) : (
+                  <>
+                    <Trophy className="w-4 h-4 mr-2" />
+                    Create TBA Tournament (10 Teams)
+                  </>
+                )}
+              </Button>
+
+              <Button
+                onClick={() =>
+                  (window.location.href =
+                    "/administrator/match-schedule/team-assignment")
+                }
+                variant="outline"
+                className="flex-1 md:flex-initial"
+              >
+                <Users className="w-4 h-4 mr-2" />
+                Assign Teams to Matches
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -137,19 +172,30 @@ export default function Page() {
           <div className="space-y-3 text-sm text-gray-600">
             <div className="flex items-start gap-2">
               <span className="font-semibold text-blue-600">1.</span>
-              <p>Creates 8 total matches across 3 rounds with proper elimination structure</p>
+              <p>
+                Creates 8 total matches across 3 rounds with proper elimination
+                structure
+              </p>
             </div>
             <div className="flex items-start gap-2">
               <span className="font-semibold text-blue-600">2.</span>
-              <p>Round 1: All teams start as &quot;TBA&quot; - assign real teams later (5 matches)</p>
+              <p>
+                Use the &quot;Assign Teams to Matches&quot; button to assign
+                real teams to Round 1 matches
+              </p>
             </div>
             <div className="flex items-start gap-2">
               <span className="font-semibold text-blue-600">3.</span>
-              <p>Round 2 &amp; 3: Teams marked as &quot;TBA&quot; until winners advance</p>
+              <p>
+                Round 2 &amp; 3: Teams marked as &quot;TBA&quot; until winners
+                advance
+              </p>
             </div>
             <div className="flex items-start gap-2">
               <span className="font-semibold text-blue-600">4.</span>
-              <p>All match dates, times, and venues can be configured separately</p>
+              <p>
+                All match dates, times, and venues can be configured separately
+              </p>
             </div>
           </div>
         </div>

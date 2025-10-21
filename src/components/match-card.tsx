@@ -3,6 +3,7 @@ import { Match, SeasonGames } from "@/_lib/dto/MatchSchedule"
 import { Player } from "@/_lib/dto/Player.model"
 import {
   eliminationMatchScheduleUpdate,
+  updateEliminationMatchWithAdvancement,
   updateMatchSchedule,
 } from "@/_lib/server/matchSchedule"
 import {
@@ -17,6 +18,7 @@ import UpdateMvpOfTheGame from "@/feature/MatchSchedule/UpdateMvpOfTheGame"
 import { Award, CheckCircle2, MapPin, Trophy } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react";
+
 import Swal from "sweetalert2"
 import TextInput from "./textinput";
 import { Button } from "./ui/button"
@@ -64,10 +66,15 @@ export default function MatchCard(props: Props) {
   )
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [matchDate, setMatchDate] = useState<string>(gameDate || "TBA")
-  const [matchTime, setMatchTime] = useState<string>(gameTime || "TBA")
-  const [gameAddress, setGameAddress] = useState<string>(address)
-  const [selectedWinner, setSelectedWinner] = useState<string>(winner)
+  const [matchDate, setMatchDate] = useState<string>(
+    gameDate === "TBA" ? "" : gameDate || ""
+  )
+  const [matchTime, setMatchTime] = useState<string>(
+    gameTime === "TBA" ? "" : gameTime || ""
+  )
+  const [gameAddress, setGameAddress] = useState<string>(
+    address === "TBA" ? "" : address || ""
+  )
   const [isWinnerDeclared, setIsWinnerDeclared] = useState<boolean>(false)
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null)
 
@@ -107,13 +114,64 @@ export default function MatchCard(props: Props) {
   async function handleUpdate() {
     try {
       setIsLoading(true)
+
+      // Validate basic required fields
+      if (!gameAddress.trim()) {
+        Swal.fire({
+          title: "Validation Error",
+          text: "Please enter a game address",
+          icon: "warning",
+        })
+        return
+      }
+
+      if (!matchDate) {
+        Swal.fire({
+          title: "Validation Error",
+          text: "Please select a game date",
+          icon: "warning",
+        })
+        return
+      }
+
+      if (!matchTime) {
+        Swal.fire({
+          title: "Validation Error",
+          text: "Please select a game time",
+          icon: "warning",
+        })
+        return
+      }
+
+      console.log("Updating match with data:", {
+        isElimination,
+        gameAddress,
+        matchDate,
+        matchTime,
+        team1Score: teamOneScore,
+        team2Score: teamTwoScore,
+      })
+
       if (isElimination) {
         await handleUpdateElimination()
+
+        // Determine winner name for success message
+        const winnerName = isWinnerDeclared
+          ? parseInt(teamOneScore, 10) > parseInt(teamTwoScore, 10)
+            ? team1
+            : team2
+          : "No winner declared"
+
+        const successMessage = isWinnerDeclared
+          ? `🏆 Match updated successfully! ${winnerName} has been advanced to the Quarter Finals! Check the tournament bracket to see the updated teams.`
+          : "✅ Match updated successfully!"
+
         Swal.fire({
-          title: "Successs",
-          text: "Successfully Updated",
+          title: "Success",
+          text: successMessage,
           icon: "success",
-        }).then((val) => {
+          confirmButtonText: "Great!",
+        }).then(() => {
           window.location.reload()
         })
         return
@@ -123,45 +181,46 @@ export default function MatchCard(props: Props) {
 
       const resp = await updateMatchSchedule(updatedData)
       Swal.fire({
-        title: "Successs",
+        title: "Success",
         text: "Successfully Updated",
         icon: "success",
-      }).then((val) => {
+      }).then(() => {
         window.location.reload()
       })
       return resp.data
     } catch (error) {
       console.error("Error updating match:", error)
+      Swal.fire({
+        title: "Error",
+        text: "Failed to update match. Please try again.",
+        icon: "error",
+      })
     } finally {
       setIsLoading(false)
     }
-  }
-
-  function handleSelecteWinner(teamId: string) {
-    if (selectedWinner === teamId) {
-      setSelectedWinner("")
-      return
-    }
-
-    setSelectedWinner(teamId)
   }
 
   async function handleUpdateElimination() {
     try {
       setIsLoading(true)
 
-      const paylod: Match = {
-        ...data,
-        winner: isWinnerDeclared
-          ? parseInt(teamOneScore, 10) > parseInt(teamTwoScore, 10)
+      // Determine the winner based on scores and winner declaration
+      let matchWinner = data.winner
+      if (isWinnerDeclared) {
+        matchWinner =
+          parseInt(teamOneScore, 10) > parseInt(teamTwoScore, 10)
             ? team1Id
             : team2Id
-          : data.winner,
-        team1Score: parseInt(teamOneScore, 10),
-        team2Score: parseInt(teamTwoScore, 10),
-        address: gameAddress,
-        gameDate: matchDate,
-        gameTime: matchTime,
+      }
+
+      const payload: Match = {
+        ...data,
+        winner: matchWinner,
+        team1Score: parseInt(teamOneScore, 10) || 0,
+        team2Score: parseInt(teamTwoScore, 10) || 0,
+        address: gameAddress || "TBA",
+        gameDate: matchDate || "TBA",
+        gameTime: matchTime || "TBA",
         team1MatchScore:
           parseInt(teamOneScore, 10) > parseInt(teamTwoScore, 10)
             ? team1MatchScore + 1
@@ -172,15 +231,79 @@ export default function MatchCard(props: Props) {
             : team2MatchScore,
       }
 
-      const resp = await eliminationMatchScheduleUpdate(paylod)
+      console.log("🔄 Updating elimination match with payload:", {
+        matchId: payload.id,
+        address: payload.address,
+        gameDate: payload.gameDate,
+        gameTime: payload.gameTime,
+        team1Score: payload.team1Score,
+        team2Score: payload.team2Score,
+        isWinnerDeclared,
+        winner: matchWinner,
+      })
 
-      return resp.data
+      // Use the appropriate update function based on whether winner is being declared
+      let resp
+      try {
+        if (isWinnerDeclared) {
+          console.log("🏆 Using winner advancement update...")
+          // Use the advancement function that will automatically place winner in next round
+          resp = await updateEliminationMatchWithAdvancement(payload, true)
+          console.log("✅ Winner advancement update successful:", resp)
+        } else {
+          console.log("🎯 Using standard elimination update...")
+          // Standard update without advancement
+          resp = await eliminationMatchScheduleUpdate(payload)
+          console.log("✅ Standard update successful:", resp)
+        }
+      } catch (updateError) {
+        console.error("❌ Update failed:", updateError)
+
+        // Show detailed error message
+        Swal.fire({
+          title: "API Error",
+          text: `Update failed: ${
+            updateError instanceof Error ? updateError.message : "Unknown error"
+          }`,
+          icon: "error",
+        })
+        throw updateError
+      }
+
+      return resp.data || resp
     } catch (error) {
-      console.error("Error updating elimination match:", error)
+      console.error("💥 Error updating elimination match:", error)
+
+      // Show detailed error information
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error"
+      Swal.fire({
+        title: "Update Failed",
+        html: `
+          <p>Failed to update match details.</p>
+          <br>
+          <p><strong>Error:</strong> ${errorMessage}</p>
+          <br>
+          <p><strong>Debug Info:</strong></p>
+          <ul style="text-align: left; margin: 10px 0;">
+            <li>Match ID: ${data.id}</li>
+            <li>Address: ${gameAddress}</li>
+            <li>Date: ${matchDate}</li>
+            <li>Time: ${matchTime}</li>
+          </ul>
+          <br>
+          <p>Please check the browser console for more details.</p>
+        `,
+        icon: "error",
+        width: 600,
+      })
+      throw error
     }
   }
 
-  const handleCheckboxChange = (event: { target: { checked: boolean | ((prevState: boolean) => boolean); }; }) => {
+  const handleCheckboxChange = (event: {
+    target: { checked: boolean | ((prevState: boolean) => boolean) }
+  }) => {
     setIsWinnerDeclared(event.target.checked)
   }
   return (
@@ -225,6 +348,30 @@ export default function MatchCard(props: Props) {
         <div className="p-2 space-y-4 mt-6">
           {/* Match Information Section */}
           <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
+            {team1 === "TBA" || team2 === "TBA" ? (
+              <div className="mb-4 p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200">
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="p-2 bg-orange-100 rounded-lg">
+                    <Trophy className="w-5 h-5 text-orange-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900 mb-1">
+                      Teams Not Assigned
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Please assign teams to this match before updating details.
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href={"/administrator/match-schedule/team-assignment"}
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-semibold px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+                >
+                  <Trophy className="w-4 h-4" />
+                  Assign Teams
+                </Link>
+              </div>
+            ) : null}
             <div className="flex items-center gap-2 mb-3">
               <MapPin className="w-5 h-5 text-blue-600" />
               <h3 className="font-bold text-gray-900">Match Information</h3>
@@ -279,7 +426,7 @@ export default function MatchCard(props: Props) {
                       <CheckCircle2 className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
                         <h4 className="text-sm font-semibold text-gray-900 mb-2">
-                          Declare Series Winner
+                          Declare Series Winner & Advance to Next Round
                         </h4>
                         <label className="flex items-start gap-2 text-xs text-gray-600 cursor-pointer">
                           <input
@@ -289,10 +436,36 @@ export default function MatchCard(props: Props) {
                             className="mt-0.5"
                           />
                           <span>
-                            Declaring winner will proceed to next round. If this
-                            is a series game, please ignore this.
+                            🏆 Declaring winner will automatically advance the
+                            winning team to the next round (Quarter Finals, Semi
+                            Finals, or Finals). The winner will be determined by
+                            the higher score above. If this is a series game,
+                            please leave unchecked.
                           </span>
                         </label>
+
+                        {isWinnerDeclared && (
+                          <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-md">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Trophy className="w-4 h-4 text-green-600" />
+                              <span className="text-sm font-medium text-green-800">
+                                Winner:{" "}
+                                {parseInt(teamOneScore, 10) >
+                                parseInt(teamTwoScore, 10)
+                                  ? team1
+                                  : team2}
+                              </span>
+                            </div>
+                            <p className="text-xs text-green-700 mb-1">
+                              🚀 This team will be automatically placed in the
+                              Quarter Finals when you update the match.
+                            </p>
+                            <p className="text-xs text-green-600 font-medium">
+                              ⚡ Winner advancement is active - the tournament
+                              bracket will update automatically!
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

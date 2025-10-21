@@ -48,3 +48,16 @@ export const updateTeamById = async (teamId: string, payload: UpdateTeam) => {
 
   return resp.data
 }
+
+/**
+ * Get all teams from current season for team assignment
+ */
+export const getAllTeamsForAssignment = async () => {
+  try {
+    const resp = await axiosConfig.get("/teams")
+    return resp.data
+  } catch (error) {
+    console.error("Error fetching all teams:", error)
+    return null
+  }
+}

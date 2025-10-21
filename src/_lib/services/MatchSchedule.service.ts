@@ -969,6 +969,191 @@ export async function calculateTeamStatistics() {
  * @param teamId The ID of the team
  * @returns Team statistics
  */
+/**
+ * Update elimination round with automatic winner advancement
+ * This function updates the match and optionally advances the winner to the next round
+ */
+export async function updateEliminationRoundWithAdvancement(
+  updatePayload: Match, 
+  shouldAdvanceWinner: boolean = false
+) {
+  try {
+    console.log('🔄 Service: Starting elimination update with advancement', {
+      matchId: updatePayload.id,
+      shouldAdvanceWinner,
+      winner: updatePayload.winner
+    });
+
+    // First, update the match using the existing function
+    await updateEliminationRound(updatePayload);
+    
+    console.log('✅ Service: Match updated successfully');
+
+    // If should advance winner and there's a winner, advance them to next round
+    if (shouldAdvanceWinner && updatePayload.winner && updatePayload.winner !== "TBA") {
+      console.log('🏆 Service: Advancing winner to next round...');
+      
+      const advancementResult = await advanceWinnerToNextRound(
+        updatePayload.id,
+        updatePayload.winner,
+        updatePayload.winner === updatePayload.team1Id ? updatePayload.team1 : updatePayload.team2,
+        updatePayload.winner === updatePayload.team1Id ? updatePayload.team1Logo : updatePayload.team2Logo
+      );
+      
+      console.log('✅ Service: Winner advancement completed:', advancementResult);
+      
+      return {
+        success: true,
+        message: 'Match updated and winner advanced to next round',
+        matchUpdate: updatePayload,
+        advancement: advancementResult
+      };
+    }
+    
+    console.log('✅ Service: Match updated without advancement');
+    return {
+      success: true,
+      message: 'Match updated successfully',
+      matchUpdate: updatePayload
+    };
+    
+  } catch (error) {
+    console.error('❌ Service: Update with advancement failed:', error);
+    throw new Error(`Failed to update elimination match with advancement: ${error}`);
+  }
+}
+
+/**
+ * Advance winner to the next round in elimination tournament
+ * This function finds the next round match and places the winner there
+ */
+export async function advanceWinnerToNextRound(
+  currentMatchId: string,
+  winnerId: string, 
+  winnerName: string,
+  winnerLogo?: string
+) {
+  try {
+    console.log('🔄 Service: Starting winner advancement', {
+      currentMatchId,
+      winnerId,
+      winnerName
+    });
+
+    // Get current elimination matches
+    const matches = await getMatchSchedule(GameType.ELIMINATION) as Array<SeasonGames>;
+    
+    if (!matches || matches.length === 0) {
+      throw new Error("No elimination match schedule found");
+    }
+
+    const eliminationSchedule = matches[0];
+    
+    // Find the current match and its round
+    let currentMatch: Match | null = null;
+    let currentRoundNumber = 0;
+    
+    for (const round of eliminationSchedule.matchSchedule) {
+      const foundMatch = round.matches.find(m => m.id === currentMatchId);
+      if (foundMatch) {
+        currentMatch = foundMatch;
+        currentRoundNumber = round.round;
+        break;
+      }
+    }
+    
+    if (!currentMatch) {
+      throw new Error("Current match not found");
+    }
+    
+    console.log(`📍 Service: Found current match in round ${currentRoundNumber}`);
+    
+    // Find next round
+    const nextRoundNumber = currentRoundNumber + 1;
+    const nextRound = eliminationSchedule.matchSchedule.find(r => r.round === nextRoundNumber);
+    
+    if (!nextRound) {
+      console.log('🏁 Service: No next round found - winner might be champion!');
+      return {
+        success: true,
+        message: 'Winner advanced - tournament complete or no next round',
+        nextRound: null
+      };
+    }
+    
+    console.log(`🎯 Service: Found next round ${nextRoundNumber} with ${nextRound.matches.length} matches`);
+    
+    // Determine which match in the next round should receive this winner
+    // For elimination tournaments, winners typically advance to specific slots
+    // This is a simplified version - you might need more complex logic based on your bracket structure
+    const nextMatch = nextRound.matches.find(match => 
+      match.team1 === "TBA" || match.team2 === "TBA" || 
+      match.team1 === "" || match.team2 === ""
+    );
+    
+    if (!nextMatch) {
+      console.log('⚠️ Service: No available slots in next round');
+      return {
+        success: false,
+        message: 'No available slots in next round'
+      };
+    }
+    
+    // Place winner in the next match
+    const updatedNextMatch: Match = {
+      ...nextMatch,
+      // Fill the first available slot
+      team1: (nextMatch.team1 === "TBA" || nextMatch.team1 === "") ? winnerName : nextMatch.team1,
+      team1Id: (nextMatch.team1Id === "TBA" || nextMatch.team1Id === "") ? winnerId : nextMatch.team1Id,
+      team1Logo: (nextMatch.team1Logo === "" || !nextMatch.team1Logo) ? winnerLogo : nextMatch.team1Logo,
+      team2: (nextMatch.team1 !== "TBA" && nextMatch.team1 !== "" && (nextMatch.team2 === "TBA" || nextMatch.team2 === "")) ? winnerName : nextMatch.team2,
+      team2Id: (nextMatch.team1Id !== "TBA" && nextMatch.team1Id !== "" && (nextMatch.team2Id === "TBA" || nextMatch.team2Id === "")) ? winnerId : nextMatch.team2Id,
+      team2Logo: (nextMatch.team1Logo && nextMatch.team1Logo !== "" && (!nextMatch.team2Logo || nextMatch.team2Logo === "")) ? winnerLogo : nextMatch.team2Logo,
+    };
+    
+    console.log('🔄 Service: Updating next round match:', {
+      matchId: updatedNextMatch.id,
+      team1: updatedNextMatch.team1,
+      team2: updatedNextMatch.team2
+    });
+    
+    // Update the elimination schedule with the advanced winner
+    const updatedMatchSchedule = eliminationSchedule.matchSchedule.map(round => {
+      if (round.round === nextRoundNumber) {
+        return {
+          ...round,
+          matches: round.matches.map(match => 
+            match.id === nextMatch.id ? updatedNextMatch : match
+          )
+        };
+      }
+      return round;
+    });
+    
+    const updatedData: SeasonGames = {
+      ...eliminationSchedule,
+      matchSchedule: updatedMatchSchedule
+    };
+    
+    // Save the updated schedule
+    await updateMatches(eliminationSchedule.id, updatedData);
+    
+    console.log('✅ Service: Winner successfully advanced to next round');
+    
+    return {
+      success: true,
+      message: `Winner ${winnerName} advanced to round ${nextRoundNumber}`,
+      currentRound: currentRoundNumber,
+      nextRound: nextRoundNumber,
+      nextMatch: updatedNextMatch
+    };
+    
+  } catch (error) {
+    console.error('❌ Service: Winner advancement failed:', error);
+    throw new Error(`Failed to advance winner to next round: ${error}`);
+  }
+}
+
 export async function getTeamStatistics(teamId: string) {
   try {
     const allStats = await calculateTeamStatistics()
