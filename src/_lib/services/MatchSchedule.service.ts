@@ -523,9 +523,12 @@ export async function getNearestMatches() {
         .sort((a, b) => now.diff(a.datetime) - now.diff(b.datetime))[0]
     }
 
-    return nearestMatch
-  } catch {
-    throw new Error("Something went wrong while fetching nearest matches")
+    // Return null if still no match found instead of throwing error
+    return nearestMatch || null
+  } catch (error) {
+    console.error("Error fetching nearest matches:", error)
+    // Return null instead of throwing error for graceful degradation
+    return null
   }
 }
 

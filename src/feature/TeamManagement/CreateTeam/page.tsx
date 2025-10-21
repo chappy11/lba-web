@@ -1,5 +1,6 @@
 "use client"
 
+import { Season } from "@/_lib/dto/Season.model"
 import { CoachInfo, TeamInsertPayload } from "@/_lib/dto/Team.model"
 import { GameType } from "@/_lib/enums/GameTypeEnum"
 import { createTeam } from "@/_lib/server/team"
@@ -8,7 +9,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   Sheet,
-
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -19,13 +19,14 @@ import { useMemo, useState } from "react"
 import { toast } from "sonner"
 
 type Props = {
-    gameType: GameType,
-    seasonId: string;
+  gameType: GameType
+  seasonId: string
+  season: Season
+  currentTeamCount: number
 }
 
-
 export default function CreateTeam(props: Props) {
-    const {gameType,seasonId } = props;
+  const { gameType, seasonId, season, currentTeamCount } = props
   const [logo, setLoogo] = useState<File | null>(null)
 
   const [name, setName] = useState<string>("")
@@ -42,78 +43,104 @@ export default function CreateTeam(props: Props) {
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={imagePath} height={100} width={100} alt="season photo" />
   }, [logo])
-    
-    async function handleSubmit() {
-        try {
-            if (!logo) {
-                toast.error("Please upload a season logo")
-                return  
-            }
 
-            if(!name) {
-                toast.error("Please enter a season name")
-                return
-            }
+  async function handleSubmit() {
+    try {
+      // Check if team limit has been reached
+      if (season.numberOfTeams && currentTeamCount >= season.numberOfTeams) {
+        toast.error(
+          `Team limit reached! This season allows only ${season.numberOfTeams} teams.`
+        )
+        return
+      }
 
-            if(!coachFName) {
-                toast.error("Please enter a coach first name")
-                return
-            }
-            if (!coachMname) {
-                toast.error("Please enter a coach middle name")
-                return
-            }
-            if (!coachLName) {
-                toast.error("Please enter a coach last name")
-                return
-            }
+      if (!logo) {
+        toast.error("Please upload a season logo")
+        return
+      }
 
-            if (!gameType) {
-                toast.error("Please select a game type")
-                return
-            }
-            
-            const formData = new FormData();
-            formData.append("file", logo);
+      if (!name) {
+        toast.error("Please enter a season name")
+        return
+      }
 
-            const imgResp = await uploadImage(formData)
+      if (!coachFName) {
+        toast.error("Please enter a coach first name")
+        return
+      }
+      if (!coachMname) {
+        toast.error("Please enter a coach middle name")
+        return
+      }
+      if (!coachLName) {
+        toast.error("Please enter a coach last name")
+        return
+      }
 
-            const coachInfo: CoachInfo = {
-                firstname: coachFName,
-                middlename: coachMname, 
-                lastname: coachLName,
-            }
+      if (!gameType) {
+        toast.error("Please select a game type")
+        return
+      }
 
-            const payload: TeamInsertPayload = {
-              //  seasonId: seasonId,
-              teamName: name,
-              coachInfo: coachInfo,
-              teamLogo: imgResp?.url,
-              isActive: "1",
-              dateCreate: new Date().toString(),
-              teamType: gameType,
-            }
+      const formData = new FormData()
+      formData.append("file", logo)
 
-            await createTeam(payload)
+      const imgResp = await uploadImage(formData)
 
-          toast.success("Team created successfully", {
-            onDismiss: () => {
-              window.location.reload()
-             }
-           })
-        } catch (error) {
-            console.log("ERROR",error)
-            toast.error("Something went wrong")
-        }
+      const coachInfo: CoachInfo = {
+        firstname: coachFName,
+        middlename: coachMname,
+        lastname: coachLName,
+      }
+
+      const payload: TeamInsertPayload = {
+        //  seasonId: seasonId,
+        teamName: name,
+        coachInfo: coachInfo,
+        teamLogo: imgResp?.url,
+        isActive: "1",
+        dateCreate: new Date().toString(),
+        teamType: gameType,
+        featurePlayer: null,
+      }
+
+      await createTeam(payload)
+
+      toast.success("Team created successfully", {
+        onDismiss: () => {
+          window.location.reload()
+        },
+      })
+    } catch (error) {
+      console.log("ERROR", error)
+      toast.error("Something went wrong")
     }
+  }
   return (
     <Sheet>
-      <SheetTrigger className=" bg-amber-800 text-white px-3 rounded-md py-2">
-        Add New Team
+      <SheetTrigger
+        className=" bg-amber-800 text-white px-3 rounded-md py-2"
+        disabled={
+          season.numberOfTeams
+            ? currentTeamCount >= season.numberOfTeams
+            : false
+        }
+      >
+        Add New Team{" "}
+        {season.numberOfTeams &&
+          `(${currentTeamCount}/${season.numberOfTeams})`}
       </SheetTrigger>
       <SheetContent className=" bg-neutral-800">
         <SheetHeader>
-          <SheetTitle className=" text-neutral-100">Create Season</SheetTitle>
+          <SheetTitle className=" text-neutral-100">Create Team</SheetTitle>
+          {season.numberOfTeams && (
+            <p className="text-sm text-neutral-400">
+              Teams: {currentTeamCount}/{season.numberOfTeams}
+              {currentTeamCount >= season.numberOfTeams && (
+                <span className="text-red-400 ml-2">⚠️ Limit Reached</span>
+              )}
+            </p>
+          )}
         </SheetHeader>
         <div className=" flex flex-col gap-5 px-3">
           <div className=" flex w-full items-center justify-center">
@@ -154,7 +181,7 @@ export default function CreateTeam(props: Props) {
             value={coachLName}
             onChange={(e) => setCoachLName(e.target.value)}
           />
-          
+
           <Button className=" bg-amber-600" onClick={() => handleSubmit()}>
             Submit
           </Button>

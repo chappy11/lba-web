@@ -8,6 +8,11 @@ export type MvpOfTheSeason = Pick<
   "id" | "firstname" | "middlename" | "lastname" | "jerseyNumber"
 >;
 
+export enum MatchType {
+  ROUND_ROBIN = "ROUND_ROBIN",
+  ELIMINATION = "ELIMINATION",
+}
+
 export interface Season {
   id?: string
   seasonName: string
@@ -20,6 +25,8 @@ export interface Season {
   gameWinner: GameTeamInfo | null
   mvpOfTheSeason: MvpOfTheSeason | null
   seasonMotto: string
+  matchType?: MatchType
+  numberOfTeams?: number
 }
 
 export type SeasonInsertPayload = Omit<Season, "id">;
