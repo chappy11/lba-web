@@ -1,8 +1,13 @@
 import { CalendarDays, Trophy } from "lucide-react"
+import { getCurrentSeason } from "@/_lib/server/season"
+import { MatchType } from "@/_lib/dto/Season.model"
 import EleminationRoundMatch from "./@EleminationRoundMatch/page"
 import RoundRobinMatch from "./@RoundRobinMatch/page"
 
 export default async function Page() {
+  const season = await getCurrentSeason()
+  const matchType = season?.matchType
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 py-8 px-4">
       <div className="max-w-7xl mx-auto">
@@ -50,44 +55,48 @@ export default async function Page() {
         </div>
 
         {/* Elimination Round Section */}
-        <div className="mb-8">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-yellow-500 via-orange-500 to-red-600 px-6 py-4">
-              <div className="flex items-center gap-3">
-                <Trophy className="w-6 h-6 text-white" />
-                <h2 className="text-2xl font-bold text-white">
-                  Elimination Round
-                </h2>
+        {(!matchType || matchType === MatchType.ELIMINATION) && (
+          <div className="mb-8">
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-yellow-500 via-orange-500 to-red-600 px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <Trophy className="w-6 h-6 text-white" />
+                  <h2 className="text-2xl font-bold text-white">
+                    Elimination Round
+                  </h2>
+                </div>
+                <p className="text-white/90 text-sm mt-1">
+                  Playoff matches and finals
+                </p>
               </div>
-              <p className="text-white/90 text-sm mt-1">
-                Playoff matches and finals
-              </p>
-            </div>
-            <div className="p-6 bg-gradient-to-b from-gray-50 to-white">
-              <EleminationRoundMatch />
+              <div className="p-6 bg-gradient-to-b from-gray-50 to-white">
+                <EleminationRoundMatch />
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Round Robin Section */}
-        <div className="mb-8">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 px-6 py-4">
-              <div className="flex items-center gap-3">
-                <CalendarDays className="w-6 h-6 text-white" />
-                <h2 className="text-2xl font-bold text-white">
-                  Round Robin Matches
-                </h2>
+        {(!matchType || matchType === MatchType.ROUND_ROBIN) && (
+          <div className="mb-8">
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <CalendarDays className="w-6 h-6 text-white" />
+                  <h2 className="text-2xl font-bold text-white">
+                    Round Robin Matches
+                  </h2>
+                </div>
+                <p className="text-white/90 text-sm mt-1">
+                  Regular season tournament schedule
+                </p>
               </div>
-              <p className="text-white/90 text-sm mt-1">
-                Regular season tournament schedule
-              </p>
-            </div>
-            <div className="p-6 bg-gradient-to-b from-gray-50 to-white">
-              <RoundRobinMatch />
+              <div className="p-6 bg-gradient-to-b from-gray-50 to-white">
+                <RoundRobinMatch />
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Info Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
