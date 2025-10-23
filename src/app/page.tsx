@@ -6,6 +6,7 @@ import NumberOfTeam from "./(dashboardComponent)/@NumberOfTeam/page";
 import TotalNumberOfTeams from "./(dashboardComponent)/@TotalNumberOfTeams/page";
 import UpcomingGames from "./(dashboardComponent)/@UpcomingGames/page";
 import CarouselTeam from "./(dashboardComponent)/@CarouselTeams/page"
+import LeagueStatistics from "./(dashboardComponent)/@LeagueStatistics/page"
 
 export default function Home() {
 	return (
@@ -93,6 +94,20 @@ export default function Home() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* League Statistics Section - Winners & Losers */}
+        <div className="mb-12">
+          <div className="mb-6">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+              Team Performance & Standings
+            </h2>
+            <p className="text-gray-600">
+              Complete overview of team statistics, winners, and standings
+            </p>
+            <div className={`h-1 w-24 ${THEME.INFO.GRADIENT} rounded-full mt-2`} />
+          </div>
+          <LeagueStatistics />
         </div>
       </main>
 

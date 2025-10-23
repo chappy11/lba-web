@@ -13,14 +13,7 @@ export async function GET() {
   try {
     const result = await calculateTeamStatistics()
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Team statistics calculated successfully",
-        data: result,
-      },
-      { status: 200 }
-    )
+    return NextResponse.json(result, { status: 200 })
   } catch (error) {
     console.error("Error calculating team statistics:", error)
     
