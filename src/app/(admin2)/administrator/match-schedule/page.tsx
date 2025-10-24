@@ -1,6 +1,6 @@
-import { CalendarDays, Trophy } from "lucide-react"
-import { getCurrentSeason } from "@/_lib/server/season"
 import { MatchType } from "@/_lib/dto/Season.model"
+import { getCurrentSeason } from "@/_lib/server/season"
+import { CalendarDays, Trophy } from "lucide-react"
 import EleminationRoundMatch from "./@EleminationRoundMatch/page"
 import RoundRobinMatch from "./@RoundRobinMatch/page"
 

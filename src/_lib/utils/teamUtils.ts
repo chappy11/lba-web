@@ -237,14 +237,15 @@ export function generateDynamicElimination(teams: Team[]): Match[] {
   // Generate all rounds from first to final
   while (teamsInCurrentRound > 1) {
     const matchesThisRound = Math.floor(teamsInCurrentRound / 2)
-    const byesThisRound = teamsInCurrentRound % 2
-    
-    console.log(`Round ${roundNumber}: ${teamsInCurrentRound} teams → ${matchesThisRound} matches, ${byesThisRound} bye`)
+
+    console.log(
+      `Round ${roundNumber}: ${teamsInCurrentRound} teams → ${matchesThisRound} matches`
+    )
 
     // Determine match type based on teams remaining after this round
-    const teamsAfterRound = matchesThisRound + byesThisRound
+    const teamsAfterRound = matchesThisRound
     let matchType: MatchType
-    
+
     if (teamsAfterRound === 1) {
       matchType = MatchType.FINAL
     } else if (teamsAfterRound === 2) {
@@ -266,13 +267,13 @@ export function generateDynamicElimination(teams: Team[]): Match[] {
       if (roundNumber === 1) {
         const team1Index = i * 2
         const team2Index = i * 2 + 1
-        
+
         if (team1Index < teams.length) {
           team1Name = teams[team1Index].teamName
           team1Id = teams[team1Index].teamId
           team1Logo = teams[team1Index].teamLogo
         }
-        
+
         if (team2Index < teams.length) {
           team2Name = teams[team2Index].teamName
           team2Id = teams[team2Index].teamId
@@ -287,7 +288,7 @@ export function generateDynamicElimination(teams: Team[]): Match[] {
         team1Logo = ""
         team2Logo = ""
       }
-      
+
       const match: Match = {
         id: uuidv4(),
         team1: team1Name,
@@ -308,12 +309,12 @@ export function generateDynamicElimination(teams: Team[]): Match[] {
         team1Logo: team1Logo,
         team2Logo: team2Logo,
       }
-      
+
       allMatches.push(match)
     }
 
-    // Calculate teams for next round
-    teamsInCurrentRound = matchesThisRound + byesThisRound
+    // Calculate teams for next round - only winners advance
+    teamsInCurrentRound = matchesThisRound
     roundNumber++
   }
 
@@ -327,21 +328,22 @@ export function generateDynamicElimination(teams: Team[]): Match[] {
   
   while (teamsThisRound > 1) {
     const matchesInRound = Math.floor(teamsThisRound / 2)
-    const byesInRound = teamsThisRound % 2
-    
-    console.log(`  Round ${currentRound}: ${matchesInRound} matches (${teamsThisRound} teams → ${matchesInRound + byesInRound} advance)`)
-    
+
+    console.log(
+      `  Round ${currentRound}: ${matchesInRound} matches (${teamsThisRound} teams → ${matchesInRound} advance)`
+    )
+
     for (let i = 0; i < matchesInRound; i++) {
       const match = allMatches[matchIndex + i]
-      console.log(`    Match ${matchIndex + i + 1}: ${match.team1} vs ${match.team2} (${match.matchType})`)
+      console.log(
+        `    Match ${matchIndex + i + 1}: ${match.team1} vs ${match.team2} (${
+          match.matchType
+        })`
+      )
     }
-    
-    if (byesInRound > 0) {
-      console.log(`    1 team gets bye`)
-    }
-    
+
     matchIndex += matchesInRound
-    teamsThisRound = matchesInRound + byesInRound
+    teamsThisRound = matchesInRound
     currentRound++
   }
   

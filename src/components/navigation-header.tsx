@@ -1,7 +1,16 @@
 "use client";
 
 import { THEME } from "@/lib/theme"
-import { Home, LogIn, Menu, TrendingUp, Trophy, Users, X } from "lucide-react"
+import {
+  BarChart3,
+  Home,
+  LogIn,
+  Menu,
+  TrendingUp,
+  Trophy,
+  Users,
+  X,
+} from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState } from "react";
@@ -14,6 +23,7 @@ export default function NavigationHeader() {
     { href: "/", label: "Home", icon: Home },
     { href: "/teams", label: "Teams", icon: Users },
     { href: "/standing", label: "Standings", icon: TrendingUp },
+    { href: "/match-result", label: "Match Result", icon: BarChart3 },
     { href: "/players", label: "Players", icon: Trophy },
   ]
 

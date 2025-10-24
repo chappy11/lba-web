@@ -1,12 +1,12 @@
 import NavigationHeader from "@/components/navigation-header";
 
 import { THEME } from "@/lib/theme"
+import CarouselTeam from "./(dashboardComponent)/@CarouselTeams/page"
+import LeagueStatistics from "./(dashboardComponent)/@LeagueStatistics/page"
 import NumberOfPlayerComponent from "./(dashboardComponent)/@NumberOfPlayers/page";
 import NumberOfTeam from "./(dashboardComponent)/@NumberOfTeam/page";
 import TotalNumberOfTeams from "./(dashboardComponent)/@TotalNumberOfTeams/page";
-import UpcomingGames from "./(dashboardComponent)/@UpcomingGames/page";
-import CarouselTeam from "./(dashboardComponent)/@CarouselTeams/page"
-import LeagueStatistics from "./(dashboardComponent)/@LeagueStatistics/page"
+import UpcomingGames from "./(dashboardComponent)/@UpcomingGames/page"
 
 export default function Home() {
 	return (

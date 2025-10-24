@@ -36,22 +36,86 @@ export async function createSchedule(matchType: GameType) {
     }
 
     if (matchType === GameType.ELIMINATION) {
-      const eliminationMatches = await createEliminationMatch()
-      const dataRound: Round = {
-        round: 1,
-        matches: eliminationMatches,
+      // Use the dynamic elimination system that creates proper brackets for all teams
+      const teams = (await getTeamFromThisSeason()) as Team[]
+
+      if (teams.length < 2) {
+        throw new Error(
+          "At least 2 teams are required for elimination tournament"
+        )
+      }
+
+      console.log(`Creating elimination tournament for ${teams.length} teams`)
+
+      // Map Team model to MatchTeam format for the bracket generator
+      const matchTeams = teams.map((team) => ({
+        teamId: team.id || "",
+        teamName: team.teamName,
+        teamLogo: team.teamLogo,
+      }))
+
+      // Generate dynamic elimination bracket - this already creates the correct structure
+      const eliminationMatches = generateDynamicElimination(matchTeams)
+
+      console.log(
+        `Generated ${eliminationMatches.length} total matches for ${teams.length} teams`
+      )
+
+      // Organize matches by their logical rounds based on match types and structure
+      const rounds: Round[] = []
+
+      // Calculate the proper tournament structure
+      let currentTeamCount = teams.length
+      let expectedRounds = 0
+      while (currentTeamCount > 1) {
+        expectedRounds++
+        currentTeamCount = Math.floor(currentTeamCount / 2)
+      }
+
+      console.log(`Expected ${expectedRounds} rounds for ${teams.length} teams`)
+
+      // Group matches by rounds based on the bracket structure
+      let matchIndex = 0
+      let teamsRemaining = teams.length
+
+      for (let roundNum = 1; roundNum <= expectedRounds; roundNum++) {
+        const matchesInRound = Math.floor(teamsRemaining / 2)
+
+        // Get matches for this specific round
+        const roundMatches = eliminationMatches.slice(
+          matchIndex,
+          matchIndex + matchesInRound
+        )
+
+        if (roundMatches.length > 0) {
+          rounds.push({
+            round: roundNum,
+            matches: roundMatches,
+          })
+
+          console.log(
+            `Round ${roundNum}: ${roundMatches.length} matches (${teamsRemaining} → ${matchesInRound} advance)`
+          )
+        }
+
+        matchIndex += matchesInRound
+        teamsRemaining = matchesInRound
       }
 
       const createMatchesPayload: CreateMatchSchedule = {
         done: false,
         seasonId: season.id,
         matchType: matchType,
-        matchSchedule: [dataRound],
+        matchSchedule: rounds,
       }
 
       const resp = await addCollection(
         FirebaseCollection.MATCH_SCHEDULE,
         createMatchesPayload
+      )
+
+      console.log(
+        `✅ Elimination tournament created: ${rounds.length} rounds, ${eliminationMatches.length} total matches`
       )
       return resp.id
     }
@@ -374,39 +438,42 @@ export async function createDynamicEliminationMatch(teams: Team[]) {
     // Organize matches into proper rounds based on logical progression
     const rounds: Round[] = []
 
-    // Calculate round structure for proper organization
-    let teamsInRound = teams.length
+    // Calculate the proper tournament structure
+    let currentTeamCount = teams.length
+    let expectedRounds = 0
+    while (currentTeamCount > 1) {
+      expectedRounds++
+      currentTeamCount = Math.floor(currentTeamCount / 2)
+    }
+
+    console.log(`Expected ${expectedRounds} rounds for ${teams.length} teams`)
+
+    // Group matches by rounds based on the bracket structure
     let matchIndex = 0
-    let roundNumber = 1
+    let teamsRemaining = teams.length
 
-    while (teamsInRound > 1) {
-      const matchesInThisRound = Math.floor(teamsInRound / 2)
-      const byesInThisRound = teamsInRound % 2
+    for (let roundNum = 1; roundNum <= expectedRounds; roundNum++) {
+      const matchesInRound = Math.floor(teamsRemaining / 2)
 
-      // Get matches for this round
+      // Get matches for this specific round
       const roundMatches = eliminationMatches.slice(
         matchIndex,
-        matchIndex + matchesInThisRound
+        matchIndex + matchesInRound
       )
 
       if (roundMatches.length > 0) {
         rounds.push({
-          round: roundNumber,
+          round: roundNum,
           matches: roundMatches,
         })
 
         console.log(
-          `  Round ${roundNumber}: ${
-            roundMatches.length
-          } matches (${teamsInRound} teams → ${
-            matchesInThisRound + byesInThisRound
-          } advance)`
+          `Round ${roundNum}: ${roundMatches.length} matches (${teamsRemaining} → ${matchesInRound} advance)`
         )
       }
 
-      matchIndex += matchesInThisRound
-      teamsInRound = matchesInThisRound + byesInThisRound
-      roundNumber++
+      matchIndex += matchesInRound
+      teamsRemaining = matchesInRound
     }
 
     console.log(`Organized into ${rounds.length} rounds with proper structure`)

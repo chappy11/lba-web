@@ -1,5 +1,5 @@
 import { getTeamStatistics } from "@/_lib/server/matchSchedule"
-import { Trophy, TrendingUp, TrendingDown, Target, Users } from "lucide-react"
+import { Target, TrendingDown, TrendingUp, Trophy, Users } from "lucide-react"
 import Image from "next/image"
 
 interface TeamStatistic {

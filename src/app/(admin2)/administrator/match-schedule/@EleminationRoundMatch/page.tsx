@@ -26,7 +26,7 @@ export default async function EleminationRoundMatch() {
       </div>
     )
   }
-
+  //console.log("Elimination Round Matches:", elimationResp[0].matchSchedule[0])
   if (elimationResp.length > 0) {
     return (
       <div className="mx-auto w-full">
