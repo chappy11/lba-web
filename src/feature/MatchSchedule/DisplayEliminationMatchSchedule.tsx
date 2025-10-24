@@ -55,7 +55,8 @@ export default function DisplayEliminationMatchSchedule(props: Props) {
   const getRoundName = (roundNumber: number, totalRounds: number) => {
     if (roundNumber === totalRounds) return "Final"
     if (roundNumber === totalRounds - 1) return "Semifinal"
-    if (roundNumber === totalRounds - 2) return "Quarterfinal"
+    
+    // For all other rounds, just use the round number
     return `Round ${roundNumber}`
   }
 
