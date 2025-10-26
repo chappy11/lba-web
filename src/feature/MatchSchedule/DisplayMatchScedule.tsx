@@ -10,14 +10,16 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Award, Calendar, Clock, Medal, Trophy, Users } from "lucide-react"
+import DisplayEliminationRound from "./DisplayEliminationRound"
 import GenerateRoundRobinElimination from "./GenerateRoundRobinElimination"
 
 type Props = {
   data: SeasonGames
+  eliminationMatches: SeasonGames[]
 }
 
 export default function DisplayMatchSchedule(props: Props) {
-  const { data } = props
+  const { data, eliminationMatches } = props
   const { matchSchedule, id } = data
 
   const standing = getStandings(matchSchedule)
@@ -44,6 +46,19 @@ export default function DisplayMatchSchedule(props: Props) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-6">
       <div className="max-w-7xl mx-auto space-y-8">
+        {totalMatches === completedMatches &&
+          totalMatches > 0 &&
+          eliminationMatches.length < 1 && (
+            <GenerateRoundRobinElimination
+              matchSchedule={matchSchedule}
+              totalMatches={totalMatches}
+              completedMatches={completedMatches}
+              standing={standing}
+            />
+          )}
+        {eliminationMatches.length > 0 && (
+          <DisplayEliminationRound eliminationMatches={eliminationMatches} />
+        )}
         {/* Enhanced Header with Stats */}
         <div className="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
           <div className="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 px-8 py-6">
@@ -84,14 +99,7 @@ export default function DisplayMatchSchedule(props: Props) {
           </div>
         </div>
         {/* Tournament Completion Check & Elimination Generation */}
-        {totalMatches === completedMatches && totalMatches > 0 && (
-          <GenerateRoundRobinElimination
-            matchSchedule={matchSchedule}
-            totalMatches={totalMatches}
-            completedMatches={completedMatches}
-            standing={standing}
-          />
-        )}
+
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           <div className="xl:col-span-2">
             <div className="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden">

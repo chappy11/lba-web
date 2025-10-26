@@ -1,10 +1,15 @@
-import { getMatchSchedule } from "@/_lib/server/matchSchedule";
-import DisplayMatchSchedule from "@/feature/MatchSchedule/DisplayMatchScedule";
-import GenerateMatchSchedule from "@/feature/MatchSchedule/GenerateMatchSchedule";
+import {
+  getEliminationMatchSchedule,
+  getMatchSchedule,
+} from "@/_lib/server/matchSchedule"
+import DisplayMatchSchedule from "@/feature/MatchSchedule/DisplayMatchScedule"
+import GenerateMatchSchedule from "@/feature/MatchSchedule/GenerateMatchSchedule"
 import { CalendarDays, Trophy, Users, Zap } from "lucide-react"
 
 export default async function RoundRobinMatch() {
   const resp = await getMatchSchedule()
+
+  const eliminationMatches = await getEliminationMatchSchedule()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 py-6 px-4">
@@ -157,7 +162,10 @@ export default async function RoundRobinMatch() {
             </div>
 
             {/* Tournament Display */}
-            <DisplayMatchSchedule data={resp[0]} />
+            <DisplayMatchSchedule
+              data={resp[0]}
+              eliminationMatches={eliminationMatches}
+            />
           </>
         )}
       </div>
