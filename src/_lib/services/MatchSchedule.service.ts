@@ -280,17 +280,20 @@ export async function updateEliminationRound(updatePayload: Match) {
       (val) => val.id === updatePayload.id
     )[0]
 
-    if (filterDataById.address !== "TBA") {
+    if (filterDataById?.address !== "TBA") {
       await createMatchResult(createMatchResultPayload)
     }
 
     await updateMatches(matches[0].id, updatedData)
 
-    if (filterDataById.address === "TBA" && filterDataById.gameTime === "TBA") {
+    if (
+      filterDataById?.address === "TBA" &&
+      filterDataById?.gameTime === "TBA"
+    ) {
       return await updateMatches(matches[0].id, updatedData)
     }
 
-    if (updatePayload.winner !== "TBA") {
+    if (updatePayload?.winner !== "TBA") {
       const retriggerMatches = (await getMatchSchedule(
         GameType.ELIMINATION
       )) as Array<SeasonGames>

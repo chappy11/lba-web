@@ -105,12 +105,14 @@ export default function DisplayEliminationRound(props: Props) {
                           <div
                             className={`inline-block px-4 py-2 rounded-lg font-semibold text-sm ${
                               round.matches.some(
-                                (m) => m.matchType === MatchType.FINAL.toString()
+                                (m) =>
+                                  m.matchType === MatchType.FINAL.toString()
                               )
                                 ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-white"
                                 : round.matches.some(
                                     (m) =>
-                                      m.matchType === MatchType.SEMIFINAL.toString()
+                                      m.matchType ===
+                                      MatchType.SEMIFINAL.toString()
                                   )
                                 ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
                                 : "bg-gradient-to-r from-purple-500 to-indigo-600 text-white"
@@ -133,14 +135,15 @@ export default function DisplayEliminationRound(props: Props) {
                               <div
                                 className={`transform hover:scale-105 transition-all duration-300 z-10 relative ${
                                   round.matches.some(
-                                    (m) => m.matchType === MatchType.FINAL.toString()
+                                    (m) =>
+                                      m.matchType === MatchType.FINAL.toString()
                                   )
                                     ? "bg-gradient-to-r from-yellow-50 to-orange-50 p-2 rounded-lg shadow-lg"
                                     : "bg-gradient-to-r from-purple-50 to-indigo-50 p-2 rounded-lg shadow-md"
                                 }`}
                               >
                                 <MatchCard
-                                  isElimination
+                                  isElimination={true}
                                   isUseMatchScore={true}
                                   data={match}
                                   id={match.id}
@@ -150,7 +153,8 @@ export default function DisplayEliminationRound(props: Props) {
                               </div>
 
                               {/* TBA indicator */}
-                              {(match.team1 === "TBA" || match.team2 === "TBA") && (
+                              {(match.team1 === "TBA" ||
+                                match.team2 === "TBA") && (
                                 <div className="text-xs text-center mt-1">
                                   <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
                                     Awaiting Teams
