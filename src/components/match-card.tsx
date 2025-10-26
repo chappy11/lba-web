@@ -1,8 +1,9 @@
 "use client";
-import { Match, SeasonGames } from "@/_lib/dto/MatchSchedule"
+import { CreateMatchResult, Match, SeasonGames } from "@/_lib/dto/MatchSchedule"
 import { Player } from "@/_lib/dto/Player.model"
 import {
   eliminationMatchScheduleUpdate,
+  insertMatchResult,
   updateEliminationMatchWithAdvancement,
   updateMatchSchedule,
 } from "@/_lib/server/matchSchedule"
@@ -98,6 +99,25 @@ export default function MatchCard(props: Props) {
       gameDate: matchDate,
       gameTime: matchTime,
     }
+
+    const matchResultPayload: CreateMatchResult = {
+      team1Score: parseInt(teamOneScore, 10),
+      team2Score: parseInt(teamTwoScore, 10),
+      team1Id: data.team1Id,
+      team2Id: data.team2Id,
+      gameDate: data.gameDate,
+      gameId: data.id,
+      team1: data.team1,
+      team2: data.team2,
+      winner: data.winner,
+      playerMvp: data.playerMvp,
+      seasonId: games.seasonId,
+      team1Logo: data.team1Logo || "",
+      team2Logo: data.team2Logo || "",
+    }
+
+    await insertMatchResult(matchResultPayload)
+  
     const updatedData = {
       ...games,
       matchSchedule: games.matchSchedule.map((round) => ({

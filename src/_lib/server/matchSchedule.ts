@@ -1,5 +1,10 @@
 import { axiosConfig } from "../config/config";
-import { Match, SeasonGames } from "../dto/MatchSchedule"
+import {
+  CreateMatchResult,
+  Match,
+  Round,
+  SeasonGames,
+} from "../dto/MatchSchedule"
 
 export const getMatchSchedule =
 	async () => {
@@ -190,4 +195,21 @@ export const getTournamentBracketStructure = async (tournamentId: string) => {
     console.error('Error getting tournament bracket structure:', error)
     throw error
   }
+}
+
+
+export const insertMatchResult = async (payload: CreateMatchResult) => {
+  const resp = await axiosConfig.post("/match-results", payload)
+
+  return resp.data
+}
+
+export const createRoundRobinElimiantonMatchesApi = async (
+  matches: Round[]
+) => {
+  const resp = await axiosConfig.post(
+    "/create-elimination-via-round-robin",
+    matches
+  )
+  return resp.data
 }
