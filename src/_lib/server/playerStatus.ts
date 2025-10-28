@@ -13,3 +13,11 @@ export const getPlayerGameStatus = async (gameId:string) => {
         console.log("GG")
     return response.data;
 }
+
+export const getPlayerScoresByPlayerId = async (playerId: string) => {
+  const response = await axiosConfig.get(
+    `/player-status/by-player?playerId=${playerId}`
+  )
+
+  return response.data
+}

@@ -4,6 +4,7 @@ import UpdateFeaturePlayer from "@/feature/teams/UpdateFeaturePlayer"
 import { THEME } from "@/lib/theme"
 import { User, Users } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 
 type Props = {
   player: Player | PlayerWithTeam
@@ -14,14 +15,18 @@ export default function PlayerCard(props: Props) {
   const { player, team } = props
   const playerWithTeam = player as PlayerWithTeam
 
-  return (
-    <div className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-200 hover:scale-105">
+  const cardContent = (
+    <>
       {/* Background Gradient Overlay */}
-      <div className={`absolute inset-0 ${THEME.PLAYER.GRADIENT} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
-      
+      <div
+        className={`absolute inset-0 ${THEME.PLAYER.GRADIENT} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
+      />
+
       {/* Jersey Number Badge */}
       <div className="absolute top-4 right-4 z-10">
-        <div className={`${THEME.PLAYER.GRADIENT} text-white font-bold text-lg w-12 h-12 rounded-full flex items-center justify-center shadow-lg border-2 border-white`}>
+        <div
+          className={`${THEME.PLAYER.GRADIENT} text-white font-bold text-lg w-12 h-12 rounded-full flex items-center justify-center shadow-lg border-2 border-white`}
+        >
           #{player.jerseyNumber}
         </div>
       </div>
@@ -47,7 +52,9 @@ export default function PlayerCard(props: Props) {
             <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/60 to-transparent" />
           </>
         ) : (
-          <div className={`w-full h-full ${THEME.PLAYER.GRADIENT} flex items-center justify-center`}>
+          <div
+            className={`w-full h-full ${THEME.PLAYER.GRADIENT} flex items-center justify-center`}
+          >
             <User className="w-32 h-32 text-white/50" />
           </div>
         )}
@@ -94,8 +101,29 @@ export default function PlayerCard(props: Props) {
         )}
 
         {/* Accent Line */}
-        <div className={`absolute bottom-0 left-0 right-0 h-1 ${THEME.PLAYER.GRADIENT}`} />
+        <div
+          className={`absolute bottom-0 left-0 right-0 h-1 ${THEME.PLAYER.GRADIENT}`}
+        />
       </div>
-    </div>
+    </>
+  )
+
+  // If team is defined, don't wrap in Link (admin view)
+  if (team) {
+    return (
+      <div className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-200 hover:scale-105">
+        {cardContent}
+      </div>
+    )
+  }
+
+  // If no team prop, it's public view - make it clickable
+  return (
+    <Link
+      href={`/players/${player.id}`}
+      className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-200 hover:scale-105 cursor-pointer block"
+    >
+      {cardContent}
+    </Link>
   )
 }

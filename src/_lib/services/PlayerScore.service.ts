@@ -84,3 +84,21 @@ export async function getPlayerStatusByGameId(gameId: string) {
     throw new Error("Something went wrong with getting player status")
   }
 }
+
+export async function getPlayerStatusByPlayerId(playerId: string) {
+  try {
+    const payload: GetFirebaseDataPayload = {
+      firebaseCollection: FirebaseCollection.PLAYER_STATS,
+      filter: [["playerId", "==", playerId]],
+    }
+
+    const resp = await getData(payload)
+
+    return resp
+  } catch (error) {
+    console.log(error)
+    throw new Error(
+      "Something went wrong with getting player status by player ID"
+    )
+  }
+}

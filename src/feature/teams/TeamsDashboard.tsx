@@ -1,6 +1,7 @@
 import { Team } from "@/_lib/dto/Team.model";
 import { Trophy, Users } from "lucide-react"
 import Image from "next/image";
+import Link from "next/link"
 
 type Props = {
 	teamList: Team[];
@@ -12,8 +13,9 @@ export default function TeamDashboard(
 	const { teamList } = props;
 
 	return teamList.map((team: Team) => (
-    <div
-      className="group relative flex-col w-[280px] bg-white p-6 shadow-lg hover:shadow-2xl rounded-2xl flex justify-center items-center transition-all duration-300 hover:scale-105 border border-gray-200 overflow-hidden"
+    <Link
+      href={`/teams/${team?.id}`}
+      className="group relative flex-col w-[280px] bg-white p-6 shadow-lg hover:shadow-2xl rounded-2xl flex justify-center items-center transition-all duration-300 hover:scale-105 border border-gray-200 overflow-hidden cursor-pointer"
       key={team?.id}
     >
       {/* Gradient Background Overlay */}
@@ -52,6 +54,6 @@ export default function TeamDashboard(
 
       {/* Decorative Corner */}
       <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-500/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-    </div>
+    </Link>
   ))
 }

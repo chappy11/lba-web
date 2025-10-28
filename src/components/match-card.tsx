@@ -103,8 +103,8 @@ export default function MatchCard(props: Props) {
       address !== "TBA" &&
       gameTime !== "TBA" &&
       gameDate !== "TBA" &&
-      team1Score > 0 &&
-      team2Score > 0
+      parseInt(teamOneScore) > 0 &&
+      parseInt(teamTwoScore) > 0
     ) {
       const matchResultPayload: CreateMatchResult = {
         team1Score: parseInt(teamOneScore, 10),
