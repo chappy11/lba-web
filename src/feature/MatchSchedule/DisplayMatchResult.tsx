@@ -44,7 +44,7 @@ export default function DisplayMatchResult() {
   }, [isLoading])
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full p-6">
       {/* Header */}
       <div className="mb-4 pb-4 border-b border-gray-200">
         <div className="flex items-center gap-3">
@@ -63,7 +63,7 @@ export default function DisplayMatchResult() {
       </div>
 
       {/* Scrollable Content - Fixed height to show ~5 matches */}
-      <div className="h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400 scroll-smooth">
+      <div className="h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400 scroll-smooth">
         {displayLoading}
 
         {!isLoading && data.length === 0 && (

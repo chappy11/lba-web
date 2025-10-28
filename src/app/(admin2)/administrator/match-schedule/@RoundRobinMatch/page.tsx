@@ -13,7 +13,7 @@ export default async function RoundRobinMatch() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 py-6 px-4">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-[1920px] mx-auto">
         {resp.length < 1 ? (
           <>
             {/* Beautiful Header */}

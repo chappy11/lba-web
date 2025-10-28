@@ -10,7 +10,7 @@ export default async function Page() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 py-8 px-4">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-[1920px] mx-auto">
         {/* Page Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">

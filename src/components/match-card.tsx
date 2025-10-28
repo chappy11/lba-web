@@ -99,24 +99,31 @@ export default function MatchCard(props: Props) {
       gameDate: matchDate,
       gameTime: matchTime,
     }
+    if (
+      address !== "TBA" &&
+      gameTime !== "TBA" &&
+      gameDate !== "TBA" &&
+      team1Score > 0 &&
+      team2Score > 0
+    ) {
+      const matchResultPayload: CreateMatchResult = {
+        team1Score: parseInt(teamOneScore, 10),
+        team2Score: parseInt(teamTwoScore, 10),
+        team1Id: data.team1Id,
+        team2Id: data.team2Id,
+        gameDate: data.gameDate,
+        gameId: data.id,
+        team1: data.team1,
+        team2: data.team2,
+        winner: data.winner,
+        playerMvp: data.playerMvp,
+        seasonId: games.seasonId,
+        team1Logo: data.team1Logo || "",
+        team2Logo: data.team2Logo || "",
+      }
 
-    const matchResultPayload: CreateMatchResult = {
-      team1Score: parseInt(teamOneScore, 10),
-      team2Score: parseInt(teamTwoScore, 10),
-      team1Id: data.team1Id,
-      team2Id: data.team2Id,
-      gameDate: data.gameDate,
-      gameId: data.id,
-      team1: data.team1,
-      team2: data.team2,
-      winner: data.winner,
-      playerMvp: data.playerMvp,
-      seasonId: games.seasonId,
-      team1Logo: data.team1Logo || "",
-      team2Logo: data.team2Logo || "",
+      await insertMatchResult(matchResultPayload)
     }
-
-    await insertMatchResult(matchResultPayload)
   
     const updatedData = {
       ...games,

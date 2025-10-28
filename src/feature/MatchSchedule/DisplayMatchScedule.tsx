@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table"
 import { Award, Calendar, Clock, Medal, Trophy, Users } from "lucide-react"
 import DisplayEliminationRound from "./DisplayEliminationRound"
+import DisplayMatchResult from "./DisplayMatchResult"
 import GenerateRoundRobinElimination from "./GenerateRoundRobinElimination"
 
 type Props = {
@@ -45,7 +46,7 @@ export default function DisplayMatchSchedule(props: Props) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-8">
+      <div className="max-w-[1920px] mx-auto space-y-8">
         {totalMatches === completedMatches &&
           totalMatches > 0 &&
           eliminationMatches.length < 1 && (
@@ -100,92 +101,8 @@ export default function DisplayMatchSchedule(props: Props) {
         </div>
         {/* Tournament Completion Check & Elimination Generation */}
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          <div className="xl:col-span-2">
-            <div className="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
-              {/* Section Header */}
-              <div className="bg-gradient-to-r from-gray-800 to-gray-900 px-6 py-4">
-                <div className="flex items-center gap-3">
-                  <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg">
-                    <Users className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-white">
-                      Match Schedule
-                    </h3>
-                    <p className="text-gray-300 text-sm">
-                      All tournament matches organized by rounds
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Enhanced Scrollable Content */}
-              <div className="p-6">
-                <div className="space-y-8 max-h-[800px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                  {matchSchedule?.map((val: MatchRound, index: number) => {
-                    const roundMatches = val.matches
-                    const completedInRound = roundMatches.filter(
-                      (m) => m.winner !== "TBA"
-                    ).length
-
-                    return (
-                      <div className="space-y-4" key={index + 1}>
-                        {/* Enhanced Round Header */}
-                        <div className="sticky top-0 z-10">
-                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-100 rounded-xl p-4 shadow-sm backdrop-blur-sm">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-3">
-                                <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-1.5 rounded-lg font-bold text-sm shadow-md">
-                                  Round {val.round || index + 1}
-                                </div>
-                                <div className="flex items-center gap-2 text-gray-600">
-                                  <Clock className="w-4 h-4" />
-                                  <span className="text-sm font-medium">
-                                    {roundMatches.length}{" "}
-                                    {roundMatches.length === 1
-                                      ? "match"
-                                      : "matches"}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
-                                  {completedInRound}/{roundMatches.length}{" "}
-                                  Complete
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Enhanced Grid Layout for Match Cards */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                          {roundMatches.map((match: Match, i: number) => {
-                            return (
-                              <div
-                                key={i.toString()}
-                                className="group transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
-                              >
-                                <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 p-1 shadow-sm group-hover:shadow-md transition-all">
-                                  <MatchCard
-                                    data={match}
-                                    id={data.id}
-                                    games={data}
-                                    matchId={id}
-                                  />
-                                </div>
-                              </div>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+          {/* Left: Team Standings */}
           <div className="xl:col-span-1">
             <div className="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden sticky top-6">
               {/* Section Header */}
@@ -313,6 +230,100 @@ export default function DisplayMatchSchedule(props: Props) {
                   </Table>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Middle: Match Schedule */}
+          <div className="xl:col-span-2">
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
+              {/* Section Header */}
+              <div className="bg-gradient-to-r from-gray-800 to-gray-900 px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <div className="bg-white/20 backdrop-blur-sm p-2 rounded-lg">
+                    <Users className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">
+                      Match Schedule
+                    </h3>
+                    <p className="text-gray-300 text-sm">
+                      All tournament matches organized by rounds
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Enhanced Scrollable Content */}
+              <div className="p-6">
+                <div className="space-y-8 max-h-[800px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                  {matchSchedule?.map((val: MatchRound, index: number) => {
+                    const roundMatches = val.matches
+                    const completedInRound = roundMatches.filter(
+                      (m) => m.winner !== "TBA"
+                    ).length
+
+                    return (
+                      <div className="space-y-4" key={index + 1}>
+                        {/* Enhanced Round Header */}
+                        <div className="sticky top-0 z-10">
+                          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-100 rounded-xl p-4 shadow-sm backdrop-blur-sm">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-3 py-1.5 rounded-lg font-bold text-sm shadow-md">
+                                  Round {val.round || index + 1}
+                                </div>
+                                <div className="flex items-center gap-2 text-gray-600">
+                                  <Clock className="w-4 h-4" />
+                                  <span className="text-sm font-medium">
+                                    {roundMatches.length}{" "}
+                                    {roundMatches.length === 1
+                                      ? "match"
+                                      : "matches"}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                  {completedInRound}/{roundMatches.length}{" "}
+                                  Complete
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Enhanced Grid Layout for Match Cards */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                          {roundMatches.map((match: Match, i: number) => {
+                            return (
+                              <div
+                                key={i.toString()}
+                                className="group transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg"
+                              >
+                                <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 p-1 shadow-sm group-hover:shadow-md transition-all">
+                                  <MatchCard
+                                    data={match}
+                                    id={data.id}
+                                    games={data}
+                                    matchId={id}
+                                  />
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Match Results */}
+          <div className="xl:col-span-1">
+            <div className="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden sticky top-6">
+              <DisplayMatchResult />
             </div>
           </div>
         </div>
