@@ -1,7 +1,6 @@
 import { TeamsStanding } from "@/_lib/dto/Team.model"
 import { getTeamStatistics } from "@/_lib/server/matchSchedule"
 import NavigationHeader from "@/components/navigation-header"
-import ArrangeWinnersButton from "@/feature/teams/ArrangeWinnersButton"
 import TeamStanding from "@/feature/teams/TeamStanding"
 import { THEME } from "@/lib/theme"
 import { Award, TrendingUp, Trophy } from "lucide-react"
@@ -22,6 +21,9 @@ interface TeamStatistic {
 export default async function Page() {
   const statsResponse = await getTeamStatistics()
 
+  console.log("Stats Response:", statsResponse)
+  console.log("Statistics Array:", statsResponse?.statistics)
+
   if (!statsResponse.success) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -31,6 +33,32 @@ export default async function Page() {
             <p className="text-red-600 text-lg">
               Failed to load team statistics
             </p>
+            <p className="text-gray-600 text-sm mt-2">
+              {statsResponse.error || "Unknown error"}
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Check if statistics data exists
+  if (
+    !statsResponse?.statistics ||
+    statsResponse.statistics.length === 0
+  ) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+        <NavigationHeader />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+            <TrendingUp className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600 text-lg font-semibold mb-2">
+              No Team Statistics Available
+            </p>
+            <p className="text-gray-500 text-sm">
+              Statistics will appear once teams have played matches
+            </p>
           </div>
         </div>
       </div>
@@ -38,7 +66,7 @@ export default async function Page() {
   }
 
   // Transform statistics data to match TeamsStanding interface
-  const sortedStandings: TeamsStanding[] = statsResponse?.data?.statistics.map(
+  const sortedStandings: TeamsStanding[] = statsResponse?.statistics.map(
     (stat: TeamStatistic) => ({
       id: stat.teamId,
       teamName: stat.teamName,
@@ -61,7 +89,7 @@ export default async function Page() {
     totalGames = 0,
     totalWins = 0,
     totalLosses = 0,
-  } = statsResponse.data || {}
+  } = statsResponse || {}
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -90,7 +118,6 @@ export default async function Page() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Arrange Winners Button */}
-       
 
         {/* Top 3 Teams Podium */}
         {sortedStandings?.length >= 3 && (
@@ -113,10 +140,10 @@ export default async function Page() {
                   </p>
                   <p className="text-xs text-gray-500">
                     Goal Diff:{" "}
-                    {statsResponse.data.statistics[1].goalDifference > 0
+                    {statsResponse.statistics[1].goalDifference > 0
                       ? "+"
                       : ""}
-                    {statsResponse.data.statistics[1].goalDifference}
+                    {statsResponse.statistics[1].goalDifference}
                   </p>
                 </div>
               </div>
@@ -142,10 +169,10 @@ export default async function Page() {
                   </p>
                   <p className="text-xs text-white/80">
                     Goal Diff:{" "}
-                    {statsResponse.data.statistics[0].goalDifference > 0
+                    {statsResponse.statistics[0].goalDifference > 0
                       ? "+"
                       : ""}
-                    {statsResponse.data.statistics[0].goalDifference}
+                    {statsResponse.statistics[0].goalDifference}
                   </p>
                 </div>
               </div>
@@ -169,10 +196,10 @@ export default async function Page() {
                   </p>
                   <p className="text-xs text-gray-500">
                     Goal Diff:{" "}
-                    {statsResponse?.data?.statistics[2]?.goalDifference > 0
+                    {statsResponse?.statistics[2]?.goalDifference > 0
                       ? "+"
                       : ""}
-                    {statsResponse?.data?.statistics[2]?.goalDifference}
+                    {statsResponse?.statistics[2]?.goalDifference}
                   </p>
                 </div>
               </div>
@@ -218,7 +245,7 @@ export default async function Page() {
               <tbody className="divide-y divide-gray-200">
                 <TeamStanding
                   teamStanding={sortedStandings}
-                  statistics={statsResponse?.data?.statistics}
+                  statistics={statsResponse?.statistics}
                 />
               </tbody>
             </table>
