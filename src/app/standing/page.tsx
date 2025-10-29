@@ -38,7 +38,7 @@ export default async function Page() {
   }
 
   // Transform statistics data to match TeamsStanding interface
-  const sortedStandings: TeamsStanding[] = statsResponse.data.statistics.map(
+  const sortedStandings: TeamsStanding[] = statsResponse?.data?.statistics.map(
     (stat: TeamStatistic) => ({
       id: stat.teamId,
       teamName: stat.teamName,
@@ -56,7 +56,12 @@ export default async function Page() {
     })
   )
 
-  const { totalTeams, totalGames, totalWins, totalLosses } = statsResponse.data
+  const {
+    totalTeams = 0,
+    totalGames = 0,
+    totalWins = 0,
+    totalLosses = 0,
+  } = statsResponse.data || {}
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
@@ -85,12 +90,10 @@ export default async function Page() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Arrange Winners Button */}
-        <div className="mb-8 flex justify-end">
-          <ArrangeWinnersButton />
-        </div>
+       
 
         {/* Top 3 Teams Podium */}
-        {sortedStandings.length >= 3 && (
+        {sortedStandings?.length >= 3 && (
           <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* 2nd Place */}
             <div className="md:order-1 order-2">
@@ -103,10 +106,10 @@ export default async function Page() {
                 <div className="text-center">
                   <p className="text-3xl font-bold text-gray-500 mb-2">2nd</p>
                   <p className="font-bold text-lg text-gray-900 mb-1">
-                    {sortedStandings[1].teamName}
+                    {sortedStandings?.[1].teamName}
                   </p>
                   <p className="text-sm text-gray-600 mb-1">
-                    {sortedStandings[1].win}W - {sortedStandings[1].lose}L
+                    {sortedStandings?.[1].win}W - {sortedStandings?.[1].lose}L
                   </p>
                   <p className="text-xs text-gray-500">
                     Goal Diff:{" "}
@@ -132,10 +135,10 @@ export default async function Page() {
                 <div className="text-center">
                   <p className="text-4xl font-bold text-white mb-2">1st</p>
                   <p className="font-bold text-xl text-white mb-1">
-                    {sortedStandings[0].teamName}
+                    {sortedStandings?.[0].teamName}
                   </p>
                   <p className="text-sm text-white/90 mb-1">
-                    {sortedStandings[0].win}W - {sortedStandings[0].lose}L
+                    {sortedStandings?.[0].win}W - {sortedStandings?.[0].lose}L
                   </p>
                   <p className="text-xs text-white/80">
                     Goal Diff:{" "}
@@ -159,17 +162,17 @@ export default async function Page() {
                 <div className="text-center">
                   <p className="text-3xl font-bold text-orange-500 mb-2">3rd</p>
                   <p className="font-bold text-lg text-gray-900 mb-1">
-                    {sortedStandings[2].teamName}
+                    {sortedStandings?.[2].teamName}
                   </p>
                   <p className="text-sm text-gray-600 mb-1">
-                    {sortedStandings[2].win}W - {sortedStandings[2].lose}L
+                    {sortedStandings?.[2].win}W - {sortedStandings?.[2].lose}L
                   </p>
                   <p className="text-xs text-gray-500">
                     Goal Diff:{" "}
-                    {statsResponse.data.statistics[2].goalDifference > 0
+                    {statsResponse?.data?.statistics[2]?.goalDifference > 0
                       ? "+"
                       : ""}
-                    {statsResponse.data.statistics[2].goalDifference}
+                    {statsResponse?.data?.statistics[2]?.goalDifference}
                   </p>
                 </div>
               </div>
@@ -215,7 +218,7 @@ export default async function Page() {
               <tbody className="divide-y divide-gray-200">
                 <TeamStanding
                   teamStanding={sortedStandings}
-                  statistics={statsResponse.data.statistics}
+                  statistics={statsResponse?.data?.statistics}
                 />
               </tbody>
             </table>

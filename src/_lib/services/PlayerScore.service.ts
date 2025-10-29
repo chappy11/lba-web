@@ -56,7 +56,9 @@ export async function updatePlayerStatus(payload: PlayerStatusPayload) {
     // TO DO: update player status
     if (payload.id === null) throw new Error("Player status ID is null")
 
-    const cleanPayload = removeUndefinedFields(payload)
+    const cleanPayload = removeUndefinedFields(
+      payload
+    ) as Partial<PlayerStatusPayload>
 
     await updateDoc(doc(db, FirebaseCollection.PLAYER_STATS, payload.id), {
       ...cleanPayload,

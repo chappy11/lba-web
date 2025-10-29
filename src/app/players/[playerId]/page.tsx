@@ -1,5 +1,5 @@
-import { PlayerScoreModel } from "@/_lib/dto/TeamScoring.model"
 import { PlayerMvp } from "@/_lib/dto/PlayerMvp.model"
+import { PlayerScoreModel } from "@/_lib/dto/TeamScoring.model"
 import { getPlayerById } from "@/_lib/server/player"
 import { getPlayerScoresByPlayerId } from "@/_lib/server/playerStatus"
 import { getPlayerMvpByPlayerId } from "@/_lib/server/playermvp"
@@ -39,16 +39,16 @@ export default async function PlayerDetailsPage({ params }: Props) {
   if (!playerData || playerData.length === 0) {
     notFound()
   }
-  
+
   const player = playerData
   const team = player?.team
-  
+
   // Fetch player scores and MVP awards
   const [playerScores, playerMvps] = await Promise.all([
     getPlayerScoresByPlayerId(playerId),
-    getPlayerMvpByPlayerId(playerId)
+    getPlayerMvpByPlayerId(playerId),
   ])
-  
+
   // Calculate career statistics
   const careerStats = playerScores?.reduce(
     (
@@ -93,12 +93,24 @@ export default async function PlayerDetailsPage({ params }: Props) {
     turnovers: 0,
     gamesPlayed: 0,
   }
-  
+
   const avgStats = {
-    points: careerStats.gamesPlayed > 0 ? (careerStats.points / careerStats.gamesPlayed).toFixed(1) : 0,
-    rebounds: careerStats.gamesPlayed > 0 ? (careerStats.rebounds / careerStats.gamesPlayed).toFixed(1) : 0,
-    assists: careerStats.gamesPlayed > 0 ? (careerStats.assists / careerStats.gamesPlayed).toFixed(1) : 0,
-    threePointers: careerStats.gamesPlayed > 0 ? (careerStats.threePointers / careerStats.gamesPlayed).toFixed(1) : 0,
+    points:
+      careerStats.gamesPlayed > 0
+        ? (careerStats.points / careerStats.gamesPlayed).toFixed(1)
+        : 0,
+    rebounds:
+      careerStats.gamesPlayed > 0
+        ? (careerStats.rebounds / careerStats.gamesPlayed).toFixed(1)
+        : 0,
+    assists:
+      careerStats.gamesPlayed > 0
+        ? (careerStats.assists / careerStats.gamesPlayed).toFixed(1)
+        : 0,
+    threePointers:
+      careerStats.gamesPlayed > 0
+        ? (careerStats.threePointers / careerStats.gamesPlayed).toFixed(1)
+        : 0,
   }
 
   return (
@@ -116,7 +128,9 @@ export default async function PlayerDetailsPage({ params }: Props) {
 
         {/* Player Header Section */}
         <div className="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden mb-8">
-          <div className={`${THEME.PLAYER.GRADIENT} px-8 py-12 relative overflow-hidden`}>
+          <div
+            className={`${THEME.PLAYER.GRADIENT} px-8 py-12 relative overflow-hidden`}
+          >
             {/* Decorative Elements */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl" />
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-2xl" />
@@ -152,7 +166,7 @@ export default async function PlayerDetailsPage({ params }: Props) {
                     {player?.position}
                   </span>
                 </div>
-                
+
                 <h1 className="text-5xl md:text-6xl font-black text-white mb-2 drop-shadow-lg">
                   {player?.firstname}
                 </h1>
@@ -219,9 +233,7 @@ export default async function PlayerDetailsPage({ params }: Props) {
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
               <div className="flex items-center gap-3">
                 <User className="w-6 h-6 text-white" />
-                <h2 className="text-xl font-bold text-white">
-                  Personal Info
-                </h2>
+                <h2 className="text-xl font-bold text-white">Personal Info</h2>
               </div>
             </div>
             <div className="p-6 space-y-4">
@@ -233,9 +245,7 @@ export default async function PlayerDetailsPage({ params }: Props) {
               </div>
               {player?.middlename && (
                 <div className="flex justify-between items-center pb-3 border-b border-gray-200">
-                  <span className="text-gray-600 font-medium">
-                    Middle Name
-                  </span>
+                  <span className="text-gray-600 font-medium">Middle Name</span>
                   <span className="font-bold text-gray-900">
                     {player?.middlename}
                   </span>
@@ -269,9 +279,7 @@ export default async function PlayerDetailsPage({ params }: Props) {
             <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
               <div className="flex items-center gap-3">
                 <Activity className="w-6 h-6 text-white" />
-                <h2 className="text-xl font-bold text-white">
-                  Physical Stats
-                </h2>
+                <h2 className="text-xl font-bold text-white">Physical Stats</h2>
               </div>
             </div>
             <div className="p-6 space-y-4">

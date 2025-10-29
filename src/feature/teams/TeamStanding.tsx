@@ -16,7 +16,7 @@ type Props = {
 export default async function TeamStanding(props: Props) {
   const { teamStanding, statistics } = props
 
-  return teamStanding.map((standing: TeamsStanding, index: number) => {
+  return teamStanding?.map((standing: TeamsStanding, index: number) => {
     const winRate =
       standing.games > 0 ? (standing.win / standing.games) * 100 : 0
     const isTopThree = index < 3
