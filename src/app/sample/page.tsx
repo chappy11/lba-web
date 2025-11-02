@@ -1,188 +1,242 @@
-"use client"
+"use client";
+import TextInput from "@/components/textinput";
+import { Button } from "@/components/ui/button";
+import React, { useState } from "react";
+import Papa from "papaparse";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
 
-import { Button } from "@/components/ui/button"
-import { useCallback, useEffect, useState } from "react"
-const matches = [
-  {
-    id: "12344",
-    done: false,
-    matches: [
-      {
-        team2Score: 0,
-        id: "8a070438-7871-469b-9f4c-7ba87ae409ae",
-        winner: "TBA",
-        team1Score: 0,
-        team1Id: "IcNVix35nL4Z2F6cqjQi",
-        team2: "Cleveland",
-        address: "TBA",
-        team1: "Nuggets",
-        team2Id: "ziEb9zNe9LDQAkLRCofa",
-      },
-      {
-        address: "TBA",
-        winner: "TBA",
-        team1Id: "VUNx0uKIC5NkvqMYm66G",
-        team2Score: 0,
-        team1: "Lakers",
-        id: "8344f5e6-2e57-46f1-a5f2-8ce151b86422",
-        team1Score: 0,
-        team2: "Chicago Bulls",
-        team2Id: "fnz5PrfJeOisrfrWE7OA",
-      },
-    ],
-    round: 1,
-  },
-  {
-    round: 2,
-    matches: [
-      {
-        team2: "Cleveland",
-        address: "TBA",
-        team1: "Clippers",
-        winner: "TBA",
-        team1Id: "HsmCeT1jSd0TKy5hzLZf",
-        team2Score: 0,
-        team2Id: "ziEb9zNe9LDQAkLRCofa",
-        id: "cdc4f20d-bafb-4535-98c3-a90d0d56e914",
-        team1Score: 0,
-      },
-      {
-        id: "4d34701a-963c-4f2c-bce5-62ee03edeb51",
-        team2Score: 0,
-        team1: "Nuggets",
-        team1Score: 0,
-        team2: "Lakers",
-        team2Id: "VUNx0uKIC5NkvqMYm66G",
-        address: "TBA",
-        team1Id: "IcNVix35nL4Z2F6cqjQi",
-        winner: "TBA",
-      },
-    ],
-  },
-  {
-    round: 3,
-    matches: [
-      {
-        team1Score: 0,
-        address: "TBA",
-        team2: "Chicago Bulls",
-        team1: "Clippers",
-        team2Id: "fnz5PrfJeOisrfrWE7OA",
-        id: "fa75fe63-efa2-4495-8aa4-729401a9d2f6",
-        winner: "TBA",
-        team2Score: 0,
-        team1Id: "HsmCeT1jSd0TKy5hzLZf",
-      },
-      {
-        address: "TBA",
-        winner: "TBA",
-        team2: "Lakers",
-        team2Score: 0,
-        team1Id: "ziEb9zNe9LDQAkLRCofa",
-        team1Score: 0,
-        id: "c052577b-2042-48e7-a98a-01289b0e4833",
-        team1: "Cleveland",
-        team2Id: "VUNx0uKIC5NkvqMYm66G",
-      },
-    ],
-  },
-  {
-    round: 4,
-    matches: [
-      {
-        team1Id: "HsmCeT1jSd0TKy5hzLZf",
-        winner: "TBA",
-        team1: "Clippers",
-        team2Id: "VUNx0uKIC5NkvqMYm66G",
-        id: "a8d92693-219f-4823-8f04-01ea0dfff071",
-        team2: "Lakers",
-        address: "TBA",
-        team2Score: 0,
-        team1Score: 0,
-      },
-      {
-        team1Score: 0,
-        address: "TBA",
-        team2Id: "IcNVix35nL4Z2F6cqjQi",
-        team2Score: 0,
-        team1: "Chicago Bulls",
-        team2: "Nuggets",
-        winner: "TBA",
-        team1Id: "fnz5PrfJeOisrfrWE7OA",
-        id: "e85913a1-6250-4ee2-a751-40be58d9d7f9",
-      },
-    ],
-  },
-  {
-    matches: [
-      {
-        team1Id: "HsmCeT1jSd0TKy5hzLZf",
-        team1: "Clippers",
-        team2: "Nuggets",
-        id: "89f55deb-09a0-4f2f-b8a2-9fcdfe5312dd",
-        team2Id: "IcNVix35nL4Z2F6cqjQi",
-        team1Score: 0,
-        address: "TBA",
-        team2Score: 0,
-        winner: "TBA",
-      },
-      {
-        team1Id: "fnz5PrfJeOisrfrWE7OA",
-        team2Id: "ziEb9zNe9LDQAkLRCofa",
-        team2: "Cleveland",
-        winner: "TBA",
-        team1: "Chicago Bulls",
-        team2Score: 0,
-        id: "23a612b2-9ec2-4e35-a8e0-caeccff8a5ab",
-        address: "TBA",
-        team1Score: 0,
-      },
-    ],
-    round: 5,
-  },
-]
+export type EmployeePayroll = {
+	employeeId: string;
+	name: string;
+	position: string;
+	department: string;
+	basicSalary: number;
+	allowance: number;
+	deductions: number;
+	netPay: number;
+	payDate: string; // ISO format e.g. "2025-11-01"
+	status: "Paid" | "Pending" | "Unpaid";
+};
 
 export default function Sample() {
-  const [data, setData] = useState<any[]>(matches)
+	const [uploadData, setUploadData] =
+		React.useState<File | null>(null);
+	const [data, setData] =
+		React.useState<
+			Array<EmployeePayroll>
+		>([]);
+	const [error, setError] =
+		useState<string>("");
+	const handleUpload = (
+		file: File | undefined
+	) => {
+		const fileData = file || null;
+		setUploadData(fileData);
+	};
 
-  const handleUpdate = useCallback(() => {
-    const chooseRound = 2
-    const matchUpdate = {
-      team2Score: 28,
-      id: "8a070438-7871-469b-9f4c-7ba87ae409ae",
-      winner: "IcNVix35nL4Z2F6cqjQi",
-      team1Score: 32,
-      team1Id: "IcNVix35nL4Z2F6cqjQi",
-      team2: "Cleveland",
-      address: "TBA",
-      team1: "Nuggets",
-      team2Id: "ziEb9zNe9LDQAkLRCofa",
-    }
+	const handleConvertCsv = async () => {
+		if (!uploadData) {
+			setError("No file uploaded");
+			return;
+		}
 
-    const findRoundIndex = data.findIndex(
-      (round) => chooseRound === round.round
-    )
-    if (findRoundIndex !== -1) {
-      const findMatchIndex = data[findRoundIndex].matches.findIndex(
-        (match) => match.id === matchUpdate.id
-      )
+		// Papa.parse(uploadData, {
+		// 	headers: false,
+		// 	complete: (results) => {
+		// 		const data: string[][] =
+		// 			results.data;
+		// 		console.log(data.length);
+		// 		const formaatedData: Array<EmployeePayroll> =
+		// 			data.map((val) => {
+		// 				return {
+		// 					employee_id: val[0] || "",
+		// 					name: val[1] || "",
+		// 					position: val[2] || "",
+		// 					department: val[3] || "",
+		// 					basic_salary:
+		// 						Number(val[4]) || 0,
+		// 					allowance:
+		// 						Number(val[5]) || 0,
+		// 					deductions:
+		// 						Number(val[6]) || 0,
+		// 					net_pay:
+		// 						Number(val[7]) || 0,
+		// 					pay_date: val[8] || "",
+		// 					status:
+		// 						(val[9] as
+		// 							| "Paid"
+		// 							| "Pending"
+		// 							| "Unpaid") ||
+		// 						"Pending",
+		// 				};
+		// 			});
 
-      if (findMatchIndex !== -1) {
-        const updatedMatches = [...data]
-        updatedMatches[findRoundIndex].matches[findMatchIndex] = matchUpdate
-        setData(updatedMatches)
-      } else {
-        console.error("Match not found")
-      }
-    } else {
-      console.error("Round not found")
-    }
-  }, [data])
+		// 		console.log(data);
+		// 		setData(formaatedData);
+		// 	},
+		// 	error: (error) => {
+		// 		setError("Error parsing CSV");
+		// 	},
+		// });
 
-  useEffect(() => {
-    // Simulate fetching data from an API
-    console.log("DATA", JSON.stringify(data, null, 2))
-  }, [handleUpdate])
+		Papa.parse(uploadData as File, {
+			header: true,
+			skipEmptyLines: true,
+			complete: (results) => {
+				const unformatedData =
+					results.data as Array<any>;
+				const formaatedData: Array<EmployeePayroll> =
+					unformatedData.map(
+						(val: any) => {
+							return {
+								employeeId:
+									val["employee_id"] ||
+									"",
+								name: val["name"] || "",
+								position:
+									val["position"] || "",
+								department:
+									val["department"] ||
+									"",
+								basicSalary:
+									Number(
+										val["basic_salary"]
+									) || 0,
+								allowance:
+									Number(
+										val["allowance"]
+									) || 0,
+								deductions:
+									Number(
+										val["deductions"]
+									) || 0,
+								netPay:
+									Number(
+										val["net_pay"]
+									) || 0,
+								payDate:
+									val["pay_date"] || "",
+								status:
+									(val["status"] as
+										| "Paid"
+										| "Pending"
+										| "Unpaid") ||
+									"Pending",
+							};
+						}
+					);
+				setData(formaatedData);
+			},
+		});
+		// Map the payroll data to the desired format
+	};
 
-  return <Button onClick={() => handleUpdate()}>Update</Button>
+	return (
+		<div>
+			<TextInput
+				onChange={(e) =>
+					handleUpload(
+						e?.target?.files?.[0]
+					)
+				}
+				type="file"
+			/>
+			<Button
+				onClick={() =>
+					handleConvertCsv()
+				}
+			>
+				ConverData
+			</Button>
+			<Table className=" w-[80%] mx-auto">
+				<TableHeader>
+					<TableRow>
+						<TableHead>
+							Emplyoee ID
+						</TableHead>
+						<TableHead>
+							Employee Name
+						</TableHead>
+						<TableHead>
+							Position
+						</TableHead>
+						<TableHead>
+							Department
+						</TableHead>
+						<TableHead>
+							Basic Salary
+						</TableHead>
+						<TableHead>
+							Allowance
+						</TableHead>
+						<TableHead>
+							Deductions
+						</TableHead>
+
+						<TableHead>
+							Net Pay
+						</TableHead>
+						<TableHead>
+							Pay Date
+						</TableHead>
+						<TableHead>
+							Status
+						</TableHead>
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					{data.map(
+						(
+							val: EmployeePayroll,
+							index: number
+						) => {
+							return (
+								<TableRow
+									key={index.toString()}
+								>
+									<TableCell>
+										{val.employeeId}
+									</TableCell>
+									<TableCell>
+										{val.name}
+									</TableCell>
+									<TableCell>
+										{val.position}
+									</TableCell>
+									<TableCell>
+										{val.department}
+									</TableCell>
+									<TableCell>
+										{val.basicSalary}
+									</TableCell>
+									<TableCell>
+										{val.allowance}
+									</TableCell>
+									<TableCell>
+										{val.deductions}
+									</TableCell>
+									<TableCell>
+										{val.netPay}
+									</TableCell>
+									<TableCell>
+										{val.payDate}
+									</TableCell>
+									<TableCell>
+										{val.status}
+									</TableCell>
+								</TableRow>
+							);
+						}
+					)}
+				</TableBody>
+			</Table>
+		</div>
+	);
 }
