@@ -1,8 +1,11 @@
+"use client"
+
 import { Match, SeasonGames } from "@/_lib/dto/MatchSchedule"
 import { Player } from "@/_lib/dto/Player.model"
 import {
   PlayerScoreModeBasedInsert,
   PlayerScoreModel,
+  PlayerStatusPayloadBulkInsert,
 } from "@/_lib/dto/TeamScoring.model"
 import {
   getEliminationMatchSchedule,
@@ -10,16 +13,11 @@ import {
 } from "@/_lib/server/matchSchedule"
 import { getPlayerByTeams } from "@/_lib/server/player"
 import { getPlayerGameStatus } from "@/_lib/server/playerStatus"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+
+import { generateCsvForPlayerStatus } from "@/_lib/utils/csv.utils"
 import Image from "next/image"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
+import PlayerStatusBatchUpload from "./PlayerStatusBatchUpload"
 import UpdatePlayerScoringStatus from "./UpdatePlayerScoringStatus"
 
 type Props = {
@@ -29,7 +27,7 @@ type Props = {
 }
 
 export default function PlayerScoring(props: Props) {
-  const { gameId, gameRecordId, isUpdate } = props
+  const { gameId, gameRecordId } = props
   const [game, setGame] = useState<Match | null>(null)
 
   const [teamPlayerOne, setTeamPlayerOne] = useState<Player[]>([])
@@ -37,26 +35,6 @@ export default function PlayerScoring(props: Props) {
   const [gamePlayerStatus, setGamePlayerStatus] = useState<
     Array<PlayerScoreModel>
   >([])
-
-  async function fetchRoundRobinMatches() {
-    try {
-      const roundRobinMatches = await getMatchSchedule()
-
-      return roundRobinMatches
-    } catch (error) {
-      console.log("Error Round Robin", error)
-    }
-  }
-
-  async function fetchEliminationMatches() {
-    try {
-      const eliminationMatches = await getEliminationMatchSchedule()
-      console.log("ELIMINATION", eliminationMatches)
-      return eliminationMatches
-    } catch (error) {
-      console.log("Error Elimination", error)
-    }
-  }
 
   const combineAllMatches = async () => {
     const [roundRobin, elimination] = await Promise.all([
@@ -103,6 +81,8 @@ export default function PlayerScoring(props: Props) {
     combineAllMatches()
   }, [])
 
+  
+
   const findPlayerStatus = useCallback(
     (playerId: string, key: string) => {
       const stats = gamePlayerStatus.find(
@@ -121,7 +101,7 @@ export default function PlayerScoring(props: Props) {
       const stats = gamePlayerStatus.find(
         (status) => status.playerId === playerId
       )
-      console.log("St", stats)
+
       if (!stats) return null
 
       return stats.id ?? null
@@ -195,8 +175,82 @@ export default function PlayerScoring(props: Props) {
     [teamPlayerOne, teamPlayerTwo, gameId, findPlayerStatus, findPlayerStatusId]
   )
 
+  async function fetchRoundRobinMatches() {
+    try {
+      const roundRobinMatches = await getMatchSchedule()
+
+      return roundRobinMatches
+    } catch (error) {
+      console.log("Error Round Robin", error)
+    }
+  }
+
+  async function fetchEliminationMatches() {
+    try {
+      const eliminationMatches = await getEliminationMatchSchedule()
+      console.log("ELIMINATION", eliminationMatches)
+      return eliminationMatches
+    } catch (error) {
+      console.log("Error Elimination", error)
+    }
+  }
+
+  async function generateCsvReport() {
+    // TO DO: generate csv report for player scoring
+    const teamOnePlayer = teamPlayerOne.map((player) => {
+      const teamOnePlayerStats: PlayerStatusPayloadBulkInsert = {
+        id: findPlayerStatusId(player.id as string) ?? null,
+        gameId: gameId,
+        playerId: player.id as string,
+        firstName: player.firstname,
+        lastName: player.lastname,
+        points: findPlayerStatus(player.id as string, "points") ?? 0,
+        threepoints: findPlayerStatus(player.id as string, "threepoints") ?? 0,
+        foul: findPlayerStatus(player.id as string, "foul") ?? 0,
+        assist: findPlayerStatus(player.id as string, "assist") ?? 0,
+        steal: findPlayerStatus(player.id as string, "steal") ?? 0,
+        rebound: findPlayerStatus(player.id as string, "rebound") ?? 0,
+        turnOver: findPlayerStatus(player.id as string, "turnOver") ?? 0,
+      }
+
+      return teamOnePlayerStats
+    })
+
+    const teamTwoPlayer = teamPlayerTwo.map((player) => {
+      const teamTwoPlayerStats: PlayerStatusPayloadBulkInsert = {
+        id: findPlayerStatusId(player.id as string) ?? null,
+        gameId: gameId,
+        playerId: player.id as string,
+        firstName: player.firstname,
+        lastName: player.lastname,
+        points: findPlayerStatus(player.id as string, "points") ?? 0,
+        threepoints: findPlayerStatus(player.id as string, "threepoints") ?? 0,
+        foul: findPlayerStatus(player.id as string, "foul") ?? 0,
+        assist: findPlayerStatus(player.id as string, "assist") ?? 0,
+        steal: findPlayerStatus(player.id as string, "steal") ?? 0,
+        rebound: findPlayerStatus(player.id as string, "rebound") ?? 0,
+        turnOver: findPlayerStatus(player.id as string, "turnOver") ?? 0,
+      }
+
+      return teamTwoPlayerStats
+    })
+
+    const combinedPlayerStats = [...teamOnePlayer, ...teamTwoPlayer]
+
+    console.log("COMBINED PLAYER STATS", combinedPlayerStats)
+
+    await generateCsvForPlayerStatus({
+      data: combinedPlayerStats,
+      title: `Player Scoring Report - Game ${game?.team1} vs ${game?.team2}`,
+      subTitle: `Game ID: ${gameId}`,
+    })
+  }
+
   return (
     <div className=" w-[80%] mx-auto">
+      <div className="my-5">
+        <PlayerStatusBatchUpload downLoadCsv={generateCsvReport} />
+      </div>
       <div className=" flex flex-row justify-between items-center my-5">
         <div>
           <div className=" flex flex-row items-center gap-5">

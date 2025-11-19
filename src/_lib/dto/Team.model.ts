@@ -37,3 +37,14 @@ export type TeamsStanding = Team & {
 };
 
 export type UpdateTeam = Omit<Team, "id"> 
+
+export type TeamBatchInsertPayload = Omit<
+  Team,
+  | "id"
+  | "seasonId"
+  | "teamLogo"
+  | "isActive"
+  | "dateCreate"
+  | "teamType"
+  | "featurePlayer"
+>

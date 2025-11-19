@@ -25,13 +25,23 @@ export default function TeamDashboard(
       <div className="relative z-10 mb-4">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-300" />
         <div className="relative p-2 bg-white rounded-full shadow-md ring-4 ring-gray-100 group-hover:ring-purple-200 transition-all">
-          <Image
-            src={team?.teamLogo}
-            alt={team?.teamName}
-            width={160}
-            height={160}
-            className="rounded-full object-cover"
-          />
+          {team?.teamLogo ? (
+            <Image
+              src={team?.teamLogo}
+              alt={team?.teamName}
+              width={160}
+              height={160}
+              className="rounded-full object-cover"
+            />
+          ) : (
+            <Image
+              src={"/NoTeam.png"}
+              alt={team?.teamName}
+              width={160}
+              height={160}
+              className="rounded-full object-cover"
+            />
+          )}
         </div>
       </div>
 

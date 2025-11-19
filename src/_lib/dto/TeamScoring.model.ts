@@ -12,7 +12,7 @@ export type PlayerGameInfo = Pick<
 >
 
 export interface PlayerScoreModel {
-  id: string
+  id: string | null
   playerId: string
   gameId: string
   player: PlayerGameInfo
@@ -29,4 +29,12 @@ export type PlayerScoreModeBasedInsert = Omit<PlayerScoreModel, "id">
 
 export type PlayerStatusPayload = PlayerScoreModeBasedInsert & {
   id: string | null
+}
+
+export type PlayerStatusPayloadBulkInsert = Omit<
+  PlayerScoreModeBasedInsert,
+  "player"
+> & {
+  firstName: string
+  lastName: string
 }

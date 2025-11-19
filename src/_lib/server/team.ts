@@ -1,5 +1,9 @@
 import { axiosConfig } from "../config/config";
-import { TeamInsertPayload, UpdateTeam } from "../dto/Team.model"
+import {
+  TeamBatchInsertPayload,
+  TeamInsertPayload,
+  UpdateTeam,
+} from "../dto/Team.model"
 
 export const createTeam = async (payload: TeamInsertPayload) => {
   try {
@@ -58,6 +62,16 @@ export const getAllTeamsForAssignment = async () => {
     return resp.data
   } catch (error) {
     console.error("Error fetching all teams:", error)
+    return null
+  }
+}
+
+export const uploadTeamBatch = async (payload: TeamBatchInsertPayload[]) => {
+  try {
+    const resp = await axiosConfig.post("/teams/upload", payload)
+    return resp.data
+  } catch (error) {
+    console.error("Error uploading team batch:", error)
     return null
   }
 }
