@@ -15,6 +15,7 @@ import {
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
+import BatchUploadTeam from "../TeamManagement/BatchUploadTeam"
 
 enum SortDirectionEnum {
   ASC = "ascending",
@@ -160,6 +161,7 @@ export default function SeasonList(props: Props) {
             </svg>
             Create Team
           </Link>
+          <BatchUploadTeam />
         </div>
       </div>
 
@@ -212,13 +214,23 @@ export default function SeasonList(props: Props) {
                         <div
                           className={`h-16 w-16 rounded-full ${SECTION_BG.PURPLE} p-1 ring-2 ring-purple-200 group-hover:ring-purple-400 transition-all`}
                         >
-                          <Image
-                            src={item.teamLogo}
-                            alt="team logo"
-                            width={64}
-                            height={64}
-                            className="rounded-full object-cover w-full h-full"
-                          />
+                          {item.teamLogo ? (
+                            <Image
+                              src={item.teamLogo}
+                              alt="team logo"
+                              width={64}
+                              height={64}
+                              className="rounded-full object-cover w-full h-full"
+                            />
+                          ) : (
+                            <Image
+                              src={"/NoTeam.png"}
+                              alt="team logo"
+                              width={64}
+                              height={64}
+                              className="rounded-full object-cover w-full h-full"
+                            />
+                          )}
                         </div>
                       </div>
                     </td>

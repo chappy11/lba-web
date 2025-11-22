@@ -1,5 +1,5 @@
 import { axiosConfig } from "../config/config"
-import { Player } from "../dto/Player.model"
+import { InsertPlayerViaBatchUpload, Player } from "../dto/Player.model"
 
 export const createPlayer = async (player: Player) => {
   const resp = await axiosConfig.post("/players", player)
@@ -21,6 +21,23 @@ export const getAllPlayers = async () => {
 
 export const getPlayerById = async (playerId: string) => {
   const resp = await axiosConfig.get(`/players?playerId=${playerId}`)
+
+  return resp.data
+}
+
+export const createPlayerViaBatchUpload = async (
+  players: InsertPlayerViaBatchUpload[]
+) => {
+  const resp = await axiosConfig.post("/players/batch-upload", players)
+
+  return resp.data
+}
+
+export const updatePlayerById = async (
+  playerId: string,
+  player: Omit<Player, "id">
+) => {
+  const resp = await axiosConfig.put(`/players?playerId=${playerId}`, player)
 
   return resp.data
 }

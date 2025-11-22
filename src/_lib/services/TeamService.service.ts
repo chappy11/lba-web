@@ -4,6 +4,7 @@ import db from "../config/firebaseConfig"
 import { Game } from "../dto/Game.model"
 import {
   Team,
+  TeamBatchInsertPayload,
   TeamInsertPayload,
   TeamsStanding,
   UpdateTeam,
@@ -15,6 +16,7 @@ import {
 } from "../type/firebaseType.type"
 import { addCollection, getData } from "../utils/firebase.utils"
 
+import { GameType } from "../enums/GameTypeEnum"
 import { getAllGamesViaLatestSeason } from "./GameService.service"
 import { getMatchesFromThisSeason } from "./MatchSchedule.service"
 import { getActiveSeason } from "./SeasonService.service"
@@ -178,6 +180,38 @@ export const udpateTeamById = async (teamId: string, payload: UpdateTeam) => {
     return true
   } catch (error) {
     throw new Error(`Error updating team: ${error}`)
+  }
+}
+
+export async function createTeamByBatch(payload: TeamBatchInsertPayload[]) {
+  try {
+    const season = await getActiveSeason()
+
+    if (!season) {
+      throw new Error("No active season found")
+    }
+
+    const uploadTeam = payload.map(async (team) => {
+      const payload: TeamInsertPayload = {
+        ...team,
+        coachInfo: {
+          firstname: team.coachInfo.firstname,
+          middlename: team.coachInfo.middlename,
+          lastname: team.coachInfo.lastname,
+        },
+        teamLogo: "",
+        isActive: "1",
+        dateCreate: new Date().toString(),
+        teamType: GameType.BASKETBALL,
+        featurePlayer: null,
+      }
+      return await insertTeam({ ...payload })
+    })
+    const resp = await Promise.all(uploadTeam)
+    return resp
+  } catch (error) {
+    console.log(error)
+    throw new Error("Failed to insert teams by batch")
   }
 }
 

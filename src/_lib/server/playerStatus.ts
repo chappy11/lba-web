@@ -1,5 +1,8 @@
 import { axiosConfig } from "../config/config";
-import { PlayerStatusPayload } from "../dto/TeamScoring.model";
+import {
+  PlayerStatusPayload,
+  PlayerStatusPayloadBulkInsert,
+} from "../dto/TeamScoring.model"
 
 export const createPlayerStatus = async (payload: PlayerStatusPayload) => {
     const response = await axiosConfig.post("/player-status", payload)
@@ -21,3 +24,10 @@ export const getPlayerScoresByPlayerId = async (playerId: string) => {
 
   return response.data
 }
+
+export const insertBulkPlayerStatus = async (
+  payload: PlayerStatusPayloadBulkInsert[]
+) => {
+  const response = await axiosConfig.post("/player-status/bulk-insert", payload)
+  return response.data
+} 

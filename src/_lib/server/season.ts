@@ -21,3 +21,16 @@ export const getCurrentSeason = async() => {
 
     return resp.data;
 }
+
+export const updateSeasonWithMvpApi = async (seasonId: string) => {
+  const resp = await axiosConfig.put(`/season/update-mvp?seasonId=${seasonId}`)
+  return resp.data
+}
+
+export const updateSeasonApi = async (
+  seasonId: string,
+  updates: Partial<SeasonInsertPayload>
+) => {
+  const resp = await axiosConfig.put(`/season?seasonId=${seasonId}`, updates)
+  return resp.data
+}

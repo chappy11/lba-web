@@ -24,4 +24,6 @@ export type PlayerWithTeam = Player & {
   team: Team
 }
 
+export type InsertPlayerViaBatchUpload = Omit<Player, "id" | "playerImage">
+
 export type PlayerResponse = PlayerWithTeam

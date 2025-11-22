@@ -5,7 +5,9 @@ import PlayerCard from "@/components/player-card"
 import { Award, Shield, Star, Users } from "lucide-react"
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react"
+import BatchUploadPlayer from "../players/BatchUploadPlayer"
 import { CreatePlayer } from "../players/CreatePlayer";
+import EditTeam from "./EditTeam"
 
 type Props = {
 	data: Team;
@@ -100,20 +102,33 @@ export const TeamProfile = (
     <div className="flex-1 space-y-6">
       <div className="w-full mx-auto">
         {/* Hero Section */}
-        <div className="bg-gradient-to-br from-purple-500 via-indigo-600 to-purple-700 rounded-2xl shadow-2xl overflow-hidden">
+        <div className="bg-gradient-to-br relative from-purple-500 via-indigo-600 to-purple-700 rounded-2xl shadow-2xl overflow-hidden">
           <div className="p-8">
+            <div className=" absolute top-3 right-3 z-50">
+              <EditTeam team={props.data} />
+            </div>
             <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
               {/* Team Logo */}
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full blur-2xl opacity-50 group-hover:opacity-75 transition-opacity" />
                 <div className="relative p-3 bg-white rounded-full shadow-2xl ring-4 ring-white/50">
-                  <Image
-                    className="rounded-full object-cover"
-                    src={teamLogo}
-                    width={140}
-                    height={140}
-                    alt="Team Logo"
-                  />
+                  {teamLogo ? (
+                    <Image
+                      className="rounded-full object-cover"
+                      src={teamLogo}
+                      width={140}
+                      height={140}
+                      alt="Team Logo"
+                    />
+                  ) : (
+                    <Image
+                      className="rounded-full object-cover"
+                      src={"/NoTeam.png"}
+                      width={140}
+                      height={140}
+                      alt="Team Logo"
+                    />
+                  )}
                 </div>
                 <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center shadow-xl ring-4 ring-white">
                   <Shield className="w-6 h-6 text-white" />
@@ -177,7 +192,10 @@ export const TeamProfile = (
                 </p>
               </div>
             </div>
-            <CreatePlayer teamId={id as string} />
+            <div className=" flex gap-3">
+              <BatchUploadPlayer teamId={id as string} />
+              <CreatePlayer teamId={id as string} />
+            </div>
           </div>
 
           <div className="p-6">
@@ -189,6 +207,7 @@ export const TeamProfile = (
                       player={item}
                       team={props.data}
                       key={item.id as string}
+                      isShowUpdate={true}
                     />
                   )
                 })}
