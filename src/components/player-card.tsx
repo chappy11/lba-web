@@ -1,5 +1,6 @@
 import { Player, PlayerWithTeam } from "@/_lib/dto/Player.model"
 import { Team } from "@/_lib/dto/Team.model"
+import UpdatePlayer from "@/feature/players/UpdatePlayer"
 import UpdateFeaturePlayer from "@/feature/teams/UpdateFeaturePlayer"
 import { THEME } from "@/lib/theme"
 import { User, Users } from "lucide-react"
@@ -9,10 +10,11 @@ import Link from "next/link"
 type Props = {
   player: Player | PlayerWithTeam
   team: Team | undefined
+  isShowUpdate?: boolean
 }
 
 export default function PlayerCard(props: Props) {
-  const { player, team } = props
+  const { player, team, isShowUpdate = false } = props
   const playerWithTeam = player as PlayerWithTeam
 
   const cardContent = (
@@ -99,7 +101,11 @@ export default function PlayerCard(props: Props) {
             <UpdateFeaturePlayer player={player} team={team} />
           </div>
         )}
-
+        {isShowUpdate && (
+          <div className=" flex justify-end">
+            <UpdatePlayer player={player} buttonType={"ghost"} />
+          </div>
+        )}
         {/* Accent Line */}
         <div
           className={`absolute bottom-0 left-0 right-0 h-1 ${THEME.PLAYER.GRADIENT}`}

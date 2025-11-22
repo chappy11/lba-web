@@ -100,7 +100,7 @@ export default function PlayerStatusBatchUpload({ downLoadCsv }: Props) {
           </DialogHeader>
           <div className="grid gap-4">
             <Label>Upload CSV File</Label>
-            <TextInput type="file" onChange={handleFileChange} />
+            <TextInput type="file" accept=".csv" onChange={handleFileChange} />
             <div>
               <Button
                 className=" w-[50%] float-right"

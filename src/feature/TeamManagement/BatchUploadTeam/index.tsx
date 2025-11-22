@@ -1,5 +1,6 @@
 import { TeamBatchInsertPayload } from "@/_lib/dto/Team.model"
 import { uploadTeamBatch } from "@/_lib/server/team"
+import { generateCsvForTeamCreation } from "@/_lib/utils/csv.utils"
 import TextInput from "@/components/textinput"
 import { Button } from "@/components/ui/button"
 import {
@@ -76,6 +77,10 @@ export default function BatchUploadTeam() {
       })
     }
   }
+
+  async function downLoadTeamplate() {
+    await generateCsvForTeamCreation()
+  }
   return (
     <Dialog>
       <form>
@@ -97,6 +102,7 @@ export default function BatchUploadTeam() {
               onChange={(e) => onChangeData(e)}
             />
           </div>
+          <Button onClick={() => downLoadTeamplate()}>Download Template</Button>
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>

@@ -5,6 +5,7 @@ import PlayerCard from "@/components/player-card"
 import { Award, Shield, Star, Users } from "lucide-react"
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react"
+import BatchUploadPlayer from "../players/BatchUploadPlayer"
 import { CreatePlayer } from "../players/CreatePlayer";
 import EditTeam from "./EditTeam"
 
@@ -191,7 +192,10 @@ export const TeamProfile = (
                 </p>
               </div>
             </div>
-            <CreatePlayer teamId={id as string} />
+            <div className=" flex gap-3">
+              <BatchUploadPlayer teamId={id as string} />
+              <CreatePlayer teamId={id as string} />
+            </div>
           </div>
 
           <div className="p-6">
@@ -203,6 +207,7 @@ export const TeamProfile = (
                       player={item}
                       team={props.data}
                       key={item.id as string}
+                      isShowUpdate={true}
                     />
                   )
                 })}

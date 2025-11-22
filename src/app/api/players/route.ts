@@ -4,7 +4,8 @@ import {
   getPlayerById,
   getPlayerTeamId,
   insertPlayer,
-} from "@/_lib/services/PlayerService.service";
+  updatePlayer,
+} from "@/_lib/services/PlayerService.service"
 
 import { NextResponse } from "next/server";
 
@@ -44,5 +45,34 @@ export async function GET(request: Request) {
     return NextResponse.json(allPlayer, { status: 200 });
   } catch (error) {
     return NextResponse.json(error, { status: 500 });
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const playerId = searchParams.get("playerId")
+
+    if (!playerId) {
+      return NextResponse.json(
+        { error: "playerId is required" },
+        { status: 400 }
+      )
+    }
+
+    const body = await request.json()
+
+    await updatePlayer(playerId, body)
+
+    return NextResponse.json(
+      { message: "Player updated successfully" },
+      { status: 200 }
+    )
+  } catch (error) {
+    console.error("Error updating player:", error)
+    return NextResponse.json(
+      { error: "An error occurred while updating the player." },
+      { status: 500 }
+    )
   }
 }

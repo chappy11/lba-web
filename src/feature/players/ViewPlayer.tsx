@@ -8,6 +8,7 @@ import { Calendar, Ruler, TrendingUp, Trophy, User, Weight } from "lucide-react"
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import GetTeamInfo from "./GetTeamInfo";
+import UpdatePlayer from "./UpdatePlayer"
 
 type Props = {
   data: Player
@@ -33,6 +34,11 @@ export default function ViewPlayer(props: Props) {
 
   return (
     <div className="space-y-6">
+      {/* Action Buttons */}
+      <div className="flex justify-end">
+        <UpdatePlayer player={data} />
+      </div>
+
       {/* Hero Section with Player Profile */}
       <div className="bg-gradient-to-br from-red-500 via-orange-500 to-red-600 rounded-2xl shadow-2xl overflow-hidden">
         <div className="p-8">
@@ -204,10 +210,6 @@ export default function ViewPlayer(props: Props) {
                 <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
                   <p className="text-xs text-gray-600 mb-1">Status</p>
                   <p className="text-lg font-bold text-blue-600">Active</p>
-                </div>
-                <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-100">
-                  <p className="text-xs text-gray-600 mb-1">Performance</p>
-                  <p className="text-lg font-bold text-green-600">Elite</p>
                 </div>
               </div>
             </div>
